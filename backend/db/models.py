@@ -667,3 +667,60 @@ class SecurityEvent(Base):
     raw_payload: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     mitigated: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, index=True, nullable=False)
+
+
+# ---------------------------------------------------------------------------
+# PHASE 6: WORKSPACE CONTAINER HOSTING, LEASES & METERING
+# ---------------------------------------------------------------------------
+
+class WorkspaceContainer(Base):
+    __tablename__ = "workspace_containers"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    owner_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    agent_id: Mapped[str] = mapped_column(String(36), ForeignKey("agents.id", ondelete="CASCADE"), nullable=False)
+    resource_tier: Mapped[str] = mapped_column(String(20), default="MEDIUM", nullable=False) # SMALL, MEDIUM, LARGE
+    pricing_mode: Mapped[str] = mapped_column(String(20), default="PER_HOUR", nullable=False) # PER_HOUR, PER_DAY, CUSTOM_FLAT
+    rate_usdc: Mapped[float] = mapped_column(Numeric(12, 4), default=15.00, nullable=False)
+    flat_duration_days: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="RUNNING", nullable=False) # PROVISIONING, RUNNING, STOPPED, FLAGGED, TERMINATED
+    docker_container_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    cpu_usage_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=12.5, nullable=False)
+    ram_usage_mb: Mapped[int] = mapped_column(Integer, default=2048, nullable=False)
+    uptime_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+    owner: Mapped["User"] = relationship("User", lazy="selectin")
+    agent: Mapped["Agent"] = relationship("Agent", lazy="selectin")
+
+
+class WorkspaceLease(Base):
+    __tablename__ = "workspace_leases"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    workspace_id: Mapped[str] = mapped_column(String(36), ForeignKey("workspace_containers.id", ondelete="CASCADE"), nullable=False)
+    renter_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    duration_hours: Mapped[int] = mapped_column(Integer, nullable=False)
+    gross_amount_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    platform_fee_2percent: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    net_owner_payout: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    tx_hash: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="ACTIVE", nullable=False) # ACTIVE, COMPLETED, REFUNDED
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class WorkspaceUsageRecord(Base):
+    __tablename__ = "workspace_usage_records"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    workspace_id: Mapped[str] = mapped_column(String(36), ForeignKey("workspace_containers.id", ondelete="CASCADE"), nullable=False)
+    owner_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    billing_period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    billing_period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    elapsed_seconds: Mapped[int] = mapped_column(Integer, nullable=False)
+    pricing_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    billed_amount_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    platform_fee_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
