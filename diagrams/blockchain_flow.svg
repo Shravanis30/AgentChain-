@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#EA580C" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">8. Blockchain Transaction Flow - Web3 Trust &amp; Settlement</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">Lifecycle of SIWE authentication, ERC-725 DID, escrow deposits, Proof-of-Execution, payout splits, and DAO governance</text>
+
+  <!-- STEP CONTAINERS -->
+  <!-- Step 1: SIWE Auth -->
+  <g transform="translate(80, 220)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#1E40AF"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">1. Web3 SIWE Wallet Auth &amp; Session Key</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• EIP-4361 Sign-In With Ethereum (MetaMask / WalletConnect)</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• Client signs cryptographic challenge nonce</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• Gateway validates signature &amp; issues JWT session token</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Session keys allow gasless sub-task signatures</text>
+  </g>
+
+  <!-- Step 2: Agent Identity -->
+  <g transform="translate(860, 220)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#7C3AED"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">2. Sovereign Agent DID &amp; NFT Ownership</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• ERC-725 Decentralized Identifier (DID) resolution</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• ERC-721 / ERC-1155 Agent Ownership NFT check</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• Verifies developer staking collateral in contract</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Retrieves published capability metadata from IPFS</text>
+  </g>
+
+  <!-- Step 3: Escrow Lock -->
+  <g transform="translate(1640, 220)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#C2410C"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">3. Escrow Smart Contract Lock</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• User approves USDC / Native Token deposit</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• Escrow contract locks funds for active DAG task ID</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• SLA parameters &amp; execution deadline encoded</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Event `TaskEscrowLocked(taskId, amount, sla)` emitted</text>
+  </g>
+
+  <!-- Step 4: Off-Chain PoE -->
+  <g transform="translate(80, 680)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#0D9488"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">4. Off-Chain Execution &amp; PoE Attestation</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• Swarm agents execute off-chain task steps</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• Generates cryptographic Proof-of-Execution (PoE) hash</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• Execution log snapshot uploaded to IPFS / Arweave</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Verifier nodes sign Merkle root receipt</text>
+  </g>
+
+  <!-- Step 5: Settlement & Payout -->
+  <g transform="translate(860, 680)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#166534"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">5. Escrow Release &amp; Revenue Splits</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• Smart contract validates PoE signature on Polygon L2</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• Automated revenue split: Developer (85%), Stakers (10%), DAO Vault (5%)</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• Instant non-custodial wallet transfer in USDC</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Event `PaymentSettled(taskId, devPayout, daoSplit)`</text>
+  </g>
+
+  <!-- Step 6: Reputation & DAO -->
+  <g transform="translate(1640, 680)">
+    <rect x="0" y="0" width="680" height="380" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="640" height="50" rx="10" fill="#6B21A8"/>
+    <text x="340" y="52" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">6. Reputation Score &amp; DAO Governance</text>
+    <text x="40" y="110" font-size="15" fill="#475569">• EigenTrust reputation matrix updated on-chain</text>
+    <text x="40" y="140" font-size="15" fill="#475569">• User review &amp; SLA compliance score updated</text>
+    <text x="40" y="170" font-size="15" fill="#475569">• DAO token stakers cast governance votes on Snapshot</text>
+    <text x="40" y="200" font-size="15" fill="#475569">• Immutable transaction receipt committed on Polygon</text>
+  </g>
+
+  <!-- FLOW ARROWS -->
+  <path d="M 760, 410 L 860, 410" stroke="#EA580C" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M 1540, 410 L 1640, 410" stroke="#EA580C" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M 1980, 600 L 1980, 680" stroke="#EA580C" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M 1640, 870 L 1540, 870" stroke="#EA580C" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M 860, 870 L 760, 870" stroke="#EA580C" stroke-width="4" marker-end="url(#arrow)"/>
+</svg>

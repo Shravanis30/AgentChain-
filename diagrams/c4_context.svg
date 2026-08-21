@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="sysGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <linearGradient id="extGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E8FF"/>
+      <stop offset="100%" stop-color="#E9D5FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563EB" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">1. C4 Context Diagram - AgentChain Platform</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">High-level system boundary, user roles, external LLM mesh, blockchain trust, and storage services</text>
+
+  <!-- CORE SYSTEM BOUNDARY -->
+  <rect x="680" y="240" width="1040" height="1120" rx="20" fill="url(#sysGrad)" stroke="#3B82F6" stroke-width="3" stroke-dasharray="8,6" filter="url(#shadow)"/>
+  <text x="1200" y="290" font-size="24" font-weight="800" fill="#1E3A8A" text-anchor="middle">SYSTEM BOUNDARY: AGENTCHAIN PLATFORM</text>
+
+  <!-- Core System Container -->
+  <rect x="740" y="340" width="920" height="980" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1200" y="400" font-size="26" font-weight="800" fill="#0F172A" text-anchor="middle">⚡ AgentChain Core Platform</text>
+  <text x="1200" y="435" font-size="16" fill="#475569" text-anchor="middle">Decentralized Autonomous AI Workforce &amp; Multi-Agent Orchestration Platform</text>
+
+  <!-- Sub-components inside Core System -->
+  <g transform="translate(780, 480)">
+    <rect x="0" y="0" width="400" height="180" rx="12" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+    <text x="200" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🌐 Web &amp; Mobile Portals</text>
+    <text x="200" y="80" font-size="14" fill="#475569" text-anchor="middle">Next.js SPA / React Native App</text>
+    <text x="200" y="110" font-size="13" fill="#64748B" text-anchor="middle">Web2 OAuth &amp; Web3 SIWE Wallet Login</text>
+
+    <rect x="440" y="0" width="400" height="180" rx="12" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+    <text x="640" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🚪 API Gateway Mesh</text>
+    <text x="640" y="80" font-size="14" fill="#475569" text-anchor="middle">Envoy / OAuth2 / Rate Limiter</text>
+    <text x="640" y="110" font-size="13" fill="#64748B" text-anchor="middle">gRPC &amp; REST Request Multiplexing</text>
+
+    <rect x="0" y="210" width="840" height="240" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="420" y="255" font-size="22" font-weight="700" fill="#5B21B6" text-anchor="middle">🧠 Core Orchestrator &amp; Swarm Engine</text>
+    <text x="420" y="290" font-size="15" fill="#475569" text-anchor="middle">Task Analyzer, DAG Planner, Agent Selector, Context Manager &amp; A2A Protocol</text>
+    <text x="420" y="325" font-size="14" fill="#64748B" text-anchor="middle">Specialized Agents: Research, Coding, Finance, Legal, DevOps, Security, Vision, Voice</text>
+
+    <rect x="0" y="480" width="400" height="180" rx="12" fill="#FAF5FF" stroke="#9333EA" stroke-width="1.5"/>
+    <text x="200" y="525" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">💾 Memory &amp; RAG Vector Store</text>
+    <text x="200" y="560" font-size="14" fill="#475569" text-anchor="middle">Qdrant Vector DB &amp; Knowledge Graph</text>
+    <text x="200" y="590" font-size="13" fill="#64748B" text-anchor="middle">Semantic Search &amp; Long-Term Recall</text>
+
+    <rect x="440" y="480" width="400" height="180" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="640" y="525" font-size="20" font-weight="700" fill="#C2410C" text-anchor="middle">📜 Smart Contracts &amp; Trust</text>
+    <text x="640" y="560" font-size="14" fill="#475569" text-anchor="middle">Solidity Contracts on Polygon L2</text>
+    <text x="640" y="590" font-size="13" fill="#64748B" text-anchor="middle">Escrow, Reputation &amp; Revenue Splits</text>
+  </g>
+
+  <!-- USERS / ACTORS (LEFT) -->
+  <g transform="translate(80, 400)">
+    <rect x="0" y="0" width="480" height="220" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+    <text x="240" y="50" font-size="22" font-weight="700" fill="#1E40AF" text-anchor="middle">👤 Enterprise &amp; End Users</text>
+    <text x="240" y="90" font-size="15" fill="#475569" text-anchor="middle">Submits complex multi-agent tasks,</text>
+    <text x="240" y="120" font-size="15" fill="#475569" text-anchor="middle">hires AI agent swarms, monitors work,</text>
+    <text x="240" y="150" font-size="15" fill="#475569" text-anchor="middle">and settles payments via crypto/card.</text>
+
+    <rect x="0" y="320" width="480" height="220" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <text x="240" y="370" font-size="22" font-weight="700" fill="#5B21B6" text-anchor="middle">👨‍💻 Agent Developers</text>
+    <text x="240" y="410" font-size="15" fill="#475569" text-anchor="middle">Builds, validates &amp; publishes custom</text>
+    <text x="240" y="440" font-size="15" fill="#475569" text-anchor="middle">AI agents using AgentChain SDKs,</text>
+    <text x="240" y="470" font-size="15" fill="#475569" text-anchor="middle">earning on-chain royalty revenues.</text>
+  </g>
+
+  <!-- EXTERNAL SYSTEMS (RIGHT) -->
+  <g transform="translate(1840, 300)">
+    <rect x="0" y="0" width="480" height="200" rx="16" fill="url(#extGrad)" stroke="#A855F7" stroke-width="2" filter="url(#shadow)"/>
+    <text x="240" y="45" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">🤖 External LLM Mesh</text>
+    <text x="240" y="80" font-size="14" fill="#475569" text-anchor="middle">OpenAI (GPT-4o), Anthropic (Claude 3.5),</text>
+    <text x="240" y="110" font-size="14" fill="#475569" text-anchor="middle">Google (Gemini), Meta (Llama 3), DeepSeek</text>
+
+    <rect x="0" y="240" width="480" height="200" rx="16" fill="url(#extGrad)" stroke="#A855F7" stroke-width="2" filter="url(#shadow)"/>
+    <text x="240" y="285" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">🔗 Web3 Blockchains</text>
+    <text x="240" y="320" font-size="14" fill="#475569" text-anchor="middle">Ethereum Mainnet &amp; Polygon L2</text>
+    <text x="240" y="350" font-size="14" fill="#475569" text-anchor="middle">Decentralized Trust, DIDs &amp; Escrow</text>
+
+    <rect x="0" y="480" width="480" height="200" rx="16" fill="url(#extGrad)" stroke="#A855F7" stroke-width="2" filter="url(#shadow)"/>
+    <text x="240" y="525" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">📦 Storage &amp; IPFS Mesh</text>
+    <text x="240" y="560" font-size="14" fill="#475569" text-anchor="middle">IPFS, Arweave &amp; AWS S3 Storage</text>
+    <text x="240" y="590" font-size="14" fill="#475569" text-anchor="middle">Immutable Agent Weights &amp; Artifacts</text>
+  </g>
+
+  <!-- ARROWS & CONNECTIONS -->
+  <path d="M 560, 510 L 740, 510" stroke="#2563EB" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 560, 830 L 740, 830" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <path d="M 1660, 570 L 1840, 400" stroke="#A855F7" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1660, 960 L 1840, 640" stroke="#A855F7" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1660, 1020 L 1840, 880" stroke="#A855F7" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>

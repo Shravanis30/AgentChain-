@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#326CE5" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">10. Kubernetes Deployment Architecture - Production K8s Cluster Topology</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">Ingress Controllers, Pod Autoscaling (HPA/KEDA), Agent Workload Deployments, StatefulSets &amp; Monitoring Operators</text>
+
+  <!-- KUBERNETES CLUSTER BOUNDARY -->
+  <rect x="60" y="180" width="2280" height="1360" rx="20" fill="#F0F7FF" stroke="#326CE5" stroke-width="3" filter="url(#shadow)"/>
+  <text x="1200" y="230" font-size="24" font-weight="800" fill="#1B49A6" text-anchor="middle">☸️ KUBERNETES CLUSTER TOPOLOGY (EKS / AKS v1.30)</text>
+
+  <!-- NAMESPACE 1: INGRESS & GATEWAY -->
+  <rect x="100" y="270" width="680" height="1220" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="120" y="290" width="640" height="44" rx="8" fill="#326CE5"/>
+  <text x="440" y="320" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">Namespace: `agentchain-gateway`</text>
+
+  <g transform="translate(130, 360)">
+    <!-- Ingress Controller -->
+    <rect x="0" y="0" width="620" height="240" rx="12" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+    <text x="310" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🚪 NGINX Ingress Controller Pods</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Replicas: 4 (Multi-AZ Deployment)</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Cert-Manager TLS Termination (Let's Encrypt)</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• External Network Load Balancer (NLB) Binding</text>
+
+    <!-- API Gateway Deployment -->
+    <rect x="0" y="270" width="620" height="260" rx="12" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>
+    <text x="310" y="315" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">⚡ API Gateway Deployment</text>
+    <text x="40" y="360" font-size="15" fill="#475569">• Deployment: `api-gateway-deploy`</text>
+    <text x="40" y="390" font-size="15" fill="#475569">• HPA Metric: CPU @ 70% (Min 3 / Max 20 pods)</text>
+    <text x="40" y="420" font-size="15" fill="#475569">• Envoy Sidecar Container for Service Mesh</text>
+    <text x="40" y="450" font-size="15" fill="#475569">• Secrets: AWS Secrets Manager / Vault Operator</text>
+
+    <!-- Core Orchestrator Deployment -->
+    <rect x="0" y="560" width="620" height="260" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="310" y="605" font-size="20" font-weight="700" fill="#5B21B6" text-anchor="middle">⚙️ Orchestrator Deployment</text>
+    <text x="40" y="650" font-size="15" fill="#475569">• Deployment: `orchestrator-engine-deploy`</text>
+    <text x="40" y="680" font-size="15" fill="#475569">• Temporal.io Worker Pods</text>
+    <text x="40" y="710" font-size="15" fill="#475569">• KEDA Triggers: Kafka Queue Depth &gt; 100</text>
+  </g>
+
+  <!-- NAMESPACE 2: AGENT WORKLOADS -->
+  <rect x="820" y="270" width="740" height="1220" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="840" y="290" width="700" height="44" rx="8" fill="#4F46E5"/>
+  <text x="1190" y="320" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">Namespace: `agentchain-workers`</text>
+
+  <g transform="translate(850, 360)">
+    <!-- WASM Sandbox Worker Deployment -->
+    <rect x="0" y="0" width="680" height="340" rx="12" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="340" y="45" font-size="20" font-weight="700" fill="#3730A3" text-anchor="middle">🐝 WASM Agent Worker Pods</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Dynamic Pod Provisioner (Wasmtime / WasmEdge)</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• NetworkPolicies: Strict egress isolation per agent pod</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• ResourceLimits: CPU: 2, Memory: 4Gi</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• PodDisruptionBudget: MinAvailable = 80%</text>
+
+    <!-- Specialized Agent Pods Grid -->
+    <rect x="0" y="370" width="680" height="450" rx="12" fill="#FAF5FF" stroke="#9333EA" stroke-width="1.5"/>
+    <text x="340" y="415" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">🤖 Specialized Agent Deployments</text>
+    <text x="40" y="460" font-size="15" fill="#475569">• `research-agent-deploy` (Node Selector: CPU Optimized)</text>
+    <text x="40" y="490" font-size="15" fill="#475569">• `coding-agent-deploy` (Node Selector: High Memory)</text>
+    <text x="40" y="520" font-size="15" fill="#475569">• `vision-agent-deploy` (Node Selector: GPU A10G)</text>
+    <text x="40" y="550" font-size="15" fill="#475569">• `voice-agent-deploy` (Node Selector: Low Latency Audio)</text>
+  </g>
+
+  <!-- NAMESPACE 3: DATA STATEFULSETS & OPERATORS -->
+  <rect x="1580" y="270" width="720" height="1220" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="1600" y="290" width="680" height="44" rx="8" fill="#1E1B4B"/>
+  <text x="1940" y="320" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">Namespace: `agentchain-data-system`</text>
+
+  <g transform="translate(1610, 360)">
+    <!-- Qdrant StatefulSet -->
+    <rect x="0" y="0" width="660" height="260" rx="12" fill="#FAF5FF" stroke="#9333EA" stroke-width="1.5"/>
+    <text x="330" y="45" font-size="20" font-weight="700" fill="#6B21A8" text-anchor="middle">🗄️ Qdrant Vector StatefulSet</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Replicas: 3 (`qdrant-0`, `qdrant-1`, `qdrant-2`)</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• VolumeClaimTemplates: 1Ti EBS io2 SSD per pod</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Headless Service: `qdrant-headless-svc`</text>
+
+    <!-- Kafka StatefulSet -->
+    <rect x="0" y="290" width="660" height="260" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text x="330" y="335" font-size="20" font-weight="700" fill="#C2410C" text-anchor="middle">🟢 Apache Kafka StatefulSet</text>
+    <text x="40" y="380" font-size="15" fill="#475569">• Strimzi Kafka Operator managed cluster</text>
+    <text x="40" y="410" font-size="15" fill="#475569">• Replicas: 3 Brokers + KRaft Controller</text>
+    <text x="40" y="440" font-size="15" fill="#475569">• Persistent Volume Claim: 500Gi per broker</text>
+
+    <!-- Monitoring Operators -->
+    <rect x="0" y="580" width="660" height="260" rx="12" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.5"/>
+    <text x="330" y="625" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">📊 Prometheus &amp; Grafana Operator</text>
+    <text x="40" y="670" font-size="15" fill="#475569">• Prometheus CRDs: `ServiceMonitor` &amp; `PodMonitor`</text>
+    <text x="40" y="700" font-size="15" fill="#475569">• Grafana Dashboards for Pod CPU/Mem &amp; TPS</text>
+    <text x="40" y="730" font-size="15" fill="#475569">• Jaeger Distributed Tracing Collector Pods</text>
+  </g>
+</svg>

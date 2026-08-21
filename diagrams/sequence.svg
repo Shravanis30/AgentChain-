@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563EB" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">5. Sequence Diagram - End-to-End Task Execution Flow</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">UML Sequence trace across User Client, Gateway, Orchestrator, Swarm, Vector DB, LLMs, and Blockchain</text>
+
+  <!-- LIFELINES HEADERS -->
+  <g transform="translate(60, 180)">
+    <!-- Lifeline 1: User -->
+    <rect x="0" y="0" width="280" height="70" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="140" y="42" font-size="18" font-weight="700" fill="#1E40AF" text-anchor="middle">👤 User Client</text>
+
+    <!-- Lifeline 2: API Gateway -->
+    <rect x="340" y="0" width="280" height="70" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="2"/>
+    <text x="480" y="42" font-size="18" font-weight="700" fill="#0369A1" text-anchor="middle">🚪 API Gateway</text>
+
+    <!-- Lifeline 3: Orchestrator -->
+    <rect x="680" y="0" width="300" height="70" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="2"/>
+    <text x="830" y="42" font-size="18" font-weight="700" fill="#5B21B6" text-anchor="middle">⚙️ Core Orchestrator</text>
+
+    <!-- Lifeline 4: Swarm Agents -->
+    <rect x="1040" y="0" width="300" height="70" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+    <text x="1190" y="42" font-size="18" font-weight="700" fill="#3730A3" text-anchor="middle">🐝 Swarm Agents</text>
+
+    <!-- Lifeline 5: Vector DB -->
+    <rect x="1400" y="0" width="280" height="70" rx="10" fill="#FAF5FF" stroke="#9333EA" stroke-width="2"/>
+    <text x="1540" y="42" font-size="18" font-weight="700" fill="#6B21A8" text-anchor="middle">🗄️ Vector DB (RAG)</text>
+
+    <!-- Lifeline 6: LLM Mesh -->
+    <rect x="1720" y="0" width="280" height="70" rx="10" fill="#F0FDFA" stroke="#0D9488" stroke-width="2"/>
+    <text x="1860" y="42" font-size="18" font-weight="700" fill="#0F766E" text-anchor="middle">🤖 Dynamic LLM Router</text>
+
+    <!-- Lifeline 7: Smart Contract -->
+    <rect x="2040" y="0" width="280" height="70" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="2"/>
+    <text x="2180" y="42" font-size="18" font-weight="700" fill="#9A3412" text-anchor="middle">📜 Smart Contract</text>
+  </g>
+
+  <!-- LIFELINES DASHED LINES -->
+  <path d="M 200, 250 L 200, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 540, 250 L 540, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 890, 250 L 890, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 1250, 250 L 1250, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 1600, 250 L 1600, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 1920, 250 L 1920, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 2240, 250 L 2240, 1540" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+
+  <!-- MESSAGES TRACE -->
+  <!-- Step 1 -->
+  <path d="M 200, 300 L 540, 300" stroke="#2563EB" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="370" y="290" font-size="14" font-weight="700" fill="#1E40AF" text-anchor="middle">1. Submit Task Request (HTTPS/REST)</text>
+
+  <!-- Step 2 -->
+  <path d="M 540, 380 L 890, 380" stroke="#0284C7" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="715" y="370" font-size="14" font-weight="700" fill="#0369A1" text-anchor="middle">2. Validate SIWE Auth &amp; Route Task (gRPC)</text>
+
+  <!-- Step 3 & 4 -->
+  <rect x="860" y="430" width="60" height="90" fill="#F5F3FF" stroke="#7C3AED" stroke-width="2"/>
+  <text x="940" y="465" font-size="14" font-weight="700" fill="#5B21B6">3 &amp; 4. Analyze Intent &amp; Build DAG Task Graph</text>
+
+  <!-- Step 5 -->
+  <path d="M 890, 560 L 1250, 560" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1070" y="550" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">5. Assign &amp; Dispatch Swarm Agents (A2A Bus)</text>
+
+  <!-- Step 6 -->
+  <rect x="1220" y="600" width="60" height="80" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="1300" y="640" font-size="14" font-weight="700" fill="#3730A3">6. Autonomous P2P Agent Handoff &amp; Collaboration</text>
+
+  <!-- Step 7 -->
+  <path d="M 1250, 720 L 1600, 720" stroke="#9333EA" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1425" y="710" font-size="14" font-weight="700" fill="#6B21A8" text-anchor="middle">7. Query Vector Store (RAG Hybrid Search)</text>
+
+  <path d="M 1600, 790 L 1250, 790" stroke="#9333EA" stroke-width="3" stroke-dasharray="6,4"/>
+  <text x="1425" y="780" font-size="14" font-weight="600" fill="#6B21A8" text-anchor="middle">Return Relevant Context &amp; Knowledge Embeddings</text>
+
+  <!-- Step 8 -->
+  <path d="M 1250, 870 L 1920, 870" stroke="#0D9488" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1585" y="860" font-size="14" font-weight="700" fill="#0F766E" text-anchor="middle">8. Route Prompt &amp; Context for Dynamic LLM Inference</text>
+
+  <path d="M 1920, 940 L 1250, 940" stroke="#0D9488" stroke-width="3" stroke-dasharray="6,4"/>
+  <text x="1585" y="930" font-size="14" font-weight="600" fill="#0F766E" text-anchor="middle">Return Generated Responses (GPT-4o / Claude / Gemini / DeepSeek)</text>
+
+  <!-- Step 9 -->
+  <path d="M 1250, 1020 L 890, 1020" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1070" y="1010" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">9. Return Swarm Outputs to Result Aggregator</text>
+
+  <!-- Step 10 -->
+  <path d="M 890, 1100 L 2240, 1100" stroke="#C2410C" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1565" y="1090" font-size="14" font-weight="700" fill="#9A3412" text-anchor="middle">10. Submit Cryptographic Execution Proof (Proof-of-Task)</text>
+
+  <!-- Step 11 -->
+  <rect x="2210" y="1150" width="60" height="70" fill="#FFF7ED" stroke="#C2410C" stroke-width="2"/>
+  <text x="2020" y="1190" font-size="14" font-weight="700" fill="#9A3412">11. Release Escrow Payouts &amp; Update On-Chain Reputation</text>
+
+  <!-- Step 12 -->
+  <path d="M 890, 1280 L 200, 1280" stroke="#059669" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="545" y="1270" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">12. Deliver Streamed Final Response &amp; Deliverables to User</text>
+</svg>

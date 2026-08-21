@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563EB" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">7. Microservice Architecture Diagram - Service Mesh &amp; Event Bus</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">Decoupled microservices, Envoy sidecars, gRPC interfaces, Kafka event topics, and cache topologies</text>
+
+  <!-- SERVICE MESH BOUNDARY -->
+  <rect x="60" y="180" width="2280" height="1360" rx="20" fill="#F8FAFC" stroke="#3B82F6" stroke-width="2" stroke-dasharray="8,6" filter="url(#shadow)"/>
+  <text x="1200" y="225" font-size="22" font-weight="800" fill="#1E40AF" text-anchor="middle">SERVICE MESH: ISTIO / ENVOY SIDECAR INFRASTRUCTURE</text>
+
+  <!-- CENTRAL EVENT BUS -->
+  <rect x="100" y="820" width="2200" height="160" rx="16" fill="#1E1B4B" filter="url(#shadow)"/>
+  <text x="1200" y="870" font-size="26" font-weight="800" fill="#FFFFFF" text-anchor="middle">⚡ APACHE KAFKA HIGH-THROUGHPUT EVENT STREAMING BUS</text>
+  <text x="1200" y="910" font-size="16" fill="#A5B4FC" text-anchor="middle">Topics: task.submitted • swarm.a2a.messages • memory.rag.events • execution.proofs • payment.settlements</text>
+
+  <!-- TOP ROW OF MICROSERVICES -->
+  <!-- Service 1: Auth & Gateway -->
+  <g transform="translate(100, 280)">
+    <rect x="0" y="0" width="480" height="480" rx="16" fill="#FFFFFF" stroke="#0284C7" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#0284C7"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">🚪 Auth &amp; Gateway Service</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Envoy Proxy Sidecar</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• OAuth2 &amp; SIWE Wallet Verification</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Token Bucket Rate Limiter</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: gRPC / HTTP2</text>
+    <rect x="20" y="380" width="440" height="80" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1"/>
+    <text x="240" y="425" font-size="14" font-weight="700" fill="#0369A1" text-anchor="middle">Dep: Redis Session Cache</text>
+  </g>
+
+  <!-- Service 2: Task Orchestrator -->
+  <g transform="translate(680, 280)">
+    <rect x="0" y="0" width="480" height="480" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#7C3AED"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">⚙️ Task Orchestrator Service</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Temporal.io Workflow Worker</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Intent NLU &amp; DAG Builder</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Agent Capability Matcher</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: gRPC / Temporal RPC</text>
+    <rect x="20" y="380" width="440" height="80" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1"/>
+    <text x="240" y="425" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">Dep: PostgreSQL DAG Store</text>
+  </g>
+
+  <!-- Service 3: Agent Swarm Controller -->
+  <g transform="translate(1260, 280)">
+    <rect x="0" y="0" width="480" height="480" rx="16" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#4F46E5"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">🐝 Swarm Agent Controller</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• K8s Pod Lifecycle Dispatcher</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• WASM Agent Sandbox Runtime</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Peer-to-Peer A2A Message Router</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: Kafka Pub/Sub</text>
+    <rect x="20" y="380" width="440" height="80" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1"/>
+    <text x="240" y="425" font-size="14" font-weight="700" fill="#3730A3" text-anchor="middle">Dep: WASM Container Registry</text>
+  </g>
+
+  <!-- Service 4: Memory & RAG Service -->
+  <g transform="translate(1820, 280)">
+    <rect x="0" y="0" width="480" height="480" rx="16" fill="#FFFFFF" stroke="#9333EA" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#9333EA"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">💾 Memory &amp; RAG Service</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• HNSW Vector Query Processor</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Hybrid BM25 + Dense Reranker</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Shared Workspace CRDT Sync</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: gRPC / Vector Wire</text>
+    <rect x="20" y="380" width="440" height="80" rx="10" fill="#FAF5FF" stroke="#9333EA" stroke-width="1"/>
+    <text x="240" y="425" font-size="14" font-weight="700" fill="#6B21A8" text-anchor="middle">Dep: Qdrant Vector Cluster</text>
+  </g>
+
+  <!-- BOTTOM ROW OF MICROSERVICES -->
+  <!-- Service 5: Dynamic LLM Router -->
+  <g transform="translate(380, 1030)">
+    <rect x="0" y="0" width="480" height="460" rx="16" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#0D9488"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">🤖 Dynamic LLM Router</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Multi-Model Gateway Mesh</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Dynamic Cost/Latency Load Balancing</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Automatic Provider Failover</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: OpenRouter REST API</text>
+  </g>
+
+  <!-- Service 6: Web3 Settlement Service -->
+  <g transform="translate(1540, 1030)">
+    <rect x="0" y="0" width="480" height="460" rx="16" fill="#FFFFFF" stroke="#C2410C" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="440" height="60" rx="10" fill="#C2410C"/>
+    <text x="240" y="58" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">📜 Web3 Settlement Service</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Proof-of-Execution Verifier</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Polygon Escrow Contract Relayer</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• On-Chain Reputation Updater</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Protocol: Ethers.js / JSON-RPC</text>
+  </g>
+
+  <!-- CONNECTIONS TO EVENT BUS -->
+  <path d="M 340, 760 L 340, 820" stroke="#0284C7" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 920, 760 L 920, 820" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1500, 760 L 1500, 820" stroke="#4F46E5" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 2060, 760 L 2060, 820" stroke="#9333EA" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <path d="M 620, 980 L 620, 1030" stroke="#0D9488" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1780, 980 L 1780, 1030" stroke="#C2410C" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentChain — Decentralized Autonomous AI Workforce Platform</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="dark-mode">
+
+  <!-- TOP APP BAR -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <h1>AgentChain</h1>
+        <p class="subtitle">Decentralized Autonomous AI Workforce Platform</p>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="nav-links">
+      <button class="nav-btn active" data-tab="workspace">💬 AI Workspace</button>
+      <button class="nav-btn" data-tab="marketplace">🛒 Marketplace</button>
+      <button class="nav-btn" data-tab="studio">🛠️ Agent Studio</button>
+      <button class="nav-btn" data-tab="earnings">💰 Earnings &amp; Ledger</button>
+      <button class="nav-btn" data-tab="admin">⚙️ Admin &amp; Audit</button>
+    </nav>
+
+    <div class="header-actions">
+      <div id="user-auth-badge" class="auth-badge" style="display: none;">
+        <span class="user-avatar" id="badge-avatar">👤</span>
+        <span id="badge-name">User</span>
+        <button class="btn-sm btn-outline" id="btn-logout">Logout</button>
+      </div>
+      <button class="btn btn-primary" id="btn-auth-modal">🦊 Sign In / Connect</button>
+      <button class="btn btn-outline" id="btn-theme-toggle">☀️ Light</button>
+    </div>
+  </header>
+
+  <!-- GLOBAL NOTIFICATION BANNER -->
+  <div id="alert-banner" class="alert-banner" style="display: none;"></div>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: AI WORKSPACE -->
+  <!-- ========================================================================= -->
+  <section class="tab-page active" id="page-workspace">
+    <div class="workspace-layout">
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>Your Swarm Tasks</h3>
+          <button class="btn-sm btn-accent" id="btn-refresh-tasks">⟳ Refresh</button>
+        </div>
+        <div class="project-list" id="user-tasks-list">
+          <div class="empty-hint">No past tasks found. Submit a goal to launch your first swarm!</div>
+        </div>
+
+        <div class="sidebar-header" style="margin-top: 24px;">
+          <h3>Active Fleet Status</h3>
+        </div>
+        <div class="agent-swarm-list">
+          <div class="agent-chip active">🔍 Research Specialist (GPT-4o)</div>
+          <div class="agent-chip active">💻 Fullstack Engineer (Claude 3.5)</div>
+          <div class="agent-chip active">📊 Quant &amp; Finance (GPT-4o)</div>
+          <div class="agent-chip active">🛡️ Cybersecurity Auditor (Gemini 1.5)</div>
+          <div class="agent-chip active">⚙️ DevOps &amp; K8s Architect (Codestral)</div>
+        </div>
+      </aside>
+
+      <!-- Center Content -->
+      <main class="main-content">
+        <div class="task-input-card">
+          <h2>🚀 Launch Autonomous Multi-Agent Swarm</h2>
+          <p class="section-desc">Submit a complex goal. The orchestrator decomposes intent into a topological DAG, selects agents, verifies execution, generates cryptographic proof, and settles escrow.</p>
+
+          <div class="prompt-box">
+            <input type="text" id="task-title" class="input-title" placeholder="Task Title (e.g. 'DeFi Staking Protocol with Security Audit')" value="Enterprise Multi-Agent Goal">
+            <textarea id="task-prompt" placeholder="Describe your goal in detail (e.g. 'Research ERC-4626 tokenized vaults, generate production smart contract code with unit tests, and audit security boundaries')..."></textarea>
+            
+            <div class="prompt-actions">
+              <div class="budget-control">
+                <label>💰 Escrow Budget (USDC):</label>
+                <input type="number" id="task-budget" value="1.00" step="0.5" min="0.1" max="100.0" style="width: 80px;">
+              </div>
+              <button class="btn btn-primary btn-lg" id="btn-run-swarm">🚀 Launch Agent Swarm</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Swarm Execution Stream -->
+        <div class="execution-stream-card" id="execution-card" style="display: none;">
+          <div class="stream-header">
+            <h3>⚡ Autonomous Swarm Execution Trace</h3>
+            <span class="status-tag pulse" id="swarm-status">Executing...</span>
+          </div>
+
+          <div class="proof-bar" id="proof-bar" style="display: none;">
+            <span class="proof-label">🔒 Cryptographic Proof-of-Task Hash:</span>
+            <code id="proof-hash-val">0x...</code>
+          </div>
+
+          <div class="dag-visualizer" id="dag-container">
+            <!-- Dynamically populated DAG nodes -->
+          </div>
+
+          <div class="output-console">
+            <h4>Synthesized Swarm Deliverables</h4>
+            <div class="deliverables-content" id="swarm-output">Initializing swarm worker...</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: AGENT MARKETPLACE -->
+  <!-- ========================================================================= -->
+  <section class="tab-page" id="page-marketplace">
+    <div class="marketplace-header">
+      <div>
+        <h2>Decentralized AI Agent Marketplace</h2>
+        <p>Discover, inspect, and hire verified autonomous AI agents backed by PostgreSQL and Web3 Smart Contracts.</p>
+      </div>
+      <div class="marketplace-controls">
+        <input type="text" id="mkt-search" placeholder="🔍 Search agents by name or capability..." class="search-box">
+        <select id="mkt-category-filter" class="select-box">
+          <option value="">All Categories</option>
+          <option value="research">Research</option>
+          <option value="coding">Coding &amp; Software</option>
+          <option value="finance">Finance &amp; Tokenomics</option>
+          <option value="security">Security &amp; Pentesting</option>
+          <option value="devops">DevOps &amp; Infrastructure</option>
+        </select>
+        <button class="btn btn-outline" id="btn-refresh-marketplace">⟳ Refresh</button>
+      </div>
+    </div>
+
+    <div class="marketplace-grid" id="marketplace-grid">
+      <!-- Dynamically populated from backend database -->
+      <div class="loading-state">Loading published agents from PostgreSQL...</div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: AGENT STUDIO / CREATOR -->
+  <!-- ========================================================================= -->
+  <section class="tab-page" id="page-studio">
+    <div class="studio-container">
+      <div class="studio-header">
+        <h2>🛠️ Agent Studio &amp; Version Manager</h2>
+        <p>Create, configure, validate, and publish autonomous AI agents with strict capability sandboxing.</p>
+      </div>
+
+      <div class="studio-card">
+        <form id="form-create-agent">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Agent Name *</label>
+              <input type="text" id="agent-name" placeholder="e.g. DeFi Yield Optimization Specialist" required>
+            </div>
+            <div class="form-group">
+              <label>Slug (Unique ID) *</label>
+              <input type="text" id="agent-slug" placeholder="e.g. defi-yield-optimizer" required>
+            </div>
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="agent-category" required>
+                <option value="research">Research</option>
+                <option value="coding">Coding</option>
+                <option value="finance" selected>Finance</option>
+                <option value="security">Security</option>
+                <option value="devops">DevOps</option>
+                <option value="legal">Legal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Price per Call (USDC) *</label>
+              <input type="number" id="agent-price" value="0.005" step="0.001" min="0.0001" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label>Agent Description *</label>
+            <textarea id="agent-desc" rows="2" placeholder="Briefly describe what this agent does and its domain expertise..." required></textarea>
+          </div>
+
+          <div class="version-box">
+            <h4>Version 1.0.0 Configuration</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Model Provider</label>
+                <select id="agent-provider">
+                  <option value="openai" selected>OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="google">Google Gemini</option>
+                  <option value="openrouter">OpenRouter</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Model Name</label>
+                <input type="text" id="agent-model" value="gpt-4o" required>
+              </div>
+              <div class="form-group">
+                <label>Temperature (0.0 to 1.0)</label>
+                <input type="number" id="agent-temp" value="0.3" step="0.1" min="0.0" max="1.0">
+              </div>
+              <div class="form-group">
+                <label>Max Output Tokens</label>
+                <input type="number" id="agent-tokens" value="4096" step="512">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label>System Instructions *</label>
+              <textarea id="agent-instructions" rows="4" placeholder="You are an expert specialist in... Deliver structured, secure analysis..." required></textarea>
+            </div>
+
+            <!-- Capability Permissions -->
+            <h4 style="margin-top: 20px;">🛡️ Capability Sandboxing &amp; Tool Permissions</h4>
+            <div class="permission-toggles">
+              <label class="toggle-item">
+                <input type="checkbox" id="perm-network" checked>
+                <span>🌐 Outbound Network Access (Web Scraping &amp; APIs)</span>
+              </label>
+              <label class="toggle-item">
+                <input type="checkbox" id="perm-fs-read" checked>
+                <span>📁 Read Filesystem / Documents</span>
+              </label>
+              <label class="toggle-item">
+                <input type="checkbox" id="perm-fs-write">
+                <span>💾 Write Filesystem Artifacts</span>
+              </label>
+              <label class="toggle-item">
+                <input type="checkbox" id="perm-shell">
+                <span>💻 Execute Terminal / Shell Commands (Requires Admin Review)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="btn-save-agent">💾 Save Agent &amp; Run Security Validation</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Creator's Agent List -->
+      <div class="studio-card" style="margin-top: 24px;">
+        <h3>Your Managed Agents</h3>
+        <div id="my-agents-list" class="my-agents-table-container">
+          <div class="empty-hint">Sign in to manage and publish your agents.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 4: DEVELOPER EARNINGS & FINANCIAL LEDGER -->
+  <!-- ========================================================================= -->
+  <section class="tab-page" id="page-earnings">
+    <div class="earnings-container">
+      <div class="analytics-header">
+        <h2>💰 Developer Earnings &amp; Double-Entry Financial Ledger</h2>
+        <p>Every task execution allocates 85% revenue directly to the agent creator with immutable double-entry ledger accounting.</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card highlight">
+          <h4>Available Developer Earnings</h4>
+          <span class="metric-val" id="ledger-balance">$0.00 USDC</span>
+          <span class="metric-trend">Ready for non-custodial withdrawal</span>
+        </div>
+        <div class="metric-card">
+          <h4>Revenue Split Distribution</h4>
+          <span class="metric-val">85% Dev / 10% Stake / 5% DAO</span>
+          <span class="metric-trend">Configurable on-chain BPS governance</span>
+        </div>
+        <div class="metric-card">
+          <h4>Settlement Security</h4>
+          <span class="metric-val">100% Cryptographic</span>
+          <span class="metric-trend">Verified proof-of-task settlement</span>
+        </div>
+      </div>
+
+      <!-- Withdrawal Request Card -->
+      <div class="studio-card" style="margin-top: 24px;">
+        <h3>💸 Request Non-Custodial Withdrawal</h3>
+        <form id="form-withdrawal" class="form-grid" style="margin-top: 16px;">
+          <div class="form-group">
+            <label>Destination Polygon/Ethereum Wallet Address (0x...) *</label>
+            <input type="text" id="withdraw-wallet" placeholder="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" required>
+          </div>
+          <div class="form-group">
+            <label>Withdrawal Amount (USDC) *</label>
+            <input type="number" id="withdraw-amount" value="1.00" step="0.1" min="0.01" required>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1;">
+            <button type="submit" class="btn btn-primary" id="btn-submit-withdraw">💸 Request Payout</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Ledger Statements Table -->
+      <div class="studio-card" style="margin-top: 24px;">
+        <h3>📜 Recent Double-Entry Ledger Statements</h3>
+        <table class="data-table" id="ledger-entries-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Entry Type</th>
+              <th>Description</th>
+              <th>Amount (USDC)</th>
+              <th>Balance After</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-entries-body">
+            <tr><td colspan="5" class="empty-cell">No ledger entries recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 5: ADMIN CONSOLE & AUDIT TRAIL -->
+  <!-- ========================================================================= -->
+  <section class="tab-page" id="page-admin">
+    <div class="earnings-container">
+      <div class="analytics-header">
+        <h2>⚙️ Platform Administration, Governance &amp; Security</h2>
+        <p>Inspect immutable audit logs, arbitrate disputes, review agent validation scans, and monitor system health.</p>
+      </div>
+
+      <!-- Admin Pending Moderation Queue -->
+      <div class="studio-card">
+        <h3>🛡️ Agents Awaiting Review &amp; Moderation</h3>
+        <div id="admin-pending-agents">
+          <div class="empty-hint">Loading pending agents queue...</div>
+        </div>
+      </div>
+
+      <!-- Security Events Stream -->
+      <div class="studio-card" style="margin-top: 24px;">
+        <h3>🚨 Real-Time Security Events (Mitigated)</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event Type</th>
+              <th>Severity</th>
+              <th>Mitigated</th>
+              <th>Payload Details</th>
+            </tr>
+          </thead>
+          <tbody id="admin-sec-events-body">
+            <tr><td colspan="5" class="empty-cell">No security incidents detected. System secure.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Immutable Audit Log Trail -->
+      <div class="studio-card" style="margin-top: 24px;">
+        <h3>📋 Immutable System Audit Trail</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Actor ID</th>
+              <th>Action</th>
+              <th>Resource Type</th>
+              <th>Resource ID</th>
+            </tr>
+          </thead>
+          <tbody id="admin-audit-logs-body">
+            <tr><td colspan="5" class="empty-cell">Loading audit logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- AUTH MODAL: SIWE & PASSWORD -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="auth-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔐 Sign In to AgentChain</h3>
+        <button class="btn-close" id="btn-close-auth-modal">✕</button>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tab-auth-siwe">🦊 Web3 SIWE</button>
+        <button class="auth-tab-btn" id="tab-auth-pwd">📧 Email / Password</button>
+      </div>
+
+      <!-- SIWE Panel -->
+      <div class="auth-panel active" id="panel-siwe">
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+          Connect your non-custodial Ethereum/Polygon wallet and sign an EIP-4361 cryptographic challenge.
+        </p>
+        <button class="btn btn-primary btn-block btn-lg" id="btn-siwe-login">🦊 Connect &amp; Sign In with Ethereum</button>
+      </div>
+
+      <!-- Password Panel -->
+      <div class="auth-panel" id="panel-password" style="display: none;">
+        <form id="form-pwd-auth">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="auth-email" placeholder="you@domain.com" required>
+          </div>
+          <div class="form-group" style="margin-top: 12px;">
+            <label>Password</label>
+            <input type="password" id="auth-password" placeholder="••••••••" required>
+          </div>
+          <div class="form-group" id="auth-name-group" style="margin-top: 12px; display: none;">
+            <label>Full Name</label>
+            <input type="text" id="auth-name" placeholder="Alice Developer">
+          </div>
+          <div class="form-actions" style="margin-top: 16px;">
+            <button type="submit" class="btn btn-primary btn-block" id="btn-pwd-submit">Sign In</button>
+          </div>
+          <div style="text-align: center; margin-top: 12px; font-size: 13px;">
+            <a href="#" id="toggle-auth-mode" style="color: var(--brand-teal);">Need an account? Register here</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

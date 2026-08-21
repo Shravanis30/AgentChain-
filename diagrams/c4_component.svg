@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7C3AED" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">3. C4 Component Diagram - Core Orchestration Engine</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">Internal software components inside the Core Orchestration Engine microservice</text>
+
+  <!-- CONTAINER BOUNDARY -->
+  <rect x="60" y="180" width="2280" height="1360" rx="20" fill="#F5F3FF" stroke="#7C3AED" stroke-width="3" filter="url(#shadow)"/>
+  <text x="1200" y="230" font-size="24" font-weight="800" fill="#5B21B6" text-anchor="middle">CONTAINER: CORE ORCHESTRATION ENGINE</text>
+
+  <!-- GRID OF COMPONENTS -->
+  <!-- Component 1: Task Analyzer -->
+  <rect x="120" y="280" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="370" y="325" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">🧠 Task Analyzer</text>
+  <text x="370" y="360" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Go / DSPy NLU]</text>
+  <text x="370" y="400" font-size="14" fill="#475569" text-anchor="middle">Parses user goals, extracts domain intent,</text>
+  <text x="370" y="430" font-size="14" fill="#475569" text-anchor="middle">identifies constraints &amp; SLA bounds.</text>
+
+  <!-- Component 2: Task Planner -->
+  <rect x="660" y="280" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="910" y="325" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">📋 Task Planner</text>
+  <text x="910" y="360" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Planning Engine]</text>
+  <text x="910" y="400" font-size="14" fill="#475569" text-anchor="middle">Generates autonomous execution strategies</text>
+  <text x="910" y="430" font-size="14" fill="#475569" text-anchor="middle">using hierarchical goal planning.</text>
+
+  <!-- Component 3: Task Decomposer -->
+  <rect x="1200" y="280" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1450" y="325" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">✂️ Task Decomposer</text>
+  <text x="1450" y="360" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: DAG Graph Builder]</text>
+  <text x="1450" y="400" font-size="14" fill="#475569" text-anchor="middle">Decomposes goals into a Directed Acyclic</text>
+  <text x="1450" y="430" font-size="14" fill="#475569" text-anchor="middle">Graph (DAG) of atomic sub-tasks.</text>
+
+  <!-- Component 4: Workflow Engine -->
+  <rect x="1740" y="280" width="540" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="2010" y="325" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">⚙️ Workflow Engine</text>
+  <text x="2010" y="360" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Temporal.io State Machine]</text>
+  <text x="2010" y="400" font-size="14" fill="#475569" text-anchor="middle">Manages fault-tolerant state transitions</text>
+  <text x="2010" y="430" font-size="14" fill="#475569" text-anchor="middle">and task retries across long-running runs.</text>
+
+  <!-- Row 2 -->
+  <!-- Component 5: Agent Selector -->
+  <rect x="120" y="580" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="370" y="625" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">🎯 Agent Selector</text>
+  <text x="370" y="660" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Swarm Matcher]</text>
+  <text x="370" y="700" font-size="14" fill="#475569" text-anchor="middle">Queries capability registry to select</text>
+  <text x="370" y="730" font-size="14" fill="#475569" text-anchor="middle">the best AI agents for each DAG node.</text>
+
+  <!-- Component 6: Context Manager -->
+  <rect x="660" y="580" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="910" y="625" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">📂 Context Manager</text>
+  <text x="910" y="660" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Session Store Engine]</text>
+  <text x="910" y="700" font-size="14" fill="#475569" text-anchor="middle">Maintains global cross-agent session states</text>
+  <text x="910" y="730" font-size="14" fill="#475569" text-anchor="middle">and shared memory synchronization.</text>
+
+  <!-- Component 7: Prompt Optimizer -->
+  <rect x="1200" y="580" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1450" y="625" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">✨ Prompt Optimizer</text>
+  <text x="1450" y="660" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Metaprompting Engine]</text>
+  <text x="1450" y="700" font-size="14" fill="#475569" text-anchor="middle">Refines sub-task system instructions</text>
+  <text x="1450" y="730" font-size="14" fill="#475569" text-anchor="middle">using DSPy for target LLM models.</text>
+
+  <!-- Component 8: Result Aggregator & Guardrails -->
+  <rect x="1740" y="580" width="540" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="2010" y="625" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">🧩 Result Aggregator &amp; Guardrails</text>
+  <text x="2010" y="660" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Verifier &amp; Safety Filter]</text>
+  <text x="2010" y="700" font-size="14" fill="#475569" text-anchor="middle">Synthesizes agent outputs, validates safety,</text>
+  <text x="2010" y="730" font-size="14" fill="#475569" text-anchor="middle">and verifies output against user criteria.</text>
+
+  <!-- Row 3 -->
+  <!-- Component 9: Capability Matcher -->
+  <rect x="390" y="880" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="640" y="925" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">🔍 Capability Matching Matrix</text>
+  <text x="640" y="960" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: SLA &amp; Skill Evaluator]</text>
+  <text x="640" y="1000" font-size="14" fill="#475569" text-anchor="middle">Ranks agents by reputation score, SLA uptime,</text>
+  <text x="640" y="1030" font-size="14" fill="#475569" text-anchor="middle">historical latency &amp; price tier.</text>
+
+  <!-- Component 10: Comm Manager (A2A) -->
+  <rect x="930" y="880" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1180" y="925" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">📡 Inter-Agent Comm Manager</text>
+  <text x="1180" y="960" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: A2A Protocol Router]</text>
+  <text x="1180" y="1000" font-size="14" fill="#475569" text-anchor="middle">Orchestrates peer-to-peer message routing</text>
+  <text x="1180" y="1030" font-size="14" fill="#475569" text-anchor="middle">over Kafka event topics.</text>
+
+  <!-- Component 11: Execution Planner -->
+  <rect x="1470" y="880" width="500" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1720" y="925" font-size="20" font-weight="700" fill="#4C1D95" text-anchor="middle">🗓️ Parallel Execution Scheduler</text>
+  <text x="1720" y="960" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle">[Component: Resource Dispatcher]</text>
+  <text x="1720" y="1000" font-size="14" fill="#475569" text-anchor="middle">Dispatches concurrent DAG branches</text>
+  <text x="1720" y="1030" font-size="14" fill="#475569" text-anchor="middle">across Kubernetes worker pools.</text>
+
+  <!-- CONNECTIONS -->
+  <path d="M 620, 400 L 660, 400" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1160, 400 L 1200, 400" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1700, 400 L 1740, 400" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 370, 520 L 370, 580" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 910, 520 L 910, 580" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1450, 520 L 1450, 580" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>

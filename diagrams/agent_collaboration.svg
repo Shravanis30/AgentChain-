@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6366F1" />
+    </marker>
+  </defs>
+
+  <!-- HEADER -->
+  <rect x="40" y="40" width="2320" height="100" rx="12" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <text x="80" y="95" font-size="32" font-weight="800" fill="#FFFFFF">9. AI Agent Collaboration Flow - Peer-to-Peer Swarm Protocol</text>
+  <text x="80" y="125" font-size="16" fill="#94A3B8">Inter-agent A2A message exchange, sub-task handoffs, shared workspace CRDT sync, and swarm consensus</text>
+
+  <!-- CENTRAL KAFKA A2A EVENT BUS -->
+  <rect x="800" y="200" width="800" height="1200" rx="20" fill="#EEF2FF" stroke="#4F46E5" stroke-width="3" filter="url(#shadow)"/>
+  <text x="1200" y="250" font-size="24" font-weight="800" fill="#312E81" text-anchor="middle">⚡ A2A PROTOCOL EVENT BUS &amp; SHARED CRDT WORKSPACE</text>
+
+  <g transform="translate(840, 290)">
+    <rect x="0" y="0" width="720" height="240" rx="14" fill="#FFFFFF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="360" y="45" font-size="20" font-weight="700" fill="#3730A3" text-anchor="middle">📡 Topic: `swarm.task.broadcast`</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Sub-task DAG Node Broadcast</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Capability Negotiation &amp; Bid Acceptance</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Agent Token Reservation &amp; SLA Commitment</text>
+
+    <rect x="0" y="270" width="720" height="240" rx="14" fill="#FFFFFF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="360" y="315" font-size="20" font-weight="700" fill="#3730A3" text-anchor="middle">🤝 Topic: `swarm.p2p.handoff`</text>
+    <text x="40" y="360" font-size="15" fill="#475569">• Direct Agent-to-Agent Data Handoff</text>
+    <text x="40" y="390" font-size="15" fill="#475569">• Intermediate Artifact &amp; Context Transfer</text>
+    <text x="40" y="420" font-size="15" fill="#475569">• Structured Schema Validation</text>
+
+    <rect x="0" y="540" width="720" height="240" rx="14" fill="#FFFFFF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="360" y="585" font-size="20" font-weight="700" fill="#3730A3" text-anchor="middle">📝 Shared Workspace CRDT Sync</text>
+    <text x="40" y="630" font-size="15" fill="#475569">• Real-Time Multi-Agent Document Editing</text>
+    <text x="40" y="660" font-size="15" fill="#475569">• Conflict-Free Replicated Data Types (Yjs/Automerge)</text>
+    <text x="40" y="690" font-size="15" fill="#475569">• Versioned State Vector History</text>
+
+    <rect x="0" y="810" width="720" height="240" rx="14" fill="#FFFFFF" stroke="#4F46E5" stroke-width="1.5"/>
+    <text x="360" y="855" font-size="20" font-weight="700" fill="#3730A3" text-anchor="middle">🗳️ Topic: `swarm.consensus.vote`</text>
+    <text x="40" y="900" font-size="15" fill="#475569">• Multi-Agent Cross-Verification Voting</text>
+    <text x="40" y="930" font-size="15" fill="#475569">• Majority Consensus for Synthesis Output</text>
+    <text x="40" y="960" font-size="15" fill="#475569">• Exception &amp; Fallback Retry Escalation</text>
+  </g>
+
+  <!-- AGENT NODES (LEFT SIDE) -->
+  <g transform="translate(80, 220)">
+    <!-- Research Agent -->
+    <rect x="0" y="0" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="45" font-size="20" font-weight="700" fill="#1E40AF" text-anchor="middle">🔍 Research Agent</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Scrapes Web &amp; ArXiv Papers</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Extracts Raw Fact Embeddings</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Hands off context to Coding &amp; Finance Agents</text>
+
+    <!-- Coding Agent -->
+    <rect x="0" y="280" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="325" font-size="20" font-weight="700" fill="#1E40AF" text-anchor="middle">💻 Coding Agent</text>
+    <text x="40" y="370" font-size="15" fill="#475569">• Receives research spec &amp; writes code</text>
+    <text x="40" y="400" font-size="15" fill="#475569">• Generates fullstack modules &amp; unit tests</text>
+    <text x="40" y="430" font-size="15" fill="#475569">• Sends code to DevOps &amp; Security Agents</text>
+
+    <!-- Finance Agent -->
+    <rect x="0" y="560" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="605" font-size="20" font-weight="700" fill="#1E40AF" text-anchor="middle">💰 Finance Agent</text>
+    <text x="40" y="650" font-size="15" fill="#475569">• Evaluates cost models &amp; gas budgets</text>
+    <text x="40" y="680" font-size="15" fill="#475569">• Calculates token expenditure projections</text>
+
+    <!-- Legal Agent -->
+    <rect x="0" y="840" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="885" font-size="20" font-weight="700" fill="#1E40AF" text-anchor="middle">⚖️ Legal Agent</text>
+    <text x="40" y="930" font-size="15" fill="#475569">• Audits smart contract compliance</text>
+    <text x="40" y="960" font-size="15" fill="#475569">• Verifies licensing &amp; data privacy</text>
+  </g>
+
+  <!-- AGENT NODES (RIGHT SIDE) -->
+  <g transform="translate(1680, 220)">
+    <!-- DevOps Agent -->
+    <rect x="0" y="0" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="45" font-size="20" font-weight="700" fill="#5B21B6" text-anchor="middle">🚀 DevOps Agent</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Validates K8s manifests &amp; Terraform</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Executes sandbox deployment dry-runs</text>
+
+    <!-- Cybersecurity Agent -->
+    <rect x="0" y="280" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="325" font-size="20" font-weight="700" fill="#5B21B6" text-anchor="middle">🛡️ Cybersecurity Agent</text>
+    <text x="40" y="370" font-size="15" fill="#475569">• Scans code for vulnerability exploits</text>
+    <text x="40" y="400" font-size="15" fill="#475569">• Conducts automated static security audit</text>
+
+    <!-- Vision Agent -->
+    <rect x="0" y="560" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="605" font-size="20" font-weight="700" fill="#5B21B6" text-anchor="middle">👁️ Vision Agent</text>
+    <text x="40" y="650" font-size="15" fill="#475569">• Parses diagram screenshots &amp; UI mockups</text>
+    <text x="40" y="680" font-size="15" fill="#475569">• Extracts structured visual layout JSON</text>
+
+    <!-- Voice Agent -->
+    <rect x="0" y="840" width="640" height="240" rx="16" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+    <text x="320" y="885" font-size="20" font-weight="700" fill="#5B21B6" text-anchor="middle">🎙️ Voice Agent</text>
+    <text x="40" y="930" font-size="15" fill="#475569">• Synthesizes neural speech output</text>
+    <text x="40" y="960" font-size="15" fill="#475569">• Streamed real-time voice responses</text>
+  </g>
+
+  <!-- BI-DIRECTIONAL CONNECTIONS TO BUS -->
+  <path d="M 720, 340 L 800, 340" stroke="#2563EB" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 720, 620 L 800, 620" stroke="#2563EB" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1680, 340 L 1600, 340" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 1680, 620 L 1600, 620" stroke="#7C3AED" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>

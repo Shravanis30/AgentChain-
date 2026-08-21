@@ -1,0 +1,877 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2560" width="3840" height="2560" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="50%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0F9FF"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5F3FF"/>
+      <stop offset="100%" stop-color="#EDE9FE"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EEF2FF"/>
+      <stop offset="100%" stop-color="#E0E7FF"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF5FF"/>
+      <stop offset="100%" stop-color="#F3E8FF"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0FDFA"/>
+      <stop offset="100%" stop-color="#CCFBF1"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF7ED"/>
+      <stop offset="100%" stop-color="#FFEDD5"/>
+    </linearGradient>
+
+    <linearGradient id="layerGrad8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+
+    <linearGradient id="sideGradLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+
+    <linearGradient id="sideGradRight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+
+    <linearGradient id="bottomGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="50%" stop-color="#312E81"/>
+      <stop offset="100%" stop-color="#1E1B4B"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F0F9FF"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FAF5FF"/>
+    </linearGradient>
+
+    <linearGradient id="cardGradIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EEF2FF"/>
+    </linearGradient>
+
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+    
+    <filter id="shadowGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#3B82F6" flood-opacity="0.2"/>
+    </filter>
+
+    <!-- Markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3B82F6" />
+    </marker>
+    <marker id="arrowheadPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#8B5CF6" />
+    </marker>
+    <marker id="arrowheadBi" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6366F1" />
+    </marker>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="3840" height="2560" fill="#FFFFFF"/>
+
+  <!-- GRID BACKGROUND PATTERN -->
+  <g opacity="0.03">
+    <path d="M 0,0 L 3840,0 M 0,80 L 3840,80 M 0,160 L 3840,160 M 0,240 L 3840,240 M 0,320 L 3840,320 M 0,400 L 3840,400 M 0,480 L 3840,480 M 0,560 L 3840,560 M 0,640 L 3840,640 M 0,720 L 3840,720 M 0,800 L 3840,800 M 0,880 L 3840,880 M 0,960 L 3840,960 M 0,1040 L 3840,1040 M 0,1120 L 3840,1120 M 0,1200 L 3840,1200 M 0,1280 L 3840,1280 M 0,1360 L 3840,1360 M 0,1440 L 3840,1440 M 0,1520 L 3840,1520 M 0,1600 L 3840,1600 M 0,1680 L 3840,1680 M 0,1760 L 3840,1760 M 0,1840 L 3840,1840 M 0,1920 L 3840,1920 M 0,2000 L 3840,2000 M 0,2080 L 3840,2080 M 0,2160 L 3840,2160 M 0,2240 L 3840,2240 M 0,2320 L 3840,2320 M 0,2400 L 3840,2400 M 0,2480 L 3840,2480" stroke="#0F172A" stroke-width="1"/>
+    <path d="M 0,0 L 0,2560 M 80,0 L 80,2560 M 160,0 L 160,2560 M 240,0 L 240,2560 M 320,0 L 320,2560 M 400,0 L 400,2560 M 480,0 L 480,2560 M 560,0 L 560,2560 M 640,0 L 640,2560 M 720,0 L 720,2560 M 800,0 L 800,2560 M 880,0 L 880,2560 M 960,0 L 960,2560 M 1040,0 L 1040,2560 M 1120,0 L 1120,2560 M 1200,0 L 1200,2560 M 1280,0 L 1280,2560 M 1360,0 L 1360,2560 M 1440,0 L 1440,2560 M 1520,0 L 1520,2560 M 1600,0 L 1600,2560 M 1680,0 L 1680,2560 M 1760,0 L 1760,2560 M 1840,0 L 1840,2560 M 1920,0 L 1920,2560 M 2000,0 L 2000,2560 M 2080,0 L 2080,2560 M 2160,0 L 2160,2560 M 2240,0 L 2240,2560 M 2320,0 L 2320,2560 M 2400,0 L 2400,2560 M 2480,0 L 2480,2560 M 2560,0 L 2560,2560 M 2640,0 L 2640,2560 M 2720,0 L 2720,2560 M 2800,0 L 2800,2560 M 2880,0 L 2880,2560 M 2960,0 L 2960,2560 M 3040,0 L 3040,2560 M 3120,0 L 3120,2560 M 3200,0 L 3200,2560 M 3280,0 L 3280,2560 M 3360,0 L 3360,2560 M 3440,0 L 3440,2560 M 3520,0 L 3520,2560 M 3600,0 L 3600,2560 M 3680,0 L 3680,2560 M 3760,0 L 3760,2560" stroke="#0F172A" stroke-width="1"/>
+  </g>
+
+  <!-- ==================== HEADER ==================== -->
+  <rect x="60" y="40" width="3720" height="140" rx="16" fill="url(#headerGrad)" filter="url(#shadow)"/>
+  <text x="100" y="100" font-size="38" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">AgentChain: A Decentralized Autonomous AI Workforce Platform</text>
+  <text x="100" y="142" font-size="20" font-weight="400" fill="#94A3B8">Production Cloud-Native &amp; Web3 Multi-Agent Enterprise Reference Architecture</text>
+  
+  <!-- Header Badges -->
+  <g transform="translate(3000, 75)">
+    <rect x="0" y="0" width="160" height="36" rx="18" fill="#1E40AF"/>
+    <text x="80" y="23" font-size="14" font-weight="700" fill="#93C5FD" text-anchor="middle">AZURE / AWS STYLE</text>
+    
+    <rect x="180" y="0" width="140" height="36" rx="18" fill="#3730A3"/>
+    <text x="250" y="23" font-size="14" font-weight="700" fill="#C7D2FE" text-anchor="middle">WEB3 TRUST</text>
+
+    <rect x="340" y="0" width="160" height="36" rx="18" fill="#065F46"/>
+    <text x="420" y="23" font-size="14" font-weight="700" fill="#A7F3D0" text-anchor="middle">IEEE / 4K VECTOR</text>
+  </g>
+
+  <!-- ==================== LEFT PANEL: AI WORKSPACE ==================== -->
+  <rect x="60" y="210" width="560" height="2040" rx="20" fill="url(#sideGradLeft)" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="80" y="230" width="520" height="60" rx="12" fill="#0F172A"/>
+  <text x="340" y="268" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle">LEFT PANEL: AI WORKSPACE</text>
+
+  <!-- Left Panel Cards -->
+  <g transform="translate(90, 310)">
+    <!-- Shared Files -->
+    <rect x="0" y="0" width="500" height="290" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="460" height="40" rx="8" fill="#EFF6FF"/>
+    <text x="40" y="46" font-size="18" font-weight="700" fill="#1E40AF">📁 Shared Files &amp; Workspace</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Distributed IPFS / S3 Workspace Storage</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Collaborative Code &amp; Dataset Artifacts</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Encrypted Multi-Agent Context Vault</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Versioned Document Repositories</text>
+    <text x="40" y="210" font-size="15" fill="#475569">• Fine-grained RBAC File Permissions</text>
+    <text x="40" y="240" font-size="15" fill="#475569">• Zero-Knowledge Confidential Storage</text>
+
+    <!-- Chat & Collaboration -->
+    <rect x="0" y="320" width="500" height="290" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="340" width="460" height="40" rx="8" fill="#F5F3FF"/>
+    <text x="40" y="366" font-size="18" font-weight="700" fill="#5B21B6">💬 Multi-Agent Chat Interface</text>
+    <text x="40" y="410" font-size="15" fill="#475569">• Real-Time Agent-to-Human Streams</text>
+    <text x="40" y="440" font-size="15" fill="#475569">• P2P Agent Dialogue Inspector</text>
+    <text x="40" y="470" font-size="15" fill="#475569">• Human-in-the-Loop Interventions</text>
+    <text x="40" y="500" font-size="15" fill="#475569">• Multi-Modal Speech &amp; Vision Channel</text>
+    <text x="40" y="530" font-size="15" fill="#475569">• Threaded Task Discussion Boards</text>
+    <text x="40" y="560" font-size="15" fill="#475569">• Interactive Tool Execution Approvals</text>
+
+    <!-- Active Projects & Tasks -->
+    <rect x="0" y="640" width="500" height="290" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="660" width="460" height="40" rx="8" fill="#F0FDF4"/>
+    <text x="40" y="686" font-size="18" font-weight="700" fill="#166534">📊 Projects &amp; Task Tracker</text>
+    <text x="40" y="730" font-size="15" fill="#475569">• Autonomous Goal Decomposition Tree</text>
+    <text x="40" y="760" font-size="15" fill="#475569">• Live Sub-Task Milestone Kanban</text>
+    <text x="40" y="790" font-size="15" fill="#475569">• Task Dependency Graph Viz</text>
+    <text x="40" y="820" font-size="15" fill="#475569">• Real-time SLA &amp; Timeout Monitors</text>
+    <text x="40" y="850" font-size="15" fill="#475569">• Automated Retry &amp; Fallback Handlers</text>
+    <text x="40" y="880" font-size="15" fill="#475569">• Task Cost &amp; Token Budget Allocator</text>
+
+    <!-- Notifications & Alerts -->
+    <rect x="0" y="960" width="500" height="290" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="980" width="460" height="40" rx="8" fill="#FFF7ED"/>
+    <text x="40" y="1006" font-size="18" font-weight="700" fill="#C2410C">🔔 System Notifications</text>
+    <text x="40" y="1050" font-size="15" fill="#475569">• Smart Contract Settlement Alerts</text>
+    <text x="40" y="1080" font-size="15" fill="#475569">• Agent Handoff &amp; Verification Events</text>
+    <text x="40" y="1110" font-size="15" fill="#475569">• Budget Threshold &amp; Gas Warnings</text>
+    <text x="40" y="1140" font-size="15" fill="#475569">• Security Anomaly &amp; Audit Logs</text>
+    <text x="40" y="1170" font-size="15" fill="#475569">• Real-Time Webhook Push Triggers</text>
+    <text x="40" y="1200" font-size="15" fill="#475569">• Agent SLA Violation Reports</text>
+
+    <!-- Real-Time Live Monitoring -->
+    <rect x="0" y="1280" width="500" height="410" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="1300" width="460" height="40" rx="8" fill="#F0F9FF"/>
+    <text x="40" y="1326" font-size="18" font-weight="700" fill="#0369A1">📈 Real-Time Agent Monitoring</text>
+    <text x="40" y="1370" font-size="15" fill="#475569">• CPU, GPU &amp; Memory Utilization</text>
+    <text x="40" y="1400" font-size="15" fill="#475569">• Active LLM Token Throughput (TPS)</text>
+    <text x="40" y="1430" font-size="15" fill="#475569">• Inter-Agent Latency &amp; Queue Depth</text>
+    <text x="40" y="1460" font-size="15" fill="#475569">• Blockchain Transaction Finality</text>
+    <text x="40" y="1490" font-size="15" fill="#475569">• Live Memory Cache Hit/Miss Ratio</text>
+    <text x="40" y="1520" font-size="15" fill="#475569">• Vector Query Search Response Times</text>
+    <text x="40" y="1550" font-size="15" fill="#475569">• Active Agent Replica Telemetry</text>
+    <text x="40" y="1580" font-size="15" fill="#475569">• Dynamic Cost &amp; Gas Profiler</text>
+    <text x="40" y="1610" font-size="15" fill="#475569">• Distributed Tracing (Jaeger / OTEL)</text>
+    <text x="40" y="1640" font-size="15" fill="#475569">• Autonomous Resilience Score</text>
+  </g>
+
+
+  <!-- ==================== CENTER 8-LAYER ENTERPRISE ARCHITECTURE ==================== -->
+  
+  <!-- ---------------- LAYER 1: USER LAYER ---------------- -->
+  <g transform="translate(660, 210)">
+    <rect x="0" y="0" width="2520" height="210" rx="16" fill="url(#layerGrad1)" stroke="#93C5FD" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="340" height="36" rx="8" fill="#1D4ED8"/>
+    <text x="190" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 1: USER LAYER</text>
+
+    <!-- Component Cards -->
+    <g transform="translate(40, 65)">
+      <!-- Web Portal -->
+      <rect x="0" y="0" width="450" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="225" y="45" font-size="20" font-weight="700" fill="#1E3A8A" text-anchor="middle">🌐 Web Portal</text>
+      <text x="225" y="75" font-size="14" fill="#475569" text-anchor="middle">Next.js 14 / React Enterprise SPA</text>
+      <text x="225" y="98" font-size="13" fill="#64748B" text-anchor="middle">Web3 Wallet &amp; OAuth Unified Login</text>
+
+      <!-- Mobile App -->
+      <rect x="490" y="0" width="450" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="715" y="45" font-size="20" font-weight="700" fill="#1E3A8A" text-anchor="middle">📱 Mobile App</text>
+      <text x="715" y="75" font-size="14" fill="#475569" text-anchor="middle">React Native / Flutter Client</text>
+      <text x="715" y="98" font-size="13" fill="#64748B" text-anchor="middle">Real-time Push &amp; Voice Interaction</text>
+
+      <!-- REST API -->
+      <rect x="980" y="0" width="450" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1205" y="45" font-size="20" font-weight="700" fill="#1E3A8A" text-anchor="middle">⚡ REST / gRPC API</text>
+      <text x="1205" y="75" font-size="14" fill="#475569" text-anchor="middle">OpenAPI 3.1 &amp; GraphQL Endpoints</text>
+      <text x="1205" y="98" font-size="13" fill="#64748B" text-anchor="middle">SDK Client Libraries (Python/TS/Go)</text>
+
+      <!-- Dashboard -->
+      <rect x="1470" y="0" width="450" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1695" y="45" font-size="20" font-weight="700" fill="#1E3A8A" text-anchor="middle">🖥️ Executive Dashboard</text>
+      <text x="1695" y="75" font-size="14" fill="#475569" text-anchor="middle">Real-Time Analytics &amp; Workflow Control</text>
+      <text x="1695" y="98" font-size="13" fill="#64748B" text-anchor="middle">Agent Execution Telemetry Viz</text>
+
+      <!-- Admin Portal -->
+      <rect x="1960" y="0" width="450" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2185" y="45" font-size="20" font-weight="700" fill="#1E3A8A" text-anchor="middle">⚙️ Admin &amp; Governance</text>
+      <text x="2185" y="75" font-size="14" fill="#475569" text-anchor="middle">Platform Config &amp; DAO Portal</text>
+      <text x="2185" y="98" font-size="13" fill="#64748B" text-anchor="middle">System Audit &amp; Compliance Center</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 2: API GATEWAY ---------------- -->
+  <g transform="translate(660, 460)">
+    <rect x="0" y="0" width="2520" height="210" rx="16" fill="url(#layerGrad2)" stroke="#7DD3FC" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="340" height="36" rx="8" fill="#0284C7"/>
+    <text x="190" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 2: API GATEWAY</text>
+
+    <g transform="translate(40, 65)">
+      <!-- Authentication -->
+      <rect x="0" y="0" width="450" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="225" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🔐 Authentication</text>
+      <text x="225" y="75" font-size="14" fill="#475569" text-anchor="middle">OAuth2 / OIDC / JWT Tokens</text>
+      <text x="225" y="98" font-size="13" fill="#64748B" text-anchor="middle">Web3 Signature Verification (SIWE)</text>
+
+      <!-- Authorization -->
+      <rect x="490" y="0" width="450" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="715" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🛡️ Authorization Engine</text>
+      <text x="715" y="75" font-size="14" fill="#475569" text-anchor="middle">Role &amp; Attribute Based Access (RBAC/ABAC)</text>
+      <text x="715" y="98" font-size="13" fill="#64748B" text-anchor="middle">Zero-Trust Policy Enforcement (OPA)</text>
+
+      <!-- Rate Limiting -->
+      <rect x="980" y="0" width="450" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1205" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">⏱️ Adaptive Rate Limiter</text>
+      <text x="1205" y="75" font-size="14" fill="#475569" text-anchor="middle">Token Bucket &amp; Leaky Bucket Algos</text>
+      <text x="1205" y="98" font-size="13" fill="#64748B" text-anchor="middle">Tiered Quota &amp; Anti-DDoS Shield</text>
+
+      <!-- Load Balancing -->
+      <rect x="1470" y="0" width="450" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1695" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">⚖️ Global Load Balancer</text>
+      <text x="1695" y="75" font-size="14" fill="#475569" text-anchor="middle">L7 Smart Traffic Distribution</text>
+      <text x="1695" y="98" font-size="13" fill="#64748B" text-anchor="middle">Failover &amp; Health Check Probes</text>
+
+      <!-- Request Routing -->
+      <rect x="1960" y="0" width="450" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2185" y="45" font-size="20" font-weight="700" fill="#0369A1" text-anchor="middle">🔀 Smart Request Router</text>
+      <text x="2185" y="75" font-size="14" fill="#475569" text-anchor="middle">Dynamic Service Mesh Routing (Envoy)</text>
+      <text x="2185" y="98" font-size="13" fill="#64748B" text-anchor="middle">Header-based Microservice Multiplexing</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 3: CORE ORCHESTRATION ENGINE ---------------- -->
+  <g transform="translate(660, 710)">
+    <rect x="0" y="0" width="2520" height="250" rx="16" fill="url(#layerGrad3)" stroke="#C4B5FD" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="420" height="36" rx="8" fill="#6D28D9"/>
+    <text x="230" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 3: CORE ORCHESTRATION ENGINE</text>
+
+    <!-- Top Row of Services -->
+    <g transform="translate(30, 65)">
+      <!-- Task Analyzer -->
+      <rect x="0" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="195" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🧠 Task Analyzer</text>
+      <text x="195" y="55" font-size="13" fill="#475569" text-anchor="middle">NLU &amp; Intent Parsing</text>
+
+      <!-- Task Planner -->
+      <rect x="410" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="605" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">📋 Task Planner</text>
+      <text x="605" y="55" font-size="13" fill="#475569" text-anchor="middle">Autonomous Goal Planning</text>
+
+      <!-- Task Decomposer -->
+      <rect x="820" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1015" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">✂️ Task Decomposer</text>
+      <text x="1015" y="55" font-size="13" fill="#475569" text-anchor="middle">DAG Task Graph Builder</text>
+
+      <!-- Workflow Engine -->
+      <rect x="1230" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1425" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">⚙️ Workflow Engine</text>
+      <text x="1425" y="55" font-size="13" fill="#475569" text-anchor="middle">Temporal / State Machine</text>
+
+      <!-- Agent Selector -->
+      <rect x="1640" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1835" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🎯 Agent Selector</text>
+      <text x="1835" y="55" font-size="13" fill="#475569" text-anchor="middle">Dynamic Agent Discovery</text>
+
+      <!-- Capability Matching -->
+      <rect x="2050" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2245" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🔍 Capability Matching</text>
+      <text x="2245" y="55" font-size="13" fill="#475569" text-anchor="middle">Skill &amp; SLA Scoring</text>
+    </g>
+
+    <!-- Bottom Row of Services -->
+    <g transform="translate(30, 155)">
+      <!-- Context Manager -->
+      <rect x="0" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="195" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">📂 Context Manager</text>
+      <text x="195" y="55" font-size="13" fill="#475569" text-anchor="middle">Cross-Agent Session State</text>
+
+      <!-- Prompt Optimizer -->
+      <rect x="410" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="605" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">✨ Prompt Optimizer</text>
+      <text x="605" y="55" font-size="13" fill="#475569" text-anchor="middle">DSPy &amp; Metaprompting</text>
+
+      <!-- Execution Planner -->
+      <rect x="820" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1015" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🗓️ Execution Planner</text>
+      <text x="1015" y="55" font-size="13" fill="#475569" text-anchor="middle">Resource &amp; Parallel Scheduler</text>
+
+      <!-- Communication Manager -->
+      <rect x="1230" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1425" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">📡 Comm Manager</text>
+      <text x="1425" y="55" font-size="13" fill="#475569" text-anchor="middle">A2A Messaging Bus Protocol</text>
+
+      <!-- Result Aggregator -->
+      <rect x="1640" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1835" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🧩 Result Aggregator</text>
+      <text x="1835" y="55" font-size="13" fill="#475569" text-anchor="middle">Multi-Agent Synthesis</text>
+
+      <!-- Security / Guardrails -->
+      <rect x="2050" y="0" width="390" height="75" rx="10" fill="url(#cardGradPurple)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2245" y="32" font-size="17" font-weight="700" fill="#4C1D95" text-anchor="middle">🛡️ AI Safety Guardrails</text>
+      <text x="2245" y="55" font-size="13" fill="#475569" text-anchor="middle">Hallucination &amp; Output Verification</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 4: MULTI-AGENT LAYER ---------------- -->
+  <g transform="translate(660, 990)">
+    <rect x="0" y="0" width="2520" height="270" rx="16" fill="url(#layerGrad4)" stroke="#A5B4FC" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="420" height="36" rx="8" fill="#4338CA"/>
+    <text x="230" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 4: MULTI-AGENT LAYER (AUTONOMOUS SWARM)</text>
+
+    <!-- Inter-Agent Communication Horizontal Line -->
+    <path d="M 120,165 L 2400,165" stroke="#6366F1" stroke-width="3" stroke-dasharray="8,6"/>
+    <rect x="1110" y="150" width="300" height="30" rx="15" fill="#3730A3"/>
+    <text x="1260" y="170" font-size="13" font-weight="700" fill="#EEF2FF" text-anchor="middle">↔ PEER-TO-PEER INTER-AGENT MESSAGING (A2A) ↔</text>
+
+    <!-- Row 1 of Agents -->
+    <g transform="translate(30, 65)">
+      <!-- Research Agent -->
+      <rect x="0" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="105" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">🔍 Research</text>
+      <text x="105" y="55" font-size="12" fill="#475569" text-anchor="middle">Web &amp; Paper Miner</text>
+
+      <!-- Coding Agent -->
+      <rect x="230" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="335" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">💻 Coding</text>
+      <text x="335" y="55" font-size="12" fill="#475569" text-anchor="middle">Fullstack Engineer</text>
+
+      <!-- Data Analysis Agent -->
+      <rect x="460" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="565" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">📈 Data Analysis</text>
+      <text x="565" y="55" font-size="12" fill="#475569" text-anchor="middle">Python / Pandas</text>
+
+      <!-- Finance Agent -->
+      <rect x="690" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="795" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">💰 Finance</text>
+      <text x="795" y="55" font-size="12" fill="#475569" text-anchor="middle">DeFi &amp; Budget Modeling</text>
+
+      <!-- Legal Agent -->
+      <rect x="920" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1025" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">⚖️ Legal</text>
+      <text x="1025" y="55" font-size="12" fill="#475569" text-anchor="middle">Smart Contract Auditor</text>
+
+      <!-- Documentation Agent -->
+      <rect x="1150" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1255" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">📝 Documentation</text>
+      <text x="1255" y="55" font-size="12" fill="#475569" text-anchor="middle">Tech Writer &amp; Spec</text>
+
+      <!-- DevOps Agent -->
+      <rect x="1380" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1485" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">🚀 DevOps</text>
+      <text x="1485" y="55" font-size="12" fill="#475569" text-anchor="middle">K8s &amp; CI/CD Deploy</text>
+
+      <!-- Cybersecurity Agent -->
+      <rect x="1610" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1715" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">🛡️ Cybersecurity</text>
+      <text x="1715" y="55" font-size="12" fill="#475569" text-anchor="middle">PenTest &amp; SecAudit</text>
+
+      <!-- Vision Agent -->
+      <rect x="1840" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="1945" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">👁️ Vision Agent</text>
+      <text x="1945" y="55" font-size="12" fill="#475569" text-anchor="middle">OCR &amp; Image Parser</text>
+
+      <!-- Voice Agent -->
+      <rect x="2070" y="0" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" filter="url(#shadow)"/>
+      <text x="2175" y="32" font-size="16" font-weight="700" fill="#312E81" text-anchor="middle">🎙️ Voice Agent</text>
+      <text x="2175" y="55" font-size="12" fill="#475569" text-anchor="middle">Whisper Speech Synthesis</text>
+
+      <!-- Custom 3rd Party Agent -->
+      <rect x="2300" y="0" width="190" height="75" rx="12" fill="url(#badgeGrad)" stroke="#7C3AED" stroke-width="2" filter="url(#shadow)"/>
+      <text x="2395" y="32" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle">🧩 3rd-Party</text>
+      <text x="2395" y="55" font-size="12" fill="#E0E7FF" text-anchor="middle">Marketplace SDK</text>
+    </g>
+
+    <!-- Inter-agent arrow connections -->
+    <g transform="translate(30, 185)">
+      <!-- Agent cards repeating for lower row bi-directional connections -->
+      <text x="1260" y="55" font-size="14" font-weight="600" fill="#4338CA" text-anchor="middle">Agents dynamically share state, negotiate task handoffs, and aggregate context via event bus</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 5: MEMORY & INTELLIGENCE LAYER ---------------- -->
+  <g transform="translate(660, 1290)">
+    <rect x="0" y="0" width="2520" height="240" rx="16" fill="url(#layerGrad5)" stroke="#D8B4FE" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="440" height="36" rx="8" fill="#7E22CE"/>
+    <text x="240" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 5: MEMORY &amp; INTELLIGENCE LAYER (RAG)</text>
+
+    <g transform="translate(40, 65)">
+      <!-- Vector Database -->
+      <rect x="0" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="140" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">🗄️ Vector DB</text>
+      <text x="140" y="75" font-size="14" fill="#475569" text-anchor="middle">Qdrant / Milvus / Pinecone</text>
+      <text x="140" y="105" font-size="13" fill="#64748B" text-anchor="middle">HNSW Indexing &amp; Cosine Sim</text>
+
+      <!-- Knowledge Base -->
+      <rect x="310" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="450" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">📚 Knowledge Base</text>
+      <text x="450" y="75" font-size="14" fill="#475569" text-anchor="middle">Enterprise Knowledge Graph</text>
+      <text x="450" y="105" font-size="13" fill="#64748B" text-anchor="middle">Ontology &amp; Structured RDF</text>
+
+      <!-- Long-Term Memory -->
+      <rect x="620" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="760" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">🧠 Long-Term Memory</text>
+      <text x="760" y="75" font-size="14" fill="#475569" text-anchor="middle">Episodic &amp; Semantic Store</text>
+      <text x="760" y="105" font-size="13" fill="#64748B" text-anchor="middle">Cross-Session Agent Recall</text>
+
+      <!-- Short-Term Memory -->
+      <rect x="930" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1070" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">⚡ Short-Term Memory</text>
+      <text x="1070" y="75" font-size="14" fill="#475569" text-anchor="middle">Working Context Window</text>
+      <text x="1070" y="105" font-size="13" fill="#64748B" text-anchor="middle">Redis In-Memory Cache</text>
+
+      <!-- Semantic Search -->
+      <rect x="1240" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1380" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">🔎 Semantic Search</text>
+      <text x="1380" y="75" font-size="14" fill="#475569" text-anchor="middle">Hybrid BM25 + Vector Search</text>
+      <text x="1380" y="105" font-size="13" fill="#64748B" text-anchor="middle">Reranking (Cohere / BGE)</text>
+
+      <!-- Embedding Service -->
+      <rect x="1550" y="0" width="280" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1690" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">🧬 Embedding Service</text>
+      <text x="1690" y="75" font-size="14" fill="#475569" text-anchor="middle">text-embedding-3-large</text>
+      <text x="1690" y="105" font-size="13" fill="#64748B" text-anchor="middle">BGE-M3 / Voyage AI Pipeline</text>
+
+      <!-- Document Storage -->
+      <rect x="1860" y="0" width="270" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1995" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">📄 Document Storage</text>
+      <text x="1995" y="75" font-size="14" fill="#475569" text-anchor="middle">Blob &amp; Unstructured Store</text>
+      <text x="1995" y="105" font-size="13" fill="#64748B" text-anchor="middle">PDF/HTML Chunking Engine</text>
+
+      <!-- Shared Workspace -->
+      <rect x="2150" y="0" width="250" height="150" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2275" y="45" font-size="19" font-weight="700" fill="#6B21A8" text-anchor="middle">🤝 Shared Workspace</text>
+      <text x="2275" y="75" font-size="14" fill="#475569" text-anchor="middle">Inter-Agent Artifact Space</text>
+      <text x="2275" y="105" font-size="13" fill="#64748B" text-anchor="middle">CRDT Sync State</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 6: LLM LAYER ---------------- -->
+  <g transform="translate(660, 1560)">
+    <rect x="0" y="0" width="2520" height="210" rx="16" fill="url(#layerGrad6)" stroke="#5EEAD4" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="460" height="36" rx="8" fill="#0D9488"/>
+    <text x="250" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 6: DYNAMIC LLM ROUTING &amp; INFERENCE MESH</text>
+
+    <g transform="translate(40, 65)">
+      <!-- GPT-4 -->
+      <rect x="0" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="165" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🤖 OpenAI GPT-4o</text>
+      <text x="165" y="75" font-size="14" fill="#475569" text-anchor="middle">128k Context / Vision / Function</text>
+      <text x="165" y="98" font-size="13" fill="#64748B" text-anchor="middle">High Reasoning &amp; Code Synthesis</text>
+
+      <!-- Claude -->
+      <rect x="360" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="525" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🎭 Anthropic Claude 3.5</text>
+      <text x="525" y="75" font-size="14" fill="#475569" text-anchor="middle">200k Context / Artifacts</text>
+      <text x="525" y="98" font-size="13" fill="#64748B" text-anchor="middle">Deep Legal &amp; System Architecture</text>
+
+      <!-- Gemini -->
+      <rect x="720" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="885" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">♊ Google Gemini 1.5 Pro</text>
+      <text x="885" y="75" font-size="14" fill="#475569" text-anchor="middle">2M Context / Audio &amp; Video</text>
+      <text x="885" y="98" font-size="13" fill="#64748B" text-anchor="middle">Ultra Long-Context Multi-Modal</text>
+
+      <!-- Llama 3 -->
+      <rect x="1080" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1245" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🦙 Meta Llama 3 (405B)</text>
+      <text x="1245" y="75" font-size="14" fill="#475569" text-anchor="middle">Open-Weights Enterprise</text>
+      <text x="1245" y="98" font-size="13" fill="#64748B" text-anchor="middle">Self-Hosted VPC Deployment</text>
+
+      <!-- Mistral -->
+      <rect x="1440" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1605" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🌪️ Mistral Large / Codestral</text>
+      <text x="1605" y="75" font-size="14" fill="#475569" text-anchor="middle">High Efficiency MoE Architecture</text>
+      <text x="1605" y="98" font-size="13" fill="#64748B" text-anchor="middle">Fast Low-Latency Code Engine</text>
+
+      <!-- DeepSeek -->
+      <rect x="1800" y="0" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1965" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🐋 DeepSeek V3 / Coder</text>
+      <text x="1965" y="75" font-size="14" fill="#475569" text-anchor="middle">Advanced Math &amp; Coding Engine</text>
+      <text x="1965" y="98" font-size="13" fill="#64748B" text-anchor="middle">Cost-Optimized Reasoning</text>
+
+      <!-- OpenRouter -->
+      <rect x="2160" y="0" width="280" height="120" rx="12" fill="url(#cardGradBlue)" stroke="#0D9488" stroke-width="2" filter="url(#shadow)"/>
+      <text x="2300" y="45" font-size="20" font-weight="700" fill="#0F766E" text-anchor="middle">🌐 OpenRouter</text>
+      <text x="2300" y="75" font-size="14" fill="#475569" text-anchor="middle">Unified API Gateway Mesh</text>
+      <text x="2300" y="98" font-size="13" fill="#64748B" text-anchor="middle">Fallback &amp; Latency Router</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 7: BLOCKCHAIN LAYER ---------------- -->
+  <g transform="translate(660, 1800)">
+    <rect x="0" y="0" width="2520" height="240" rx="16" fill="url(#layerGrad7)" stroke="#FDBA74" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="420" height="36" rx="8" fill="#C2410C"/>
+    <text x="230" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 7: BLOCKCHAIN TRUST &amp; SETTLEMENT LAYER</text>
+
+    <!-- Top Row -->
+    <g transform="translate(30, 65)">
+      <!-- Ethereum -->
+      <rect x="0" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="195" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">Ξ Ethereum Mainnet / L1</text>
+      <text x="195" y="55" font-size="13" fill="#475569" text-anchor="middle">Root Security &amp; Settlement</text>
+
+      <!-- Polygon -->
+      <rect x="410" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="605" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">💜 Polygon L2 / zkEVM</text>
+      <text x="605" y="55" font-size="13" fill="#475569" text-anchor="middle">High-Speed Microtransactions</text>
+
+      <!-- Smart Contracts -->
+      <rect x="820" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1015" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">📜 Audited Smart Contracts</text>
+      <text x="1015" y="55" font-size="13" fill="#475569" text-anchor="middle">Solidity / Escrow &amp; Execution</text>
+
+      <!-- Wallet Auth -->
+      <rect x="1230" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1425" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">🦊 MetaMask / WalletConnect</text>
+      <text x="1425" y="55" font-size="13" fill="#475569" text-anchor="middle">Non-Custodial Wallet Login</text>
+
+      <!-- Agent Identity -->
+      <rect x="1640" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1835" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">🆔 Sovereign Agent Identity</text>
+      <text x="1835" y="55" font-size="13" fill="#475569" text-anchor="middle">ERC-725 / DID Standards</text>
+
+      <!-- Ownership -->
+      <rect x="2050" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2245" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">💎 Agent Ownership NFTs</text>
+      <text x="2245" y="55" font-size="13" fill="#475569" text-anchor="middle">ERC-721 / ERC-1155 Tokens</text>
+    </g>
+
+    <!-- Bottom Row -->
+    <g transform="translate(30, 150)">
+      <!-- Reputation Score -->
+      <rect x="0" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="195" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">⭐ On-Chain Reputation</text>
+      <text x="195" y="55" font-size="13" fill="#475569" text-anchor="middle">EigenTrust &amp; Proof-of-Quality</text>
+
+      <!-- Payment Distribution -->
+      <rect x="410" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="605" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">💵 Automated Payments</text>
+      <text x="605" y="55" font-size="13" fill="#475569" text-anchor="middle">USDC / Native Token Escrow</text>
+
+      <!-- Contribution Tracking -->
+      <rect x="820" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1015" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">📊 Contribution Attestation</text>
+      <text x="1015" y="55" font-size="13" fill="#475569" text-anchor="middle">Proof of Task Execution (PoE)</text>
+
+      <!-- DAO Governance -->
+      <rect x="1230" y="0" width="390" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1425" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">🏛️ DAO Governance</text>
+      <text x="1425" y="55" font-size="13" fill="#475569" text-anchor="middle">Snapshot &amp; On-Chain Voting</text>
+
+      <!-- Transaction History -->
+      <rect x="1640" y="0" width="800" height="75" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2040" y="32" font-size="17" font-weight="700" fill="#9A3412" text-anchor="middle">🔗 Immutable Transaction &amp; Audit Trail</text>
+      <text x="2040" y="55" font-size="13" fill="#475569" text-anchor="middle">Verifiable Execution Logs &amp; Cryptographic Receipts on Arweave / IPFS</text>
+    </g>
+  </g>
+
+  <!-- ---------------- LAYER 8: CLOUD INFRASTRUCTURE LAYER ---------------- -->
+  <g transform="translate(660, 2070)">
+    <rect x="0" y="0" width="2520" height="210" rx="16" fill="url(#layerGrad8)" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="15" width="460" height="36" rx="8" fill="#334155"/>
+    <text x="250" y="39" font-size="18" font-weight="700" fill="#FFFFFF" text-anchor="middle">LAYER 8: CLOUD INFRASTRUCTURE &amp; DEPOPS LAYER</text>
+
+    <g transform="translate(30, 65)">
+      <!-- Docker & K8s -->
+      <rect x="0" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="145" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">🐳 Docker &amp; ☸️ Kubernetes</text>
+      <text x="145" y="75" font-size="13" fill="#475569" text-anchor="middle">EKS / AKS Container Swarm</text>
+      <text x="145" y="98" font-size="12" fill="#64748B" text-anchor="middle">HPA Auto-scaling Workloads</text>
+
+      <!-- AWS & Azure -->
+      <rect x="310" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="455" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">☁️ AWS &amp; Azure Cloud</text>
+      <text x="455" y="75" font-size="13" fill="#475569" text-anchor="middle">Multi-Region Hybrid Cloud</text>
+      <text x="455" y="98" font-size="12" fill="#64748B" text-anchor="middle">Direct Connect &amp; ExpressRoute</text>
+
+      <!-- Terraform -->
+      <rect x="620" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="765" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">🏗️ Terraform (IaC)</text>
+      <text x="765" y="75" font-size="13" fill="#475569" text-anchor="middle">Declarative Cloud Infra</text>
+      <text x="765" y="98" font-size="12" fill="#64748B" text-anchor="middle">GitOps Infrastructure State</text>
+
+      <!-- Redis & Postgres -->
+      <rect x="930" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1075" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">🔴 Redis &amp; 🐘 PostgreSQL</text>
+      <text x="1075" y="75" font-size="13" fill="#475569" text-anchor="middle">In-Memory Cache &amp; Relational</text>
+      <text x="1075" y="98" font-size="12" fill="#64748B" text-anchor="middle">HA Multi-AZ Database</text>
+
+      <!-- Qdrant & Kafka -->
+      <rect x="1240" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1385" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">🎯 Qdrant &amp; 🟢 Kafka</text>
+      <text x="1385" y="75" font-size="13" fill="#475569" text-anchor="middle">Vector Search &amp; Event Streaming</text>
+      <text x="1385" y="98" font-size="12" fill="#64748B" text-anchor="middle">High-Throughput Pub/Sub</text>
+
+      <!-- NGINX & Object Storage -->
+      <rect x="1550" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="1695" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">🟢 NGINX &amp; 🪣 S3 Storage</text>
+      <text x="1695" y="75" font-size="13" fill="#475569" text-anchor="middle">Reverse Proxy &amp; Blob Storage</text>
+      <text x="1695" y="98" font-size="12" fill="#64748B" text-anchor="middle">CDN &amp; Media Acceleration</text>
+
+      <!-- CI/CD GitHub Actions -->
+      <rect x="1860" y="0" width="290" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2005" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">⚡ CI/CD GitHub Actions</text>
+      <text x="2005" y="75" font-size="13" fill="#475569" text-anchor="middle">Automated Build &amp; Test</text>
+      <text x="2005" y="98" font-size="12" fill="#64748B" text-anchor="middle">Canary &amp; Zero-Downtime Deployments</text>
+
+      <!-- Prometheus, Grafana, ELK -->
+      <rect x="2160" y="0" width="300" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="2310" y="45" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">📊 Prometheus / Grafana / ELK</text>
+      <text x="2310" y="75" font-size="13" fill="#475569" text-anchor="middle">Full Observability Stack</text>
+      <text x="2310" y="98" font-size="12" fill="#64748B" text-anchor="middle">Metrics, Logs &amp; Tracing</text>
+    </g>
+  </g>
+
+
+  <!-- ==================== RIGHT PANEL: DEVELOPER PORTAL ==================== -->
+  <rect x="3220" y="210" width="560" height="2040" rx="20" fill="url(#sideGradRight)" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="3240" y="230" width="520" height="60" rx="12" fill="#0F172A"/>
+  <text x="3500" y="268" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle">RIGHT PANEL: DEVELOPER PORTAL</text>
+
+  <!-- Right Panel Cards -->
+  <g transform="translate(3250, 310)">
+    <!-- Create Agent -->
+    <rect x="0" y="0" width="500" height="230" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="20" width="460" height="40" rx="8" fill="#EFF6FF"/>
+    <text x="40" y="46" font-size="18" font-weight="700" fill="#1E40AF">🛠️ Create AI Agent</text>
+    <text x="40" y="90" font-size="15" fill="#475569">• Low-Code / No-Code Agent Builder</text>
+    <text x="40" y="120" font-size="15" fill="#475569">• Define Agent Prompt &amp; System Instructions</text>
+    <text x="40" y="150" font-size="15" fill="#475569">• Configure Tool Integrations &amp; APIs</text>
+    <text x="40" y="180" font-size="15" fill="#475569">• Set SLA Requirements &amp; Gas Limits</text>
+
+    <!-- Upload SDK -->
+    <rect x="0" y="260" width="500" height="230" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="280" width="460" height="40" rx="8" fill="#F5F3FF"/>
+    <text x="40" y="306" font-size="18" font-weight="700" fill="#5B21B6">📦 Upload Agent SDK</text>
+    <text x="40" y="350" font-size="15" fill="#475569">• Python &amp; TypeScript Agent SDKs</text>
+    <text x="40" y="380" font-size="15" fill="#475569">• Docker Container Packaging Tool</text>
+    <text x="40" y="410" font-size="15" fill="#475569">• WASM / Confidential Enclave Bundling</text>
+    <text x="40" y="440" font-size="15" fill="#475569">• Custom Model Weights &amp; Adapters</text>
+
+    <!-- Publish Agent -->
+    <rect x="0" y="520" width="500" height="230" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="540" width="460" height="40" rx="8" fill="#F0FDF4"/>
+    <text x="40" y="566" font-size="18" font-weight="700" fill="#166534">🚀 Publish Agent Package</text>
+    <text x="40" y="610" font-size="15" fill="#475569">• On-Chain Metadata Registration</text>
+    <text x="40" y="640" font-size="15" fill="#475569">• Decentralized IPFS Storage Upload</text>
+    <text x="40" y="670" font-size="15" fill="#475569">• Mint Agent Ownership NFT (ERC-721)</text>
+    <text x="40" y="700" font-size="15" fill="#475569">• Set Staking Collateral Requirements</text>
+
+    <!-- Agent Validation -->
+    <rect x="0" y="780" width="500" height="230" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="800" width="460" height="40" rx="8" fill="#FFF7ED"/>
+    <text x="40" y="826" font-size="18" font-weight="700" fill="#C2410C">🛡️ Automated Agent Validation</text>
+    <text x="40" y="870" font-size="15" fill="#475569">• AI Safety &amp; Adversarial Pen Testing</text>
+    <text x="40" y="900" font-size="15" fill="#475569">• Static Code &amp; Vulnerability Analysis</text>
+    <text x="40" y="930" font-size="15" fill="#475569">• Sandbox Runtime Benchmark Test</text>
+    <text x="40" y="960" font-size="15" fill="#475569">• Smart Contract Escrow Audit</text>
+
+    <!-- Marketplace Listing -->
+    <rect x="0" y="1040" width="500" height="230" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="1060" width="460" height="40" rx="8" fill="#F0F9FF"/>
+    <text x="40" y="1086" font-size="18" font-weight="700" fill="#0369A1">🛒 Marketplace Listing</text>
+    <text x="40" y="1130" font-size="15" fill="#475569">• Configure Pricing Tier (Pay-per-Call/Sub)</text>
+    <text x="40" y="1160" font-size="15" fill="#475569">• Write Public Bio, Capabilities &amp; Demos</text>
+    <text x="40" y="1190" font-size="15" fill="#475569">• Manage Availability &amp; Instance Scale</text>
+    <text x="40" y="1220" font-size="15" fill="#475569">• Configure SLA Guarantee Policy</text>
+
+    <!-- Developer Analytics & Revenue -->
+    <rect x="0" y="1300" width="500" height="390" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+    <rect x="20" y="1320" width="460" height="40" rx="8" fill="#FAF5FF"/>
+    <text x="40" y="1346" font-size="18" font-weight="700" fill="#6B21A8">💰 Developer Revenue Dashboard</text>
+    <text x="40" y="1390" font-size="15" fill="#475569">• Real-Time Royalty &amp; Fee Payouts</text>
+    <text x="40" y="1420" font-size="15" fill="#475569">• On-Chain USDC Escrow Withdrawals</text>
+    <text x="40" y="1450" font-size="15" fill="#475569">• Total Active Hire Subscriptions</text>
+    <text x="40" y="1480" font-size="15" fill="#475569">• Call Volume &amp; Token Usage Metrics</text>
+    <text x="40" y="1510" font-size="15" fill="#475569">• Average User Rating &amp; Review Score</text>
+    <text x="40" y="1540" font-size="15" fill="#475569">• SLA Uptime &amp; Error Rate Analytics</text>
+    <text x="40" y="1570" font-size="15" fill="#475569">• Staking Rewards &amp; Yield Metrics</text>
+    <text x="40" y="1600" font-size="15" fill="#475569">• Multi-Chain Revenue Aggregation</text>
+    <text x="40" y="1630" font-size="15" fill="#475569">• Tax &amp; Automated Financial Exports</text>
+  </g>
+
+
+  <!-- ==================== BOTTOM PANEL: AI AGENT MARKETPLACE ==================== -->
+  <g transform="translate(60, 2300)">
+    <rect x="0" y="0" width="3720" height="210" rx="20" fill="url(#bottomGrad)" stroke="#6366F1" stroke-width="2" filter="url(#shadowGlow)"/>
+    <text x="1860" y="45" font-size="24" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">BOTTOM PANEL: DECENTRALIZED AI AGENT MARKETPLACE</text>
+
+    <g transform="translate(60, 70)">
+      <!-- Browse Agents -->
+      <rect x="0" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="280" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">🔍 Browse Marketplace Agents</text>
+      <text x="280" y="75" font-size="14" fill="#475569" text-anchor="middle">Filter by Domain, Skill, Price &amp; Reputation</text>
+
+      <!-- Ratings & Reviews -->
+      <rect x="600" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="880" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">⭐ Ratings &amp; Verification</text>
+      <text x="880" y="75" font-size="14" fill="#475569" text-anchor="middle">On-Chain Proof-of-Execution &amp; Reviews</text>
+
+      <!-- Transparent Pricing -->
+      <rect x="1200" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="1480" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">🏷️ Dynamic Pricing Models</text>
+      <text x="1480" y="75" font-size="14" fill="#475569" text-anchor="middle">Pay-per-Call, SLA Tier &amp; Spot Bidding</text>
+
+      <!-- Hire Agent -->
+      <rect x="1800" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="2080" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">🤝 Instant Agent Hire</text>
+      <text x="2080" y="75" font-size="14" fill="#475569" text-anchor="middle">One-Click Smart Contract Engagement</text>
+
+      <!-- Subscriptions -->
+      <rect x="2400" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="2680" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">💳 Enterprise Subscriptions</text>
+      <text x="2680" y="75" font-size="14" fill="#475569" text-anchor="middle">Dedicated Agent Swarms &amp; SLA Retainers</text>
+
+      <!-- Revenue Sharing -->
+      <rect x="3000" y="0" width="560" height="110" rx="14" fill="#FFFFFF" opacity="0.95" filter="url(#shadow)"/>
+      <text x="3280" y="45" font-size="20" font-weight="700" fill="#1E1B4B" text-anchor="middle">🔄 Automated Revenue Sharing</text>
+      <text x="3280" y="75" font-size="14" fill="#475569" text-anchor="middle">Developer &amp; Staker Smart Escrow Splits</text>
+    </g>
+  </g>
+
+
+  <!-- ==================== 12-STEP END-TO-END EXECUTION WORKFLOW FLOWLINES & BADGES ==================== -->
+
+  <!-- Flow Line 1: User Request -> API Gateway -->
+  <path d="M 1150, 395 L 1150, 455" stroke="#2563EB" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="6,4"/>
+  <g transform="translate(1150, 425)">
+    <circle cx="0" cy="0" r="22" fill="#2563EB" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">1</text>
+    <rect x="30" y="-14" width="220" height="28" rx="6" fill="#1E40AF"/>
+    <text x="140" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">1. User Submits Task Request</text>
+  </g>
+
+  <!-- Flow Line 2: API Gateway Auth -> Orchestrator Task Analyzer -->
+  <path d="M 1150, 645 L 1150, 705" stroke="#2563EB" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <g transform="translate(1150, 675)">
+    <circle cx="0" cy="0" r="22" fill="#2563EB" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">2</text>
+    <rect x="30" y="-14" width="230" height="28" rx="6" fill="#0284C7"/>
+    <text x="145" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">2. Gateway Authenticates Request</text>
+  </g>
+
+  <!-- Flow Line 3: Task Analyzer Understands -->
+  <g transform="translate(880, 810)">
+    <circle cx="0" cy="0" r="20" fill="#7C3AED" filter="url(#shadow)"/>
+    <text x="0" y="6" font-size="15" font-weight="800" fill="#FFFFFF" text-anchor="middle">3</text>
+    <rect x="25" y="-12" width="200" height="24" rx="6" fill="#6D28D9"/>
+    <text x="125" y="4" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">3. Task Analyzer Parses Intent</text>
+  </g>
+
+  <!-- Flow Line 4: Task Planner Decomposes Task -->
+  <g transform="translate(1290, 810)">
+    <circle cx="0" cy="0" r="20" fill="#7C3AED" filter="url(#shadow)"/>
+    <text x="0" y="6" font-size="15" font-weight="800" fill="#FFFFFF" text-anchor="middle">4</text>
+    <rect x="25" y="-12" width="200" height="24" rx="6" fill="#6D28D9"/>
+    <text x="125" y="4" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">4. Task Planner Builds DAG</text>
+  </g>
+
+  <!-- Flow Line 5: Agent Selector -> Multi-Agent Swarm -->
+  <path d="M 2490, 935 L 2490, 985" stroke="#7C3AED" stroke-width="4" marker-end="url(#arrowheadPurple)"/>
+  <g transform="translate(2490, 960)">
+    <circle cx="0" cy="0" r="22" fill="#7C3AED" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">5</text>
+    <rect x="-240" y="-14" width="220" height="28" rx="6" fill="#5B21B6"/>
+    <text x="-130" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">5. Selector Assigns AI Swarm</text>
+  </g>
+
+  <!-- Flow Line 6: Agents Collaborate Autonomously -->
+  <g transform="translate(1920, 1100)">
+    <circle cx="0" cy="0" r="22" fill="#4338CA" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">6</text>
+    <rect x="30" y="-14" width="240" height="28" rx="6" fill="#312E81"/>
+    <text x="150" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">6. Swarm Collaborates Autonomously</text>
+  </g>
+
+  <!-- Flow Line 7: Memory & RAG Retrieval -->
+  <path d="M 1920, 1225 L 1920, 1285" stroke="#4338CA" stroke-width="4" marker-end="url(#arrowheadPurple)"/>
+  <g transform="translate(1920, 1255)">
+    <circle cx="0" cy="0" r="22" fill="#7E22CE" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">7</text>
+    <rect x="30" y="-14" width="230" height="28" rx="6" fill="#6B21A8"/>
+    <text x="145" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">7. Memory Retrieves RAG Context</text>
+  </g>
+
+  <!-- Flow Line 8: LLM Generation -->
+  <path d="M 1920, 1495 L 1920, 1555" stroke="#0D9488" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <g transform="translate(1920, 1525)">
+    <circle cx="0" cy="0" r="22" fill="#0D9488" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">8</text>
+    <rect x="30" y="-14" width="230" height="28" rx="6" fill="#0F766E"/>
+    <text x="145" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">8. Dynamic LLM Mesh Generates</text>
+  </g>
+
+  <!-- Flow Line 9: Results Verified & Aggregated -->
+  <path d="M 2970, 1590 L 3050, 1590 L 3050, 890 L 2970, 890" fill="none" stroke="#2563EB" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <g transform="translate(3050, 1240)">
+    <circle cx="0" cy="0" r="22" fill="#2563EB" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">9</text>
+    <rect x="-240" y="-14" width="220" height="28" rx="6" fill="#1E40AF"/>
+    <text x="-130" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">9. Results Verified &amp; Aggregated</text>
+  </g>
+
+  <!-- Flow Line 10: Smart Contract Records Execution -->
+  <path d="M 1920, 1735 L 1920, 1795" stroke="#C2410C" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <g transform="translate(1920, 1765)">
+    <circle cx="0" cy="0" r="22" fill="#C2410C" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">10</text>
+    <rect x="30" y="-14" width="240" height="28" rx="6" fill="#9A3412"/>
+    <text x="150" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">10. Smart Contract Logs Proof</text>
+  </g>
+
+  <!-- Flow Line 11: Payment Distributed -->
+  <g transform="translate(1290, 1985)">
+    <circle cx="0" cy="0" r="22" fill="#C2410C" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">11</text>
+    <rect x="30" y="-14" width="220" height="28" rx="6" fill="#9A3412"/>
+    <text x="140" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">11. Escrow Payment Settled</text>
+  </g>
+
+  <!-- Flow Line 12: Final Response Returned -->
+  <path d="M 790, 710 L 790, 395" fill="none" stroke="#059669" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <g transform="translate(790, 550)">
+    <circle cx="0" cy="0" r="22" fill="#059669" filter="url(#shadow)"/>
+    <text x="0" y="7" font-size="16" font-weight="800" fill="#FFFFFF" text-anchor="middle">12</text>
+    <rect x="-240" y="-14" width="220" height="28" rx="6" fill="#047857"/>
+    <text x="-130" y="5" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">12. Final Response Delivered</text>
+  </g>
+</svg>
