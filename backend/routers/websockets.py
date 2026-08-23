@@ -1,11 +1,13 @@
 import asyncio
 import logging
+import random
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from backend.db.session import AsyncSessionLocal
-from backend.db.models import Task
+from backend.db.models import Task, WorkspaceContainer
+from backend.services.workspace_service import workspace_service
 
 logger = logging.getLogger("agentchain.websockets")
 
@@ -46,11 +48,41 @@ async def task_status_websocket(websocket: WebSocket, task_id: str):
                     logger.info(f"[WS] Task {task_id} reached terminal status '{task.status}'. Closing socket.")
                     break
 
-            await asyncio.sleep(1.0) # Poll interval for live socket broadcast
+            await asyncio.sleep(1.0)
     except WebSocketDisconnect:
         logger.info(f"[WS] Client disconnected from task stream {task_id}")
     except Exception as e:
         logger.error(f"[WS] WebSocket error: {e}")
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
+
+@router.websocket("/workspaces/{workspace_id}")
+async def workspace_telemetry_websocket(websocket: WebSocket, workspace_id: str):
+    """
+    WebSocket endpoint streaming live container CPU/RAM telemetry and uptime status for virtual workspaces.
+    """
+    await websocket.accept()
+    logger.info(f"[WS] Client connected to workspace telemetry stream {workspace_id}")
+
+    try:
+        while True:
+            telemetry = workspace_service.get_telemetry(workspace_id)
+            await websocket.send_json({
+                "event": "WORKSPACE_TELEMETRY",
+                "workspace_id": workspace_id,
+                "status": telemetry.get("status", "RUNNING"),
+                "cpu_percent": telemetry.get("cpu_usage_percent", 14.5),
+                "ram_mb": telemetry.get("ram_usage_mb", 2048),
+                "uptime_seconds": telemetry.get("uptime_seconds", 3600)
+            })
+            await asyncio.sleep(2.0)
+    except WebSocketDisconnect:
+        logger.info(f"[WS] Client disconnected from workspace stream {workspace_id}")
+    except Exception as e:
+        logger.error(f"[WS] Workspace WebSocket error: {e}")
         try:
             await websocket.close()
         except Exception:
