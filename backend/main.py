@@ -13,8 +13,13 @@ from backend.db.bootstrap import bootstrap_roles_and_permissions
 from backend.routers import auth, agents, marketplace, tasks, financial, admin, websockets
 
 # Prometheus Metrics
-REQUEST_COUNT = Counter("agentchain_http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"])
-REQUEST_LATENCY = Histogram("agentchain_http_request_duration_seconds", "HTTP request latency in seconds", ["endpoint"])
+try:
+    REQUEST_COUNT = Counter("agentchain_http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"])
+    REQUEST_LATENCY = Histogram("agentchain_http_request_duration_seconds", "HTTP request latency in seconds", ["endpoint"])
+except Exception:
+    from prometheus_client import REGISTRY
+    REQUEST_COUNT = REGISTRY._names_to_collectors.get("agentchain_http_requests_total")
+    REQUEST_LATENCY = REGISTRY._names_to_collectors.get("agentchain_http_request_duration_seconds")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -70,6 +75,8 @@ async def metrics_middleware(request: Request, call_next):
     REQUEST_COUNT.labels(method=request.method, endpoint=endpoint, status=response.status_code).inc()
     return response
 
+from backend.api.v1 import workspaces
+
 # Mount Modular API Routers
 app.include_router(auth.router)
 app.include_router(agents.router)
@@ -78,6 +85,7 @@ app.include_router(tasks.router)
 app.include_router(financial.router)
 app.include_router(admin.router)
 app.include_router(websockets.router)
+app.include_router(workspaces.router)
 
 # Health & Metrics Endpoints
 @app.get("/health", tags=["System"])
