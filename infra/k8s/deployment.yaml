@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentchain-backend-deploy
+  namespace: agentchain-system
+  labels:
+    app: agentchain-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agentchain-backend
+  template:
+    metadata:
+      labels:
+        app: agentchain-backend
+    spec:
+      containers:
+      - name: backend
+        image: agentchain/backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2000m"
+            memory: "2048Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentchain-backend-svc
+  namespace: agentchain-system
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: agentchain-backend

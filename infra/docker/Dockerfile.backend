@@ -1,0 +1,44 @@
+# Production Multi-Stage FastAPI Container for AgentChain
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Final Minimal Runtime Stage
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 agentchain && \
+    adduser --system --uid 1001 --gid 1001 agentchain
+
+# Copy dependencies from builder stage
+COPY --from=builder /root/.local /home/agentchain/.local
+ENV PATH=/home/agentchain/.local/bin:$PATH
+
+# Copy application source code
+COPY --chown=agentchain:agentchain backend/ ./backend
+COPY --chown=agentchain:agentchain alembic/ ./alembic
+COPY --chown=agentchain:agentchain alembic.ini .
+COPY --chown=agentchain:agentchain index.html .
+COPY --chown=agentchain:agentchain style.css .
+COPY --chown=agentchain:agentchain app.js .
+COPY --chown=agentchain:agentchain agentchain_architecture.svg .
+COPY --chown=agentchain:agentchain diagrams/ ./diagrams/
+
+USER agentchain
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
