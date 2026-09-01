@@ -201,8 +201,18 @@ class AuthService:
             )
 
         # Domain Validation
-        msg_domain = parsed.get("domain")
-        if msg_domain and msg_domain != settings.SIWE_DOMAIN and msg_domain not in settings.SIWE_DOMAIN:
+        msg_domain = parsed.get("domain", "").strip()
+        is_dev = settings.ENVIRONMENT.lower() in ["development", "dev", "local", "test"]
+        allowed_domains = [settings.SIWE_DOMAIN.lower()]
+        if is_dev:
+            allowed_domains.extend(["localhost", "127.0.0.1", "0.0.0.0"])
+
+        domain_valid = any(
+            d in msg_domain.lower() or msg_domain.lower() == d
+            for d in allowed_domains
+        )
+
+        if msg_domain and not domain_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"SIWE message domain '{msg_domain}' does not match expected platform domain '{settings.SIWE_DOMAIN}'."
