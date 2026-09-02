@@ -62,7 +62,7 @@ export function LiveAgents() {
           <div className="flex items-center gap-3">
             <Link
               href="/marketplace"
-              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-opacity"
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-opacity min-h-[44px]"
             >
               <span>Explore Marketplace</span>
               <ArrowRight className="w-4 h-4" />
@@ -71,14 +71,14 @@ export function LiveAgents() {
         </motion.div>
 
         {/* Category Filters */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-8 scrollbar-none touch-pan-x">
           {categories.map((cat) => (
             <motion.button
               key={cat}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => setFilterCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all min-h-[40px] flex items-center ${
                 filterCategory === cat
                   ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-md shadow-cyan-500/20'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
@@ -90,7 +90,7 @@ export function LiveAgents() {
         </div>
 
         {/* Grid of Agent Cards */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <AnimatePresence mode="popLayout">
             {loading ? (
               // Skeleton Loader Cards (6 items)

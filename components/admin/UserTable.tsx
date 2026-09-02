@@ -82,7 +82,8 @@ export function UserTable() {
       )}
 
       <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
-        <table className="w-full text-left font-mono text-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-mono text-xs min-w-[650px]">
           <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="p-4">User Email / ID</th>
@@ -152,6 +153,7 @@ export function UserTable() {
             ))}
           </tbody>
         </table>
+        </div>
         <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
           // TODO: Phase 6 - replace stubbed user ban/suspend handler with real DELETE /api/v1/admin/users endpoint
         </div>

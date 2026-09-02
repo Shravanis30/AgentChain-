@@ -68,7 +68,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
       {/* Category Pills & Price Inputs Row */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2 border-t border-slate-200 dark:border-slate-800/60">
         {/* Category Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none -mx-1 px-1 touch-pan-x">
           {categories.map((cat) => {
             const isActive =
               (cat === 'All' && (!filters.category || filters.category === 'All')) ||
@@ -77,7 +77,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
               <button
                 key={cat}
                 onClick={() => onChange({ ...filters, category: cat, offset: 0 })}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all whitespace-nowrap ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono transition-all whitespace-nowrap min-h-[40px] flex items-center ${
                   isActive
                     ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-sm'
                     : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
@@ -90,9 +90,11 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
         </div>
 
         {/* Price Range Filter */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          <span>Price (USDC):</span>
+        <div className="flex flex-wrap items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">
+          <div className="flex items-center space-x-1.5">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Price:</span>
+          </div>
           <input
             type="number"
             placeholder="Min"
@@ -105,7 +107,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
                 offset: 0,
               })
             }
-            className="w-16 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none"
+            className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
           />
           <span>-</span>
           <input
@@ -120,7 +122,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
                 offset: 0,
               })
             }
-            className="w-16 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none"
+            className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
           />
         </div>
       </div>

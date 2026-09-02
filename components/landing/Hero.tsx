@@ -124,7 +124,7 @@ export function Hero() {
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.98 }}
               href="#how-it-works"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-base shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-base shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all min-h-[44px]"
             >
               <Bot className="w-5 h-5 mr-2 text-white dark:text-slate-950" />
               <span>Launch an Agent</span>
@@ -135,8 +135,8 @@ export function Hero() {
             <motion.a
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              href="#live-agents"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-base border border-slate-300 dark:border-slate-700/80 hover:border-cyan-500/50 transition-all backdrop-blur-md shadow-sm"
+              href="/marketplace"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-base border border-slate-300 dark:border-slate-700/80 hover:border-cyan-500/50 transition-all backdrop-blur-md shadow-sm min-h-[44px]"
             >
               <Code2 className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
               <span>Browse Marketplace</span>
@@ -146,7 +146,7 @@ export function Hero() {
           {/* Live System Stats Ribbon with Hover Scale */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t border-slate-200 dark:border-slate-800/60 max-w-4xl mx-auto"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-10 border-t border-slate-200 dark:border-slate-800/60 max-w-4xl mx-auto"
           >
             {[
               { label: 'Dev / Stakers / DAO Split', val: '85 / 10 / 5', color: 'text-cyan-600 dark:text-cyan-400' },
@@ -160,7 +160,7 @@ export function Hero() {
                 transition={{ type: 'spring', stiffness: 300 }}
                 className="p-4 rounded-xl glass-panel text-center cursor-default"
               >
-                <div className={`text-2xl font-bold font-mono ${stat.color}`}>{stat.val}</div>
+                <div className={`text-xl sm:text-2xl font-bold font-mono ${stat.color}`}>{stat.val}</div>
                 <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">{stat.label}</div>
               </motion.div>
             ))}

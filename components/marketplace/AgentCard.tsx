@@ -81,7 +81,7 @@ export function AgentCard({ agent }: AgentCardProps) {
 
         <Link
           href={`/agents/${agent.id}`}
-          className="px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-bold text-xs border border-cyan-500/30 transition-all flex items-center space-x-1"
+          className="px-4 py-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-bold text-xs border border-cyan-500/30 transition-all flex items-center space-x-1 min-h-[44px]"
         >
           <span>View Profile</span>
         </Link>

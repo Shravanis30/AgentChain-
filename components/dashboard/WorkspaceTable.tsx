@@ -122,7 +122,7 @@ export function WorkspaceTable() {
       {/* Table Container */}
       <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-xs">
+          <table className="w-full text-left font-mono text-xs min-w-[700px]">
             <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th className="p-4">Workspace / Agent</th>

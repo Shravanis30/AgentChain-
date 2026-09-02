@@ -160,7 +160,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             <Cpu className="w-4 h-4 text-purple-500" />
             Resource Tier Preset
           </label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {resourcePresets.map((tier) => (
               <div
                 key={tier.id}
@@ -197,7 +197,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             <button
               type="button"
               onClick={() => setPricingModel('PER_HOUR')}
-              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all ${
+              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all min-h-[44px] ${
                 pricingModel === 'PER_HOUR'
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400'
                   : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
@@ -210,7 +210,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             <button
               type="button"
               onClick={() => setPricingModel('PER_DAY')}
-              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all ${
+              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all min-h-[44px] ${
                 pricingModel === 'PER_DAY'
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400'
                   : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
@@ -223,7 +223,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             <button
               type="button"
               onClick={() => setPricingModel('CUSTOM_FLAT')}
-              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all ${
+              className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all min-h-[44px] ${
                 pricingModel === 'CUSTOM_FLAT'
                   ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400'
                   : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'

@@ -141,47 +141,49 @@ export function EarningsCard() {
         </div>
 
         <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
-          <table className="w-full text-left font-mono text-xs">
-            <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="p-4">Tx ID / Task</th>
-                <th className="p-4">Gross Task Value</th>
-                <th className="p-4 text-emerald-500">Dev Payout (85%)</th>
-                <th className="p-4 text-purple-400">Stakers (10%)</th>
-                <th className="p-4 text-cyan-400">DAO Fee (5%)</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Timestamp</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
-              {MOCK_TASK_ESCROW_TXS.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                  <td className="p-4">
-                    <div className="font-bold">{tx.id}</div>
-                    <div className="text-[10px] text-slate-400">{tx.taskId}</div>
-                  </td>
-                  <td className="p-4 font-bold">${tx.grossAmountUSDC.toFixed(2)}</td>
-                  <td className="p-4 font-extrabold text-emerald-500">${tx.devPayout85USDC.toFixed(2)}</td>
-                  <td className="p-4 text-purple-400">${tx.stakers10USDC.toFixed(2)}</td>
-                  <td className="p-4 text-cyan-400">${tx.daoFee5USDC.toFixed(2)}</td>
-                  <td className="p-4">
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold text-[10px]">
-                      {tx.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right text-slate-400 text-[11px]">
-                    {new Date(tx.timestamp).toLocaleDateString()}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left font-mono text-xs min-w-[650px]">
+              <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th className="p-4">Tx ID / Task</th>
+                  <th className="p-4">Gross Task Value</th>
+                  <th className="p-4 text-emerald-500">Dev Payout (85%)</th>
+                  <th className="p-4 text-purple-400">Stakers (10%)</th>
+                  <th className="p-4 text-cyan-400">DAO Fee (5%)</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Timestamp</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
+                {MOCK_TASK_ESCROW_TXS.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                    <td className="p-4">
+                      <div className="font-bold">{tx.id}</div>
+                      <div className="text-[10px] text-slate-400">{tx.taskId}</div>
+                    </td>
+                    <td className="p-4 font-bold">${tx.grossAmountUSDC.toFixed(2)}</td>
+                    <td className="p-4 font-extrabold text-emerald-500">${tx.devPayout85USDC.toFixed(2)}</td>
+                    <td className="p-4 text-purple-400">${tx.stakers10USDC.toFixed(2)}</td>
+                    <td className="p-4 text-cyan-400">${tx.daoFee5USDC.toFixed(2)}</td>
+                    <td className="p-4">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold text-[10px]">
+                        {tx.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right text-slate-400 text-[11px]">
+                      {new Date(tx.timestamp).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* REVENUE STREAM 2: WORKSPACE RENTAL EARNINGS (2% Platform Commission) */}
       <div className="space-y-4 pt-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-cyan-500" />
@@ -197,37 +199,39 @@ export function EarningsCard() {
         </div>
 
         <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
-          <table className="w-full text-left font-mono text-xs">
-            <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="p-4">Rental Tx / Workspace</th>
-                <th className="p-4">Renter Address</th>
-                <th className="p-4">Duration</th>
-                <th className="p-4">Gross Rental Income</th>
-                <th className="p-4 text-rose-500">2% Platform Fee</th>
-                <th className="p-4 text-cyan-500">Net Owner Payout</th>
-                <th className="p-4 text-right">Timestamp</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
-              {MOCK_WORKSPACE_RENTAL_TXS.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                  <td className="p-4">
-                    <div className="font-bold">{tx.id}</div>
-                    <div className="text-[10px] text-slate-400">{tx.workspaceId}</div>
-                  </td>
-                  <td className="p-4 text-slate-400">{tx.renterAddress}</td>
-                  <td className="p-4">{tx.durationHours} hrs</td>
-                  <td className="p-4 font-bold">${tx.grossRentalUSDC.toFixed(2)}</td>
-                  <td className="p-4 text-rose-500 font-bold">-${tx.platformFee2USDC.toFixed(2)}</td>
-                  <td className="p-4 font-extrabold text-cyan-500">${tx.netPayoutUSDC.toFixed(2)}</td>
-                  <td className="p-4 text-right text-slate-400 text-[11px]">
-                    {new Date(tx.timestamp).toLocaleDateString()}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left font-mono text-xs min-w-[650px]">
+              <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th className="p-4">Rental Tx / Workspace</th>
+                  <th className="p-4">Renter Address</th>
+                  <th className="p-4">Duration</th>
+                  <th className="p-4">Gross Rental Income</th>
+                  <th className="p-4 text-rose-500">2% Platform Fee</th>
+                  <th className="p-4 text-cyan-500">Net Owner Payout</th>
+                  <th className="p-4 text-right">Timestamp</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
+                {MOCK_WORKSPACE_RENTAL_TXS.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                    <td className="p-4">
+                      <div className="font-bold">{tx.id}</div>
+                      <div className="text-[10px] text-slate-400">{tx.workspaceId}</div>
+                    </td>
+                    <td className="p-4 text-slate-400">{tx.renterAddress}</td>
+                    <td className="p-4">{tx.durationHours} hrs</td>
+                    <td className="p-4 font-bold">${tx.grossRentalUSDC.toFixed(2)}</td>
+                    <td className="p-4 text-rose-500 font-bold">-${tx.platformFee2USDC.toFixed(2)}</td>
+                    <td className="p-4 font-extrabold text-cyan-500">${tx.netPayoutUSDC.toFixed(2)}</td>
+                    <td className="p-4 text-right text-slate-400 text-[11px]">
+                      {new Date(tx.timestamp).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
             // TODO: Phase 6 - wire to real GET /api/v1/workspaces/earnings endpoint once workspace rental billing backend exists
           </div>

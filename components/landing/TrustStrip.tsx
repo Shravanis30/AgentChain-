@@ -60,7 +60,7 @@ export function TrustStrip() {
         </motion.div>
 
         {/* 4 Trust Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {trustFeatures.map((item, index) => {
             const IconComp = item.icon;
             return (
@@ -130,7 +130,7 @@ export function TrustStrip() {
             href="https://github.com/Shravanis30/AgentChain"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-mono font-bold text-cyan-700 dark:text-cyan-400 border border-slate-300 dark:border-slate-700 transition-colors whitespace-nowrap shadow-sm"
+            className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-mono font-bold text-cyan-700 dark:text-cyan-400 border border-slate-300 dark:border-slate-700 transition-colors whitespace-nowrap shadow-sm min-h-[44px] flex items-center"
           >
             Inspect GitHub Source →
           </motion.a>

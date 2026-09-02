@@ -31,11 +31,11 @@ export function Footer() {
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.96 }}
-              onClick={() => alert("Connect Wallet will be enabled in Phase 2 with SIWE integration.")}
-              className="inline-flex items-center space-x-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-cyan-500/25"
+              onClick={() => alert("Connect Wallet will be enabled with SIWE integration.")}
+              className="inline-flex items-center space-x-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-cyan-500/25 min-h-[44px]"
             >
               <Wallet className="w-5 h-5 text-white dark:text-slate-950" />
-              <span>Connect Wallet (Phase 2 Placeholder)</span>
+              <span>Connect Wallet</span>
             </motion.button>
           </div>
         </motion.div>
@@ -43,10 +43,10 @@ export function Footer() {
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200 dark:border-slate-800/80">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
           
           {/* Brand Col */}
-          <div className="md:col-span-2 space-y-4">
+          <div className="sm:col-span-2 md:col-span-2 space-y-4">
             <div className="flex items-center space-x-3">
               <motion.div
                 whileHover={{ rotate: 180 }}
@@ -65,13 +65,13 @@ export function Footer() {
               Production-grade decentralized autonomous AI workforce platform powered by FastAPI, PostgreSQL, SIWE auth, and Solidity escrow.
             </p>
             <div className="flex items-center space-x-3 text-slate-500 dark:text-slate-400">
-              <motion.a whileHover={{ scale: 1.1 }} href="https://github.com/Shravanis30/AgentChain" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm">
+              <motion.a whileHover={{ scale: 1.1 }} href="https://github.com/Shravanis30/AgentChain" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
                 <Github className="w-4 h-4" />
               </motion.a>
-              <motion.a whileHover={{ scale: 1.1 }} href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm">
+              <motion.a whileHover={{ scale: 1.1 }} href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
                 <Twitter className="w-4 h-4" />
               </motion.a>
-              <motion.a whileHover={{ scale: 1.1 }} href="https://discord.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm">
+              <motion.a whileHover={{ scale: 1.1 }} href="https://discord.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center">
                 <Discord className="w-4 h-4" />
               </motion.a>
             </div>

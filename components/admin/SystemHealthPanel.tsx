@@ -48,7 +48,7 @@ export function SystemHealthPanel() {
 
         <button
           onClick={fetchHealth}
-          className="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold hover:bg-amber-500/10 hover:text-amber-500 transition-colors flex items-center space-x-1.5"
+          className="px-3.5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold hover:bg-amber-500/10 hover:text-amber-500 transition-colors flex items-center space-x-1.5 min-h-[44px]"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           <span>Refresh Telemetry</span>

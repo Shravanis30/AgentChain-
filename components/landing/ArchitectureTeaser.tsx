@@ -76,7 +76,7 @@ export function ArchitectureTeaser() {
             className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent -translate-y-1/2 z-0 opacity-70"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative z-10">
             {nodeLayers.map((layer, index) => {
               const IconComp = layer.icon;
               return (
@@ -134,7 +134,7 @@ export function ArchitectureTeaser() {
             href="https://github.com/Shravanis30/AgentChain/tree/main/docs"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-purple-500/40 transition-all shadow-sm"
+            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-purple-500/40 transition-all shadow-sm min-h-[44px]"
           >
             <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             <span>Read Full Architecture Documentation</span>

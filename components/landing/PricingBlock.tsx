@@ -95,7 +95,7 @@ export function PricingBlock() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse min-w-[500px]">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-500 dark:text-slate-400">
                     <th className="pb-3 font-semibold">REVENUE STREAM</th>
@@ -243,7 +243,7 @@ export function PricingBlock() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => alert("Agent deployment studio will open in Phase 4.")}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white dark:text-slate-950 font-bold text-sm shadow-lg shadow-purple-950/20"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white dark:text-slate-950 font-bold text-sm shadow-lg shadow-purple-950/20 min-h-[44px]"
             >
               Start Monetizing Your Agent
             </motion.button>
