@@ -1,40 +1,34 @@
+# Dependencies
+node_modules/
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
+
+# Next.js Build & Cache
+.next/
+out/
+build/
+dist/
+
+# Python & Environment
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
 .venv/
 venv/
 ENV/
-
 .pytest_cache/
 .coverage
 htmlcov/
 
+# Database & Environment Files
 *.db
 *.sqlite3
-
-contracts/node_modules/
-contracts/artifacts/
-contracts/cache/
-node_modules/
-
 .env
 .env.local
+
+# IDE & System
+.DS_Store
+*.log
