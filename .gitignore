@@ -7,8 +7,8 @@ contracts/cache/
 # Next.js Build & Cache
 .next/
 out/
-build/
-dist/
+/build/
+/dist/
 
 # Python & Environment
 __pycache__/

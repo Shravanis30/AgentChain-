@@ -218,4 +218,31 @@ export const api = {
       method: 'POST',
     });
   },
+
+  // GitHub Integration & Build Engine
+  getGitHubRepos: async () => {
+    try {
+      return await apiFetch<any[]>('/api/v1/github/repos');
+    } catch {
+      return [];
+    }
+  },
+
+  createAgentVersionWithRepo: async (agentId: string, payload: {
+    version: string;
+    system_instructions: string;
+    source_type?: string;
+    source_repo?: string;
+    source_ref?: string;
+    changelog?: string;
+  }) => {
+    return apiFetch<any>(`/api/v1/agents/${agentId}/versions`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  getBuildStatus: async (agentId: string, versionId: string) => {
+    return apiFetch<any>(`/api/v1/agents/${agentId}/versions/${versionId}/build`);
+  },
 };

@@ -87,3 +87,47 @@ async def workspace_telemetry_websocket(websocket: WebSocket, workspace_id: str)
             await websocket.close()
         except Exception:
             pass
+
+
+@router.websocket("/builds/{version_id}")
+async def build_log_websocket(websocket: WebSocket, version_id: str):
+    """
+    WebSocket endpoint streaming live container build logs line-by-line to the terminal viewer.
+    """
+    await websocket.accept()
+    logger.info(f"[WS] Client connected to build log stream for version {version_id}")
+
+    try:
+        from backend.db.models import AgentBuild
+        last_log = ""
+
+        while True:
+            async with AsyncSessionLocal() as session:
+                stmt = select(AgentBuild).where(AgentBuild.agent_version_id == version_id).order_by(AgentBuild.built_at.desc())
+                res = await session.execute(stmt)
+                build = res.scalar_one_or_none()
+
+                if build and build.build_log != last_log:
+                    last_log = build.build_log
+                    await websocket.send_json({
+                        "event": "BUILD_LOG_UPDATE",
+                        "version_id": version_id,
+                        "status": build.status,
+                        "image_digest": build.image_digest,
+                        "build_strategy": build.build_strategy,
+                        "build_log": build.build_log
+                    })
+
+                if build and build.status in ["SUCCEEDED", "FAILED", "BLOCKED_SECRET"]:
+                    logger.info(f"[WS] Build for version {version_id} reached terminal state '{build.status}'. Closing socket.")
+                    break
+
+            await asyncio.sleep(1.0)
+    except WebSocketDisconnect:
+        logger.info(f"[WS] Client disconnected from build stream {version_id}")
+    except Exception as e:
+        logger.error(f"[WS] Build WebSocket error: {e}")
+        try:
+            await websocket.close()
+        except Exception:
+            pass

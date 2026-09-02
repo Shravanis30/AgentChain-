@@ -75,6 +75,7 @@ async def metrics_middleware(request: Request, call_next):
     REQUEST_COUNT.labels(method=request.method, endpoint=endpoint, status=response.status_code).inc()
     return response
 
+from backend.routers import auth, agents, marketplace, tasks, financial, admin, websockets, github
 from backend.api.v1 import workspaces
 
 # Mount Modular API Routers
@@ -86,6 +87,7 @@ app.include_router(financial.router)
 app.include_router(admin.router)
 app.include_router(websockets.router)
 app.include_router(workspaces.router)
+app.include_router(github.router)
 
 # Health & Metrics Endpoints
 @app.get("/health", tags=["System"])

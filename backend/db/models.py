@@ -190,11 +190,15 @@ class AgentVersion(Base):
     temperature: Mapped[float] = mapped_column(Numeric(3, 2), default=0.7, nullable=False)
     max_tokens: Mapped[int] = mapped_column(Integer, default=4096, nullable=False)
     runtime_limits: Mapped[Dict[str, Any]] = mapped_column(JSON, default=lambda: {"timeout_sec": 60, "max_memory_mb": 512}, nullable=False)
+    source_type: Mapped[str] = mapped_column(String(20), default="PROMPT_ONLY", nullable=False) # PROMPT_ONLY, REPO_BACKED
+    source_repo: Mapped[Optional[str]] = mapped_column(String(255), nullable=True) # e.g. "Shravanis30/AgentChain-"
+    source_ref: Mapped[Optional[str]] = mapped_column(String(100), nullable=True) # branch or commit SHA
     changelog: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     agent: Mapped["Agent"] = relationship("Agent", back_populates="versions", lazy="selectin")
+    builds: Mapped[List["AgentBuild"]] = relationship("AgentBuild", back_populates="agent_version", cascade="all, delete-orphan", lazy="selectin")
     executions: Mapped[List["Execution"]] = relationship("Execution", back_populates="agent_version", lazy="selectin")
 
     __table_args__ = (
@@ -723,4 +727,55 @@ class WorkspaceUsageRecord(Base):
     billed_amount_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
     platform_fee_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+# ---------------------------------------------------------------------------
+# PHASE 7: GITHUB INTEGRATION & ISOLATED BUILD ENGINE
+# ---------------------------------------------------------------------------
+
+class GitHubInstallation(Base):
+    __tablename__ = "github_installations"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    github_username: Mapped[str] = mapped_column(String(100), nullable=False)
+    installation_id: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    access_token: Mapped[str] = mapped_column(Text, nullable=False)
+    avatar_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    user: Mapped["User"] = relationship("User", lazy="selectin")
+
+
+class BuildJob(Base):
+    __tablename__ = "build_jobs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    agent_id: Mapped[str] = mapped_column(String(36), ForeignKey("agents.id", ondelete="CASCADE"), nullable=False)
+    agent_version_id: Mapped[str] = mapped_column(String(36), ForeignKey("agent_versions.id", ondelete="CASCADE"), nullable=False)
+    owner_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    source_repo: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_ref: Mapped[str] = mapped_column(String(100), default="main", nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True, nullable=False) # QUEUED, BUILDING, SUCCEEDED, FAILED, TIMED_OUT
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    lease_worker_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    lease_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class AgentBuild(Base):
+    __tablename__ = "agent_builds"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    agent_version_id: Mapped[str] = mapped_column(String(36), ForeignKey("agent_versions.id", ondelete="CASCADE"), nullable=False)
+    build_job_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("build_jobs.id", ondelete="SET NULL"), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="SUCCEEDED", nullable=False) # QUEUED, BUILDING, SUCCEEDED, FAILED, BLOCKED_SECRET
+    image_digest: Mapped[str] = mapped_column(String(255), nullable=False) # e.g. registry.agentchain.ai/agents/sol-guard:v1.4.2@sha256:...
+    build_strategy: Mapped[str] = mapped_column(String(50), default="DOCKERFILE", nullable=False) # DOCKERFILE, BUILDPACK, PROMPT_ONLY
+    build_log: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    built_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    agent_version: Mapped["AgentVersion"] = relationship("AgentVersion", back_populates="builds", lazy="selectin")
+
 

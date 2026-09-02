@@ -7,10 +7,11 @@ from sqlalchemy import select, update
 
 from backend.db.session import get_db
 from backend.db.models import (
-    User, Agent, AgentVersion, AgentToolPermission, AgentValidation, AuditLog, utc_now
+    User, Agent, AgentVersion, AgentToolPermission, AgentValidation, AgentBuild, AuditLog, utc_now
 )
 from backend.auth_service.rbac import get_current_user, require_permission, assert_agent_ownership
 from backend.agent_engine.validator import agent_validator
+from backend.build_engine.queue import build_queue
 
 router = APIRouter(prefix="/api/v1/agents", tags=["Agents & Agent Studio"])
 
@@ -30,6 +31,9 @@ class CreateAgentVersionSchema(BaseModel):
     temperature: float = 0.7
     max_tokens: int = 4096
     changelog: Optional[str] = "Initial release"
+    source_type: Optional[str] = "PROMPT_ONLY"
+    source_repo: Optional[str] = None
+    source_ref: Optional[str] = "main"
 
 class CreateAgentSchema(BaseModel):
     name: str
@@ -286,6 +290,8 @@ async def create_agent_version(
     if res_v.scalar_one_or_none():
         raise HTTPException(status_code=400, detail=f"Version '{req.version}' already exists for this agent.")
 
+    source_type = "REPO_BACKED" if req.source_repo else "PROMPT_ONLY"
+
     version = AgentVersion(
         agent_id=agent.id,
         version=req.version,
@@ -294,26 +300,69 @@ async def create_agent_version(
         model_name=req.model_name,
         temperature=req.temperature,
         max_tokens=req.max_tokens,
+        source_type=source_type,
+        source_repo=req.source_repo,
+        source_ref=req.source_ref or "main",
         changelog=req.changelog
     )
     session.add(version)
     await session.flush()
 
     agent.current_version_id = version.id
-    # Reset status to DRAFT so new version goes through validation
     agent.status = "DRAFT"
+
+    # Enqueue container build job if repository-backed
+    if req.source_repo:
+        await build_queue.enqueue_build_job(
+            agent_id=agent.id,
+            agent_version_id=version.id,
+            owner_id=user.id,
+            source_repo=req.source_repo,
+            source_ref=req.source_ref or "main"
+        )
 
     audit = AuditLog(
         actor_id=user.id,
         action="AGENT_VERSION_CREATED",
         resource_type="agent",
         resource_id=agent.id,
-        details={"version": req.version}
+        details={"version": req.version, "source_type": source_type}
     )
     session.add(audit)
     await session.commit()
 
-    return {"status": "success", "version_id": version.id, "version": version.version}
+    return {"status": "success", "version_id": version.id, "version": version.version, "source_type": source_type}
+
+
+@router.get("/{agent_id}/versions/{version_id}/build")
+async def get_version_build_status(
+    agent_id: str,
+    version_id: str,
+    session: AsyncSession = Depends(get_db)
+):
+    """Retrieves live container compilation build status and logs for an agent version."""
+    stmt = select(AgentBuild).where(AgentBuild.agent_version_id == version_id).order_by(AgentBuild.built_at.desc())
+    res = await session.execute(stmt)
+    build = res.scalar_one_or_none()
+
+    if not build:
+        return {
+            "version_id": version_id,
+            "status": "PROMPT_ONLY",
+            "image_digest": "",
+            "build_strategy": "PROMPT_ONLY",
+            "build_log": "[INFO] Prompt-only agent version. No container image build required.",
+            "built_at": utc_now().isoformat()
+        }
+
+    return {
+        "version_id": version_id,
+        "status": build.status,
+        "image_digest": build.image_digest,
+        "build_strategy": build.build_strategy,
+        "build_log": build.build_log,
+        "built_at": build.built_at.isoformat()
+    }
 
 @router.post("/{agent_id}/validate")
 async def validate_agent(
