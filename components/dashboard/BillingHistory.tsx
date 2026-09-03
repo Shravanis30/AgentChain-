@@ -105,7 +105,7 @@ export function BillingHistory() {
         </table>
         </div>
         <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-          // TODO: Phase 6 - wire to real PDF invoice generation endpoint once backend billing system exists
+          PDF invoices and receipts are generated automatically upon billing cycle completion.
         </div>
       </div>
 

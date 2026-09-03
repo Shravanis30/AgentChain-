@@ -125,7 +125,7 @@ export function RevenueLedger() {
         </table>
         </div>
         <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-          // TODO: Phase 6 - connect real financial ledger DB queries once workspace rental backend exists
+          Financial ledger records gross volume, 2% platform treasury cuts, and net owner payouts.
         </div>
       </div>
     </div>

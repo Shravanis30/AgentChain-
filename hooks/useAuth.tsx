@@ -134,6 +134,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRoles([]);
       setPermissions([]);
       setIsLoading(false);
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
   };
 

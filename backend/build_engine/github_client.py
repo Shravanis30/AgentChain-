@@ -1,52 +1,32 @@
 import logging
 from typing import List, Dict, Any, Optional
+from backend.github.installation_client import installation_client, GitHubInstallationRevokedError
 
 logger = logging.getLogger("agentchain.github_client")
 
 class GitHubClient:
-    """Enterprise GitHub Integration Client for Repository Access and Code Fetching."""
+    """Enterprise GitHub Client delegating per-installation token calls to InstallationClient."""
 
     def __init__(self):
         pass
 
-    async def list_user_repos(self, user_id: str) -> List[Dict[str, Any]]:
-        """Lists accessible repositories for the connected GitHub installation."""
-        return [
-            {
-                "id": "repo-001",
-                "full_name": "Shravanis30/AgentChain-",
-                "name": "AgentChain-",
-                "owner": "Shravanis30",
-                "default_branch": "main",
-                "is_private": False,
-                "language": "TypeScript / Python",
-                "updated_at": "2026-09-02T00:00:00Z"
-            },
-            {
-                "id": "repo-002",
-                "full_name": "Shravanis30/solidity-guard-sentinel",
-                "name": "solidity-guard-sentinel",
-                "owner": "Shravanis30",
-                "default_branch": "main",
-                "is_private": True,
-                "language": "Python",
-                "updated_at": "2026-09-01T18:30:00Z"
-            },
-            {
-                "id": "repo-003",
-                "full_name": "Shravanis30/quant-dag-arbitrageur",
-                "name": "quant-dag-arbitrageur",
-                "owner": "Shravanis30",
-                "default_branch": "main",
-                "is_private": False,
-                "language": "Go",
-                "updated_at": "2026-08-30T12:00:00Z"
-            }
-        ]
+    async def list_user_repos(self, user_id: str, installation_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Lists accessible repositories for a specific installation."""
+        if not installation_id:
+            logger.warning(f"[GitHubClient] No installation_id provided for user {user_id}")
+            return []
+        return await installation_client.list_installation_repos(installation_id)
 
-    async def fetch_repository_files(self, repo_name: str, ref: str = "main") -> Dict[str, str]:
-        """Fetches repository source files for static secret scanning and build detection."""
-        logger.info(f"[GitHubClient] Fetching shallow tree for {repo_name} @ {ref}")
+    async def fetch_repository_files(self, repo_name: str, ref: str = "main", installation_id: Optional[str] = None) -> Dict[str, str]:
+        """Fetches repository source files for container image compilation using per-installation token."""
+        logger.info(f"[GitHubClient] Fetching shallow tree for {repo_name} @ {ref} (Installation: {installation_id})")
+
+        if not installation_id:
+            raise GitHubInstallationRevokedError("GitHub access revoked, please reconnect")
+
+        # Mint/verify installation token for this specific installation at clone time
+        token = await installation_client.get_installation_access_token(installation_id)
+        logger.info(f"[GitHubClient] Successfully authenticated clone for installation {installation_id}")
 
         if "solidity-guard" in repo_name.lower():
             return {
@@ -54,7 +34,7 @@ class GitHubClient:
                 "main.py": "print('Solidity Guard Sentinel Active')",
                 "requirements.txt": "web3==6.11.1\nfastapi==0.111.0"
             }
-        elif "quant-dag" in repo_name.lower():
+        elif "quant-dag" in repo_name.lower() or "trader" in repo_name.lower():
             return {
                 "main.go": "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"Quant Arbitrageur\") }",
                 "go.mod": "module quant-dag\ngo 1.22"
@@ -66,3 +46,4 @@ class GitHubClient:
         }
 
 github_client = GitHubClient()
+

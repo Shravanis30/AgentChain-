@@ -31,7 +31,9 @@ export function Footer() {
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.96 }}
-              onClick={() => alert("Connect Wallet will be enabled with SIWE integration.")}
+              onClick={() => {
+                window.location.href = '/dashboard';
+              }}
               className="inline-flex items-center space-x-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-base hover:opacity-95 transition-all shadow-lg shadow-cyan-500/25 min-h-[44px]"
             >
               <Wallet className="w-5 h-5 text-white dark:text-slate-950" />
@@ -133,7 +135,7 @@ export function Footer() {
             © {new Date().getFullYear()} AgentChain Protocol. All rights reserved.
           </div>
           <div>
-            Phase 1 Landing Page Built with Next.js 14+ & Tailwind CSS
+            Built with Next.js 14+ & Tailwind CSS
           </div>
         </div>
 

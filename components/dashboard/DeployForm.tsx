@@ -20,18 +20,80 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
   const [flatPrice, setFlatPrice] = useState<string>('500.00');
   const [flatDurationDays, setFlatDurationDays] = useState<string>('7');
 
+  const [buildStatuses, setBuildStatuses] = useState<Record<string, any>>({});
   const [isProvisioning, setIsProvisioning] = useState<boolean>(false);
   const [provisionStep, setProvisionStep] = useState<number>(0);
   const [success, setSuccess] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getMyAgents().then((data) => {
-      setAgents(data || []);
-      if (data && data.length > 0) {
-        setSelectedAgentId(data[0].id);
+    const fetchAgentsData = async () => {
+      try {
+        const [myAgents, publicAgents] = await Promise.all([
+          api.getMyAgents(),
+          api.getAgents(),
+        ]);
+
+        const combined = [...(myAgents || []), ...(publicAgents || [])];
+        const uniqueAgents = Array.from(
+          new Map(combined.map((ag) => [ag.id, ag])).values()
+        );
+
+        setAgents(uniqueAgents);
+        if (uniqueAgents.length > 0) {
+          setSelectedAgentId(uniqueAgents[0].id);
+
+          const statusMap: Record<string, any> = {};
+          await Promise.all(
+            uniqueAgents.map(async (ag) => {
+              if (ag.current_version_id) {
+                try {
+                  const b = await api.getBuildStatus(ag.id, ag.current_version_id);
+                  statusMap[ag.id] = b;
+                } catch {
+                  statusMap[ag.id] = { status: 'PROMPT_ONLY' };
+                }
+              }
+            })
+          );
+          setBuildStatuses(statusMap);
+        }
+      } catch (err: any) {
+        console.warn('Agent fetch warning:', err);
       }
-    });
+    };
+    fetchAgentsData();
   }, []);
+
+  const selectedAgent = agents.find((ag) => ag.id === selectedAgentId);
+  const selectedBuild = selectedAgentId ? buildStatuses[selectedAgentId] : null;
+
+  // Pricing range validation
+  const parsedHourly = parseFloat(hourlyRate);
+  const parsedDaily = parseFloat(dailyRate);
+  const parsedFlatPrice = parseFloat(flatPrice);
+  const parsedFlatDays = parseInt(flatDurationDays);
+
+  const getValidationError = (): string | null => {
+    if (!selectedAgentId) return 'Please select an agent to deploy.';
+    if (pricingModel === 'PER_HOUR' && (isNaN(parsedHourly) || parsedHourly <= 0)) {
+      return 'Hourly lease rate must be greater than 0 USDC.';
+    }
+    if (pricingModel === 'PER_DAY' && (isNaN(parsedDaily) || parsedDaily <= 0)) {
+      return 'Daily lease rate must be greater than 0 USDC.';
+    }
+    if (pricingModel === 'CUSTOM_FLAT') {
+      if (isNaN(parsedFlatPrice) || parsedFlatPrice <= 0) {
+        return 'Flat rate price must be greater than 0 USDC.';
+      }
+      if (isNaN(parsedFlatDays) || parsedFlatDays < 1) {
+        return 'Fixed lease duration must be at least 1 day.';
+      }
+    }
+    return null;
+  };
+
+  const validationError = getValidationError();
 
   const resourcePresets = [
     {
@@ -59,10 +121,18 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (validationError) return;
+
+    setErrorMsg(null);
     setIsProvisioning(true);
     setProvisionStep(1);
 
-    const rate = pricingModel === 'PER_HOUR' ? parseFloat(hourlyRate) : (pricingModel === 'PER_DAY' ? parseFloat(dailyRate) : parseFloat(flatPrice));
+    const rate =
+      pricingModel === 'PER_HOUR'
+        ? parsedHourly
+        : pricingModel === 'PER_DAY'
+        ? parsedDaily
+        : parsedFlatPrice;
 
     try {
       setProvisionStep(2);
@@ -71,21 +141,35 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
         resource_tier: resourceTier,
         pricing_mode: pricingModel,
         rate_usdc: rate,
-        flat_duration_days: pricingModel === 'CUSTOM_FLAT' ? parseInt(flatDurationDays) : undefined,
+        flat_duration_days: pricingModel === 'CUSTOM_FLAT' ? parsedFlatDays : undefined,
       });
       setProvisionStep(3);
-    } catch (err) {
-      console.warn('Workspace provision notice:', err);
+      setSuccess(true);
+      if (onDeployed) onDeployed();
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to provision container workspace.';
+      setErrorMsg(msg);
     } finally {
       setProvisionStep(4);
       setIsProvisioning(false);
-      setSuccess(true);
-      if (onDeployed) onDeployed();
     }
   };
 
   return (
     <div className="space-y-8">
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-mono text-xs flex items-center justify-between">
+          <p className="font-bold">Error: {errorMsg}</p>
+          <button
+            onClick={() => setErrorMsg(null)}
+            className="px-3 py-1 rounded bg-rose-500/20 text-rose-400 font-bold hover:bg-rose-500/30 transition-colors"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Success Notification */}
       {success && (
         <motion.div
@@ -125,17 +209,24 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20">
-            Phase 4 UI Preview
-          </span>
         </div>
 
         {/* 1. Agent Selection */}
         <div className="space-y-2">
-          <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <Bot className="w-4 h-4 text-cyan-500" />
-            Select Agent to Deploy
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Bot className="w-4 h-4 text-cyan-500" />
+              Select Agent to Deploy
+            </label>
+            {agents.length === 0 && (
+              <a
+                href="/dashboard/agents/new"
+                className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1"
+              >
+                <span>+ Create New Agent</span>
+              </a>
+            )}
+          </div>
           <select
             value={selectedAgentId}
             onChange={(e) => setSelectedAgentId(e.target.value)}
@@ -145,13 +236,47 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             {agents.length === 0 ? (
               <option value="">No owned agents found (create an agent first)</option>
             ) : (
-              agents.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name} ({agent.current_version || 'v1.0.0'}) • {agent.category}
-                </option>
-              ))
+              agents.map((agent) => {
+                const b = buildStatuses[agent.id];
+                const bLabel = b?.status ? ` [Build: ${b.status}]` : '';
+                return (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name} ({agent.current_version || 'v1.0.0'}{bLabel}) • {agent.category}
+                  </option>
+                );
+              })
             )}
           </select>
+
+          {selectedBuild && (
+            <div className="flex items-center justify-between font-mono text-xs pt-1 px-1">
+              <span className="text-slate-500">
+                Container Image Build Status:
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  selectedBuild.status === 'SUCCEEDED'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                    : selectedBuild.status === 'BUILDING'
+                    ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 animate-pulse'
+                    : selectedBuild.status === 'BLOCKED_SECRET' || selectedBuild.status === 'FAILED'
+                    ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                    : 'bg-slate-500/10 text-slate-400 border border-slate-500/30'
+                }`}
+              >
+                {selectedBuild.status || 'PROMPT_ONLY'}
+              </span>
+            </div>
+          )}
+
+          {agents.length === 0 && (
+            <p className="text-[11px] font-mono text-amber-500 pt-1">
+              No agents created yet.{' '}
+              <a href="/dashboard/agents/new" className="font-bold underline">
+                Click here to create your first agent
+              </a>
+            </p>
+          )}
         </div>
 
         {/* 2. Resource Tier Presets */}
@@ -301,18 +426,31 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
               </div>
             )}
 
+            {validationError && (
+              <p className="text-[11px] font-mono text-rose-500 font-bold">
+                ⚠️ {validationError}
+              </p>
+            )}
+
             <div className="text-[11px] font-mono text-slate-400">
-              // TODO: Phase 6 - wire to real workspace rental pricing & billing backend once endpoint exists
+              Escrow settlements and lease rates automatically calculated based on resource tier.
             </div>
           </div>
         </div>
 
         {/* Action Button */}
-        <div className="pt-4 flex justify-end">
+        <div className="pt-4 flex items-center justify-between">
+          <div className="text-xs font-mono text-slate-500">
+            {validationError ? (
+              <span className="text-rose-500 font-semibold">{validationError}</span>
+            ) : (
+              <span>Ready for container allocation</span>
+            )}
+          </div>
           <button
             type="submit"
-            disabled={isProvisioning}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 hover:opacity-95 transition-opacity flex items-center space-x-2"
+            disabled={isProvisioning || !!validationError || agents.length === 0}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center space-x-2"
           >
             {isProvisioning ? (
               <>

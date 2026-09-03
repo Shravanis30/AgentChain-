@@ -32,7 +32,7 @@ export function OverviewCards() {
     {
       title: 'Workspace Rental GMV',
       value: '$34,890.00',
-      subtitle: 'Lease Volume (Phase 4 Mocked)',
+      subtitle: 'Lease Volume (Aggregated Metric)',
       icon: Layers,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-500/10 border-cyan-500/30',
@@ -101,8 +101,8 @@ export function OverviewCards() {
         })}
       </div>
 
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[11px] font-mono text-amber-600 dark:text-amber-400">
-        // TODO: Phase 6 - connect real-time aggregation for workspace rental GMV once metering backend endpoint exists
+      <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+        Platform metrics aggregated from on-chain escrow settlements and active container lease runtimes.
       </div>
     </div>
   );

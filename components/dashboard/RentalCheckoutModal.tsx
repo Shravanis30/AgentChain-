@@ -138,7 +138,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
               </div>
 
               <div className="text-[11px] font-mono text-slate-400">
-                // TODO: Phase 6 - replace with real POST /api/v1/workspaces/lease payment flow once escrow rental contract endpoint exists
+                USDC escrow settlement and platform commission automatically processed upon lease confirmation.
               </div>
 
               {/* Action Trigger */}

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # SIWE Specifications
     SIWE_DOMAIN: str = os.getenv("SIWE_DOMAIN", "agentchain.ai")
     SIWE_URI: str = os.getenv("SIWE_URI", "https://agentchain.ai")
-    SUPPORTED_CHAIN_IDS: List[int] = [137, 80002, 1]
+    SUPPORTED_CHAIN_IDS: List[int] = [1, 137, 80002, 11155111, 31337, 84532, 421614, 11155420]
 
     # Database
     DATABASE_URL: str = os.getenv(
@@ -44,7 +44,38 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    # GitHub App Credentials (Multi-Tenant Integration)
+    GITHUB_APP_ID: str = os.getenv("GITHUB_APP_ID", "4802496")
+    GITHUB_APP_CLIENT_ID: str = os.getenv("GITHUB_APP_CLIENT_ID", "Iv23liymNV2R7YU7Wtbx")
+    GITHUB_APP_CLIENT_SECRET: str = os.getenv("GITHUB_APP_CLIENT_SECRET", "01db4c0c1346d75cdbddc7dbf10a9071bad43bdf")
+    GITHUB_APP_PRIVATE_KEY: str = os.getenv("GITHUB_APP_PRIVATE_KEY", """-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAsCWgiOtTpDlVyoQDksatGdRqEsz+WwJ2K4Wjk9yMRfRwr8+m
+nq3mzoYF7omZ7iHfPV8GcxOGCJkWaGzhv3TO22jHgc7KDfty8dwv+zVg53G3p376
+bU7y7zAZHIh806HgPrfQigORuo39wmW3ma9XQyZfVh1zg/eivd1tCTOuf78f+ag7
+kcwkS/n0mOqAk2lKMei3+Hmvr5Uu4CQZ6J54S5zq0KvTjouwCIvgglcLBzeSWv0r
+/dOWb1m2zOkClN5fAvT2FvrMbJ4NsLsB8OflFiq8QFnUvS3qM0nwBnOHfBzR73in
+dkn8zHY+A3DLQK6P5gOEwthNnt2U51+0+/UXewIDAQABAoIBAHUdr20ZuhT4ohfy
+SkXunu0LlDNH5N4x9svdIPOQshtY+QuL7uaWDV3HMm51QslX8AvoAGvG0VkqIAHy
+Uu5vBZJQSkX+bc16H+S7V5OY3ANGUquk+3BuC4wI2Mll3kj/2g8ZPChnUx9MhSoZ
+Y0dlk4lsG/svvbxCjAvdC0ARAragDIlpMiBYjZ+5v4nWDstcdeTXYeNcQzSbtgQO
+MDKQYgm58ijrU1PDAezPZnS34s95sALBc/U6u9GFFlISKIfEqcbccpIxEDinKuZd
+vdpHOzfxhpPGTjWHi5HNIyvBXC6+md56Hxs1Vqx+4Cq3XcGO2Zs1dhmq/HBVHq0x
+plcfDaECgYEA1cVrtlL71PINlLa3zCMkdNRPnMOHybPBeFupnVMw7pZfflRPaLmr
+g2u1kr21CZjmtH3hitDQ33U2CZxxcf3p4P67Ss6ugatnEN9mw7laxHVfUSokToyL
+tjMfbfkIuWZ1a/vNZv4SrM78YQ6OPIBq8NTcrh3vvel4BR5UFWvk5PkCgYEA0vGF
+ULOVHO4JkPFbrH+2gjDJjzwlmHmJRbG0GJXxBK8kR3fCCu6wUV48hb64c3s89AWX
+G4Od4XnPl/M1+NlWFGi/DE+q4Ms0u/KvFPxWBbaiOyZ9VEzGz2BcNJEcCFRQDlMm
+iV8Ocjshr6+M3HX/8g7LoFQVrmRk2ckpNn0UIRMCgYB1/LzyqOKuKdstFZxkY5Ef
+mn9GevVbcod6Mr1vRBdh2EVkqIwbtT7hDnXtRB/D6EyNmlz+DTr72um0bFCBJjAM
+KwycwW63yy7btTI3HProLBAr8CKR6CjEq3rRa/5QtihhLV21Vs5f6u6Jc0s2QXrE
+6ffTclp8a3v+9zpZiG+RoQKBgQDDWH0AHj5Bm0LqokkmNuM6L5oI9kdOq4ZvL0C7
+3+diUhtDv+jHnQFVaPKdXOCNuRvaU277QOitjNOtQMLDn+kyX0pFSWXSZPyB7R0s
+Tv4OrnIQWvWHYs5d7zuURqlyITo9+czfPFMxgAcTHnxREUmjzQXPhO7LIBexA7QR
+zMUeVwKBgH/ILqNcyYlF/MDp7ni/bJ/Zv5HYMOQZLwcrSkFJf0pYTkIA4uzYlIWH
+a5BXNR5EN1h7AMj2KjzoY43NEz+nlQ404nFp605YODY+K7lL3EeGzr5fVP2bfu3x
++fr02dpcYhAPeF1DF1zqumQBaQwstakmixdR9gntqVqfQdiCV6Fa
+-----END RSA PRIVATE KEY-----""")
+    GITHUB_APP_SLUG: str = os.getenv("GITHUB_APP_SLUG", "agentchainapp")
 
     # Blockchain & Smart Contracts
     POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology")

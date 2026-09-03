@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 
 from backend.db.session import get_db
 from backend.db.models import (
-    User, Agent, AgentVersion, AgentToolPermission, AgentValidation, AgentBuild, AuditLog, utc_now
+    User, Agent, AgentVersion, AgentToolPermission, AgentValidation, AgentBuild, AuditLog, GitHubInstallation, utc_now
 )
 from backend.auth_service.rbac import get_current_user, require_permission, assert_agent_ownership
 from backend.agent_engine.validator import agent_validator
@@ -34,6 +35,7 @@ class CreateAgentVersionSchema(BaseModel):
     source_type: Optional[str] = "PROMPT_ONLY"
     source_repo: Optional[str] = None
     source_ref: Optional[str] = "main"
+    installation_id: Optional[str] = None
 
 class CreateAgentSchema(BaseModel):
     name: str
@@ -45,12 +47,45 @@ class CreateAgentSchema(BaseModel):
     initial_version: CreateAgentVersionSchema
     tool_permissions: Optional[List[CreateToolPermissionSchema]] = []
 
+class PublishAgentSchema(BaseModel):
+    tx_hash: Optional[str] = None
+    block_number: Optional[int] = None
+
 class UpdateAgentSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
     price_per_call_usdc: Optional[float] = None
     pricing_model: Optional[str] = None
+
+@router.get("")
+async def list_public_agents(session: AsyncSession = Depends(get_db)):
+    """Lists published & approved agents in the registry."""
+    stmt = (
+        select(Agent)
+        .options(selectinload(Agent.versions))
+        .where(Agent.status.in_(["PUBLISHED", "APPROVED"]))
+        .order_by(Agent.created_at.desc())
+    )
+    res = await session.execute(stmt)
+    agents = res.scalars().all()
+    return [
+        {
+            "id": a.id,
+            "name": a.name,
+            "slug": a.slug,
+            "description": a.description,
+            "category": a.category,
+            "status": a.status,
+            "price_per_call_usdc": float(a.price_per_call_usdc),
+            "pricing_model": a.pricing_model,
+            "current_version": a.versions[-1].version if a.versions else "v1.0.0",
+            "model_provider": a.versions[-1].model_provider if a.versions else "openai",
+            "model_name": a.versions[-1].model_name if a.versions else "gpt-4o",
+            "created_at": a.created_at.isoformat(),
+        }
+        for a in agents
+    ]
 
 @router.post("", dependencies=[Depends(require_permission("agent:create"))])
 async def create_agent(
@@ -82,6 +117,7 @@ async def create_agent(
     await session.flush()
 
     v = req.initial_version
+    source_type = "REPO_BACKED" if v.source_repo else (v.source_type or "PROMPT_ONLY")
     version = AgentVersion(
         agent_id=agent.id,
         version=v.version,
@@ -90,6 +126,9 @@ async def create_agent(
         model_name=v.model_name,
         temperature=v.temperature,
         max_tokens=v.max_tokens,
+        source_type=source_type,
+        source_repo=v.source_repo,
+        source_ref=v.source_ref or "main",
         changelog=v.changelog
     )
     session.add(version)
@@ -120,6 +159,26 @@ async def create_agent(
     session.add(audit)
     await session.commit()
 
+    if v.source_repo:
+        installation_id = v.installation_id
+        if not installation_id:
+            stmt = select(GitHubInstallation).where(GitHubInstallation.user_id == user.id).order_by(GitHubInstallation.created_at.desc())
+            res = await session.execute(stmt)
+            insts = res.scalars().all()
+            if insts:
+                owner_login = v.source_repo.split('/')[0] if '/' in v.source_repo else None
+                matched = next((i for i in insts if i.account_login == owner_login), insts[0])
+                installation_id = matched.installation_id
+
+        await build_queue.enqueue_build_job(
+            agent_id=agent.id,
+            agent_version_id=version.id,
+            owner_id=user.id,
+            source_repo=v.source_repo,
+            source_ref=v.source_ref or "main",
+            installation_id=installation_id
+        )
+
     return {
         "status": "success",
         "agent_id": agent.id,
@@ -135,7 +194,7 @@ async def list_my_agents(
     session: AsyncSession = Depends(get_db)
 ):
     """Lists all AI agents created by the authenticated user."""
-    stmt = select(Agent).where(Agent.owner_id == user.id).order_by(Agent.created_at.desc())
+    stmt = select(Agent).options(selectinload(Agent.versions)).where(Agent.owner_id == user.id).order_by(Agent.created_at.desc())
     res = await session.execute(stmt)
     agents = res.scalars().all()
 
@@ -172,7 +231,15 @@ async def get_agent_detail(
     session: AsyncSession = Depends(get_db)
 ):
     """Retrieves full agent configuration, versions, and validation results (IDOR ownership checked)."""
-    stmt = select(Agent).where(Agent.id == agent_id)
+    stmt = (
+        select(Agent)
+        .options(
+            selectinload(Agent.versions),
+            selectinload(Agent.tool_permissions),
+            selectinload(Agent.validations)
+        )
+        .where(Agent.id == agent_id)
+    )
     res = await session.execute(stmt)
     agent = res.scalar_one_or_none()
 
@@ -203,7 +270,9 @@ async def get_agent_detail(
             "model_provider": active_v.model_provider,
             "model_name": active_v.model_name,
             "temperature": float(active_v.temperature),
-            "max_tokens": active_v.max_tokens
+            "max_tokens": active_v.max_tokens,
+            "onchain_tx_hash": getattr(active_v, "onchain_tx_hash", None),
+            "onchain_block_number": getattr(active_v, "onchain_block_number", None)
         } if active_v else None,
         "versions": [
             {"id": v.id, "version": v.version, "changelog": v.changelog, "created_at": v.created_at.isoformat()}
@@ -311,16 +380,6 @@ async def create_agent_version(
     agent.current_version_id = version.id
     agent.status = "DRAFT"
 
-    # Enqueue container build job if repository-backed
-    if req.source_repo:
-        await build_queue.enqueue_build_job(
-            agent_id=agent.id,
-            agent_version_id=version.id,
-            owner_id=user.id,
-            source_repo=req.source_repo,
-            source_ref=req.source_ref or "main"
-        )
-
     audit = AuditLog(
         actor_id=user.id,
         action="AGENT_VERSION_CREATED",
@@ -330,6 +389,27 @@ async def create_agent_version(
     )
     session.add(audit)
     await session.commit()
+
+    # Enqueue container build job if repository-backed
+    if req.source_repo:
+        installation_id = req.installation_id
+        if not installation_id:
+            stmt = select(GitHubInstallation).where(GitHubInstallation.user_id == user.id).order_by(GitHubInstallation.created_at.desc())
+            res = await session.execute(stmt)
+            insts = res.scalars().all()
+            if insts:
+                owner_login = req.source_repo.split('/')[0] if '/' in req.source_repo else None
+                matched = next((i for i in insts if i.account_login == owner_login), insts[0])
+                installation_id = matched.installation_id
+
+        await build_queue.enqueue_build_job(
+            agent_id=agent.id,
+            agent_version_id=version.id,
+            owner_id=user.id,
+            source_repo=req.source_repo,
+            source_ref=req.source_ref or "main",
+            installation_id=installation_id
+        )
 
     return {"status": "success", "version_id": version.id, "version": version.version, "source_type": source_type}
 
@@ -481,10 +561,11 @@ async def submit_agent_for_review(
 @router.post("/{agent_id}/publish")
 async def publish_agent(
     agent_id: str,
+    req: Optional[PublishAgentSchema] = None,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db)
 ):
-    """Publishes an APPROVED agent to the public marketplace."""
+    """Publishes a VALIDATED or APPROVED agent to the public marketplace after on-chain confirmation."""
     stmt = select(Agent).where(Agent.id == agent_id)
     res = await session.execute(stmt)
     agent = res.scalar_one_or_none()
@@ -504,16 +585,30 @@ async def publish_agent(
     agent.status = "PUBLISHED"
     agent.published_at = utc_now()
 
+    if req and agent.versions:
+        active_v = agent.versions[-1]
+        if req.tx_hash:
+            active_v.onchain_tx_hash = req.tx_hash
+        if req.block_number:
+            active_v.onchain_block_number = req.block_number
+
     audit = AuditLog(
         actor_id=user.id,
         action="AGENT_PUBLISHED",
         resource_type="agent",
-        resource_id=agent.id
+        resource_id=agent.id,
+        details={"tx_hash": req.tx_hash if req else None, "block_number": req.block_number if req else None}
     )
     session.add(audit)
     await session.commit()
 
-    return {"status": "success", "agent_id": agent.id, "new_status": agent.status}
+    return {
+        "status": "success",
+        "agent_id": agent.id,
+        "new_status": agent.status,
+        "tx_hash": req.tx_hash if req else None,
+        "block_number": req.block_number if req else None
+    }
 
 @router.post("/{agent_id}/pause")
 async def pause_agent(

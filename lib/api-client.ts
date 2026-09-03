@@ -31,12 +31,13 @@ export interface AgentItem {
   slug: string;
   description: string;
   category: string;
-  status: 'DRAFT' | 'RUNNING' | 'IDLE' | 'ARCHIVED';
+  status: 'DRAFT' | 'VALIDATED' | 'VALIDATION_FAILED' | 'PENDING_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'PAUSED' | 'RUNNING' | 'IDLE' | 'ARCHIVED' | string;
   price_per_call_usdc: number;
   pricing_model: string;
   rating?: number;
   completed_tasks?: number;
   current_version?: string;
+  current_version_id?: string;
   model_provider?: string;
   model_name?: string;
   system_instructions?: string;
@@ -142,6 +143,23 @@ export const api = {
     }
   },
 
+  getAgents: async (): Promise<AgentItem[]> => {
+    try {
+      const res = await apiFetch<any>('/api/v1/agents');
+      if (Array.isArray(res)) return res;
+      if (res && Array.isArray(res.items)) return res.items;
+      if (res && Array.isArray(res.agents)) return res.agents;
+      return [];
+    } catch {
+      try {
+        const mres = await apiFetch<any>('/api/v1/marketplace/agents');
+        return mres.agents || [];
+      } catch {
+        return [];
+      }
+    }
+  },
+
   createAgent: async (payload: {
     name: string;
     slug: string;
@@ -157,8 +175,17 @@ export const api = {
       temperature: number;
       max_tokens: number;
     };
-  }): Promise<AgentItem> => {
-    return apiFetch<AgentItem>('/api/v1/agents', {
+    tool_permissions?: any[];
+  }): Promise<{
+    status: string;
+    agent_id: string;
+    id?: string;
+    name: string;
+    slug: string;
+    current_status: string;
+    version: string;
+  }> => {
+    return apiFetch<any>('/api/v1/agents', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -220,12 +247,45 @@ export const api = {
   },
 
   // GitHub Integration & Build Engine
-  getGitHubRepos: async () => {
+  getGitHubInstallUrl: async (redirectPath: string = '/dashboard/settings/connected-accounts') => {
+    return apiFetch<{ install_url: string; state: string }>(`/api/v1/github/install?redirect_path=${encodeURIComponent(redirectPath)}`);
+  },
+
+  connectDevGitHub: async () => {
+    return apiFetch<any>('/api/v1/github/connect-dev', { method: 'POST' });
+  },
+
+  getGitHubRepos: async (): Promise<{
+    connected: boolean;
+    installations: any[];
+    repos: any[];
+  }> => {
     try {
-      return await apiFetch<any[]>('/api/v1/github/repos');
+      const data = await apiFetch<any>('/api/v1/github/repos');
+      if (typeof data === 'object' && 'connected' in data) {
+        return data;
+      }
+      if (Array.isArray(data)) {
+        return { connected: data.length > 0, installations: [], repos: data };
+      }
+      return { connected: false, installations: [], repos: [] };
+    } catch {
+      return { connected: false, installations: [], repos: [] };
+    }
+  },
+
+  getGitHubInstallations: async () => {
+    try {
+      return await apiFetch<any[]>('/api/v1/github/installations');
     } catch {
       return [];
     }
+  },
+
+  disconnectGitHubInstallation: async (installationDbId: string) => {
+    return apiFetch<any>(`/api/v1/github/installations/${installationDbId}`, {
+      method: 'DELETE',
+    });
   },
 
   createAgentVersionWithRepo: async (agentId: string, payload: {
@@ -234,6 +294,7 @@ export const api = {
     source_type?: string;
     source_repo?: string;
     source_ref?: string;
+    installation_id?: string;
     changelog?: string;
   }) => {
     return apiFetch<any>(`/api/v1/agents/${agentId}/versions`, {
@@ -244,5 +305,37 @@ export const api = {
 
   getBuildStatus: async (agentId: string, versionId: string) => {
     return apiFetch<any>(`/api/v1/agents/${agentId}/versions/${versionId}/build`);
+  },
+
+  getAgentDetail: async (agentId: string) => {
+    return apiFetch<any>(`/api/v1/agents/${agentId}`);
+  },
+
+  validateAgent: async (agentId: string) => {
+    return apiFetch<{
+      status: string;
+      validation_id: string;
+      passed: boolean;
+      validation_passed: boolean;
+      new_status: string;
+      new_agent_status: string;
+      risk_score: number;
+      findings: any[];
+    }>(`/api/v1/agents/${agentId}/validate`, {
+      method: 'POST',
+    });
+  },
+
+  publishAgent: async (agentId: string, payload?: { tx_hash?: string; block_number?: number }) => {
+    return apiFetch<{
+      status: string;
+      agent_id: string;
+      new_status: string;
+      tx_hash?: string;
+      block_number?: number;
+    }>(`/api/v1/agents/${agentId}/publish`, {
+      method: 'POST',
+      body: payload ? JSON.stringify(payload) : undefined,
+    });
   },
 };

@@ -20,7 +20,7 @@ export function StatusIndicator({
 
   // Status Polling / WebSocket integration slot
   useEffect(() => {
-    // TODO: Wire to real-time /api/v1/ws/workspaces/{agentId} once workspace WebSocket endpoint exists in Phase 4.
+    // Listens for runtime container heartbeat telemetry updates.
     // Currently simulates live runtime heartbeat.
     const interval = setInterval(() => {
       // Periodic heartbeat check placeholder

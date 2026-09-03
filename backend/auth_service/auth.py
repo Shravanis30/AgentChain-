@@ -303,16 +303,27 @@ class AuthService:
             )
             session.add(wallet)
 
-            stmt_role = select(Role).where(Role.name == "USER")
-            res_role = await session.execute(stmt_role)
-            user_role_obj = res_role.scalar_one_or_none()
-            if user_role_obj:
-                ur = UserRole(user_id=user.id, role_id=user_role_obj.id)
-                session.add(ur)
+            for role_name in ["AGENT_OWNER", "USER"]:
+                stmt_role = select(Role).where(Role.name == role_name)
+                res_role = await session.execute(stmt_role)
+                role_obj = res_role.scalar_one_or_none()
+                if role_obj:
+                    ur = UserRole(user_id=user.id, role_id=role_obj.id)
+                    session.add(ur)
 
             await session.flush()
 
+        # Ensure existing wallet users have AGENT_OWNER role as well
         roles, permissions = await self.get_user_roles_and_permissions(session, user.id)
+        if "AGENT_OWNER" not in roles:
+            stmt_role = select(Role).where(Role.name == "AGENT_OWNER")
+            res_role = await session.execute(stmt_role)
+            role_obj = res_role.scalar_one_or_none()
+            if role_obj:
+                ur = UserRole(user_id=user.id, role_id=role_obj.id)
+                session.add(ur)
+                await session.commit()
+                roles, permissions = await self.get_user_roles_and_permissions(session, user.id)
 
         # 6. Issue JWT & Session
         token = self.create_access_token(

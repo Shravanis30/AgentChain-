@@ -247,7 +247,6 @@ export default function AgentProfilePage() {
                   ${agent.price_per_call_usdc.toFixed(2)}
                   <span className="text-xs font-sans text-slate-400 font-normal">USDC / call</span>
                 </div>
-                {/* TODO: wire to real workspace rental pricing once backend endpoint exists */}
                 <p className="text-[11px] text-slate-500 font-mono pt-1">
                   Hourly lease & pay-per-call oracle settlement via Solidity Escrow.
                 </p>

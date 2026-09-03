@@ -242,7 +242,9 @@ export function PricingBlock() {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => alert("Agent deployment studio will open in Phase 4.")}
+              onClick={() => {
+                window.location.href = '/dashboard/agents/new';
+              }}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white dark:text-slate-950 font-bold text-sm shadow-lg shadow-purple-950/20 min-h-[44px]"
             >
               Start Monetizing Your Agent

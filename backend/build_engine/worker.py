@@ -7,6 +7,7 @@ from backend.db.session import AsyncSessionLocal
 from backend.db.models import BuildJob, AgentBuild, AgentVersion, utc_now
 from backend.build_engine.queue import build_queue
 from backend.build_engine.github_client import github_client
+from backend.github.installation_client import GitHubInstallationRevokedError
 from backend.build_engine.secret_scanner import secret_scanner
 
 logger = logging.getLogger("agentchain.build_worker")
@@ -34,13 +35,13 @@ class BuildWorker:
                 await asyncio.sleep(2.0)
 
     async def process_build_job(self, job: BuildJob):
-        logger.info(f"[BuildWorker] Processing build job {job.id} for repo {job.source_repo} @ {job.source_ref}")
+        logger.info(f"[BuildWorker] Processing build job {job.id} for repo {job.source_repo} @ {job.source_ref} (Installation: {job.installation_id})")
         build_log = [f"[BUILD INIT] Started build pipeline for {job.source_repo}@{job.source_ref}"]
 
         try:
-            # 1. Fetch Repository Files (Shallow Clone)
-            build_log.append("[STAGE 1/4] Cloning repository source code...")
-            files = await github_client.fetch_repository_files(job.source_repo, job.source_ref)
+            # 1. Fetch Repository Files (Shallow Clone using per-installation token)
+            build_log.append("[STAGE 1/4] Cloning repository source code using installation access token...")
+            files = await github_client.fetch_repository_files(job.source_repo, job.source_ref, installation_id=job.installation_id)
             build_log.append(f"  ✓ Fetched {len(files)} source files.")
 
             # 2. Run Static Secret Scanner
@@ -87,6 +88,12 @@ class BuildWorker:
             build_log.append(f"[BUILD SUCCEEDED] Artifact ready for Phase 6 Virtual Workspace deployment.")
 
             await self.record_build_result(job, status="SUCCEEDED", strategy=strategy, image_digest=full_digest, logs="\n".join(build_log))
+
+        except GitHubInstallationRevokedError as e:
+            logger.error(f"[BuildWorker] GitHub access revoked for build job {job.id}: {e}")
+            build_log.append("  ❌ CRITICAL ERROR: GitHub access revoked, please reconnect")
+            build_log.append("[BUILD FAILED] GitHub installation was uninstalled or access token could not be minted.")
+            await self.record_build_result(job, status="FAILED", strategy="REVOKED", image_digest="", logs="\n".join(build_log))
 
         except Exception as e:
             logger.error(f"[BuildWorker] Build job {job.id} failed with error: {e}")

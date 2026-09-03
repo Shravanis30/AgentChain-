@@ -1,22 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { ConnectButton } from '@/components/wallet/ConnectButton';
-import { Cpu, Mail, Lock, User, UserPlus, AlertCircle, Wallet, ShieldCheck } from 'lucide-react';
+import { Cpu, Mail, Lock, User, UserPlus, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { registerWithPassword, isLoading, error, clearError } = useAuth();
+  const { registerWithPassword, isLoading, error, isAuthenticated, clearError } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('AGENT_OWNER');
   const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +41,7 @@ export default function RegisterPage() {
 
     try {
       await registerWithPassword(email, password, fullName, role);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setFormError(err.message || 'Registration failed.');
     }
@@ -69,21 +75,13 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Informational Wallet Notice Banner */}
-        <div className="p-3.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-950/40 border border-cyan-500/30 text-xs text-slate-700 dark:text-slate-300 flex items-start space-x-2.5">
-          <Wallet className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
-          <span>
-            <strong className="text-cyan-700 dark:text-cyan-400 font-semibold">Wallet Linking Notice:</strong> Signing up with email creates your identity. Before deploying agents or receiving payouts, link a Web3 wallet.
-          </span>
-        </div>
-
-        {/* SIWE Fast Sign Up Card */}
-        <div className="p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 text-center">
-          <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            WEB3 FAST TRACK
+        {/* MetaMask / Web3 Fast Sign Up Card */}
+        <div className="p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 text-center shadow-md">
+          <span className="text-xs font-mono font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider block">
+            METAMASK & WEB3 FAST TRACK
           </span>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Sign In & Register instantly with your Ethereum wallet
+            Sign In & Register instantly with your MetaMask or Ethereum wallet
           </p>
           <div className="flex justify-center pt-1">
             <ConnectButton />

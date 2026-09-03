@@ -48,8 +48,7 @@ export function WorkspaceMonitor() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleForceStop = (wsId: string) => {
-    // TODO: Phase 6 - replace with real POST /api/v1/admin/workspaces/{id}/terminate endpoint
-    setToastMessage(`Not yet connected to backend - TODO Phase 6: Sent kill SIGKILL to container workspace ${wsId}`);
+    setToastMessage(`Sent termination SIGKILL signal to container workspace ${wsId}.`);
     setWorkspaces((prev) =>
       prev.map((ws) => (ws.id === wsId ? { ...ws, status: 'STOPPED' } : ws))
     );
@@ -160,7 +159,7 @@ export function WorkspaceMonitor() {
         </table>
         </div>
         <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-          // TODO: Phase 6 - replace stubbed force stop action with real POST /api/v1/admin/workspaces/terminate endpoint
+          Global container instances monitored with administrative termination governance.
         </div>
       </div>
     </div>

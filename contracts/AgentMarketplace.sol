@@ -31,6 +31,14 @@ contract AgentMarketplace is Ownable, ReentrancyGuard, Pausable {
 
     enum EscrowStatus { NONE, LOCKED, SETTLED, REFUNDED, DISPUTED }
 
+    struct PublishedAgent {
+        bytes32 agentId;
+        string versionHash;
+        address developer;
+        uint256 publishedAt;
+        bool active;
+    }
+
     struct TaskEscrow {
         bytes32 taskId;
         address client;
@@ -43,6 +51,13 @@ contract AgentMarketplace is Ownable, ReentrancyGuard, Pausable {
     }
 
     mapping(bytes32 => TaskEscrow) public escrows;
+    mapping(bytes32 => PublishedAgent) public registeredAgents;
+
+    event AgentPublishedOnChain(
+        bytes32 indexed agentId,
+        string versionHash,
+        address indexed developer
+    );
 
     event EscrowLocked(
         bytes32 indexed taskId,
@@ -87,6 +102,26 @@ contract AgentMarketplace is Ownable, ReentrancyGuard, Pausable {
         daoVault = _daoVault;
         stakerVault = _stakerVault;
         settlementOracle = _settlementOracle;
+    }
+
+    /**
+     * @notice Registers an agent version on-chain.
+     */
+    function registerAgent(
+        bytes32 _agentId,
+        string calldata _versionHash,
+        address _developer
+    ) external nonReentrant whenNotPaused {
+        require(_developer != address(0), "Marketplace: Invalid developer address");
+        registeredAgents[_agentId] = PublishedAgent({
+            agentId: _agentId,
+            versionHash: _versionHash,
+            developer: _developer,
+            publishedAt: block.timestamp,
+            active: true
+        });
+
+        emit AgentPublishedOnChain(_agentId, _versionHash, _developer);
     }
 
     /**

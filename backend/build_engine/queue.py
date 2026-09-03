@@ -20,14 +20,16 @@ class BuildJobQueue:
         agent_version_id: str,
         owner_id: str,
         source_repo: str,
-        source_ref: str = "main"
+        source_ref: str = "main",
+        installation_id: Optional[str] = None
     ) -> BuildJob:
-        """Enqueues a new container build job."""
+        """Enqueues a new container build job with per-installation isolation."""
         async with AsyncSessionLocal() as session:
             job = BuildJob(
                 agent_id=agent_id,
                 agent_version_id=agent_version_id,
                 owner_id=owner_id,
+                installation_id=installation_id,
                 source_repo=source_repo,
                 source_ref=source_ref,
                 status="QUEUED",
@@ -36,7 +38,7 @@ class BuildJobQueue:
             session.add(job)
             await session.commit()
             await session.refresh(job)
-            logger.info(f"[BuildQueue] Enqueued build job {job.id} for agent version {agent_version_id}")
+            logger.info(f"[BuildQueue] Enqueued build job {job.id} for agent version {agent_version_id} (Installation: {installation_id})")
             return job
 
     @staticmethod

@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   FileText,
   Loader2,
+  GitBranch,
   Menu,
   X,
   ChevronRight
@@ -48,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'My Agents', shortName: 'Agents', href: '/dashboard', icon: Bot },
     { name: 'Deploy Workspace', shortName: 'Deploy', href: '/dashboard/deploy', icon: PlusCircle },
     { name: 'My Workspaces', shortName: 'Workspaces', href: '/dashboard/workspaces', icon: Server },
+    { name: 'Connected Accounts', shortName: 'GitHub', href: '/dashboard/settings/connected-accounts', icon: GitBranch },
     { name: 'Wallet & Payouts', shortName: 'Wallet', href: '/dashboard/wallet', icon: Wallet },
     { name: 'Rent Workspace', shortName: 'Rent', href: '/dashboard/rent', icon: ShoppingBag },
     { name: 'Billing & Invoices', shortName: 'Billing', href: '/dashboard/billing', icon: FileText },

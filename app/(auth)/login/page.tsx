@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { ConnectButton } from '@/components/wallet/ConnectButton';
-import { Cpu, Mail, Lock, LogIn, AlertCircle, Wallet, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Cpu, Mail, Lock, LogIn, AlertCircle, Wallet, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +15,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +34,7 @@ export default function LoginPage() {
 
     try {
       await loginWithPassword(email, password);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setFormError(err.message || 'Login failed. Invalid email or password.');
     }
@@ -62,21 +68,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Informational Wallet Notice Banner */}
-        <div className="p-3.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-950/40 border border-cyan-500/30 text-xs text-slate-700 dark:text-slate-300 flex items-start space-x-2.5">
-          <Wallet className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
-          <span>
-            <strong className="text-cyan-700 dark:text-cyan-400 font-semibold">Wallet Linking Notice:</strong> You may sign in with password today, but a Web3 wallet must be linked before deploying paid workspaces or receiving escrow payouts.
-          </span>
-        </div>
-
-        {/* SIWE Fast Login Card */}
-        <div className="p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 text-center">
-          <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-            RECOMMENDED FOR CREATORS & ADMINS
+        {/* MetaMask / Web3 SIWE Wallet Connect Card */}
+        <div className="p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 text-center shadow-md">
+          <span className="text-xs font-mono font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider block">
+            WEB3 & METAMASK FAST ACCESS
           </span>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Instant One-Click Sign-In with Ethereum (SIWE) or Admin Quick Access
+            Connect your MetaMask or Web3 Wallet to authenticate and access your Dashboard
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
             <ConnectButton />

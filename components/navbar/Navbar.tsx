@@ -4,8 +4,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Menu, X, Cpu, LogIn, LayoutDashboard, ChevronDown, Home, ArrowLeft } from 'lucide-react';
-import { ConnectButton } from '@/components/wallet/ConnectButton';
+import { Sun, Moon, Menu, X, Cpu, LogIn, LogOut, LayoutDashboard, ChevronDown, Home, ArrowLeft, UserCheck } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const ConnectButton = dynamic(
+  () => import('@/components/wallet/ConnectButton').then((mod) => mod.ConnectButton),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-10 w-32 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+    ),
+  }
+);
 import { useAuth } from '@/hooks/useAuth';
 
 export function Navbar() {
@@ -16,7 +26,7 @@ export function Navbar() {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const { isAuthenticated, roles } = useAuth();
+  const { isAuthenticated, roles, user, logout } = useAuth();
 
   const isAdmin = isAuthenticated && (roles.includes('ADMIN') || roles.includes('admin'));
   const isDashboardOrAdmin = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin');
@@ -248,7 +258,7 @@ export function Navbar() {
               </button>
             )}
 
-            {/* Email Login Link if not logged in */}
+            {/* Email Sign In Link if not authenticated */}
             {!isAuthenticated && (
               <Link
                 href="/login"
@@ -259,7 +269,7 @@ export function Navbar() {
               </Link>
             )}
 
-            {/* RainbowKit Wallet Connect & SIWE Button */}
+            {/* RainbowKit Wallet Connect (MetaMask & standard Web3 wallets) */}
             <ConnectButton />
           </div>
 

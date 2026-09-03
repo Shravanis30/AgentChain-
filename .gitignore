@@ -32,3 +32,4 @@ htmlcov/
 # IDE & System
 .DS_Store
 *.log
+*.tsbuildinfo

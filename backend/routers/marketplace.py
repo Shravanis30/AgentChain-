@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, asc
+from sqlalchemy.orm import selectinload
 
 from backend.db.session import get_db
 from backend.db.models import Agent, AgentReview, Task, User, AuditLog
@@ -35,7 +36,7 @@ async def list_marketplace_agents(
     max_price_val = max_price if isinstance(max_price, (int, float)) else None
     sort_by_str = sort_by if isinstance(sort_by, str) else "newest"
 
-    query = select(Agent).where(Agent.status == "PUBLISHED")
+    query = select(Agent).options(selectinload(Agent.reviews), selectinload(Agent.versions)).where(Agent.status == "PUBLISHED")
 
     if category_str:
         query = query.where(Agent.category == category_str.lower())

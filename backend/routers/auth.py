@@ -1,4 +1,5 @@
 from typing import Optional, List, Dict, Any
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -144,6 +145,9 @@ async def login_password_user(
     roles, permissions = await auth_service.get_user_roles_and_permissions(session, user.id)
     token = auth_service.create_access_token(user_id=user.id, email=clean_email, roles=roles, permissions=permissions)
 
+    payload = await auth_service.verify_jwt_token(token)
+    jti = payload.get("jti", "") if payload else ""
+
     ip = request.client.host if request.client else None
     ua = request.headers.get("user-agent")
 
@@ -153,7 +157,7 @@ async def login_password_user(
         ip_address=ip,
         user_agent=ua,
         auth_method="password",
-        expires_at=auth_service.utc_now()
+        expires_at=datetime.now(timezone.utc) + timedelta(days=7)
     )
     session.add(user_session)
     await session.commit()

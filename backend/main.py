@@ -55,12 +55,13 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 # CORS Configuration
 allow_origins = settings.CORS_ORIGINS
-if settings.ENVIRONMENT == "production" and "*" in allow_origins:
-    allow_origins = ["https://agentchain.ai"]
+if settings.ENVIRONMENT != "production":
+    allow_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?" if settings.ENVIRONMENT != "production" else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

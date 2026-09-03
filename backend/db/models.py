@@ -194,6 +194,8 @@ class AgentVersion(Base):
     source_repo: Mapped[Optional[str]] = mapped_column(String(255), nullable=True) # e.g. "Shravanis30/AgentChain-"
     source_ref: Mapped[Optional[str]] = mapped_column(String(100), nullable=True) # branch or commit SHA
     changelog: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    onchain_tx_hash: Mapped[Optional[str]] = mapped_column(String(66), nullable=True)
+    onchain_block_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
@@ -738,13 +740,20 @@ class GitHubInstallation(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    github_username: Mapped[str] = mapped_column(String(100), nullable=False)
-    installation_id: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
-    access_token: Mapped[str] = mapped_column(Text, nullable=False)
+    installation_id: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    account_login: Mapped[str] = mapped_column(String(100), nullable=False)
+    account_type: Mapped[str] = mapped_column(String(20), default="User", nullable=False) # User, Organization
+    github_username: Mapped[Optional[str]] = mapped_column(String(100), nullable=True) # backwards compatibility alias
+    access_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True) # deprecated legacy token
     avatar_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     user: Mapped["User"] = relationship("User", lazy="selectin")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "installation_id", name="uq_user_installation"),
+        Index("idx_github_installations_user", "user_id"),
+    )
 
 
 class BuildJob(Base):
@@ -754,6 +763,7 @@ class BuildJob(Base):
     agent_id: Mapped[str] = mapped_column(String(36), ForeignKey("agents.id", ondelete="CASCADE"), nullable=False)
     agent_version_id: Mapped[str] = mapped_column(String(36), ForeignKey("agent_versions.id", ondelete="CASCADE"), nullable=False)
     owner_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    installation_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     source_repo: Mapped[str] = mapped_column(String(255), nullable=False)
     source_ref: Mapped[str] = mapped_column(String(100), default="main", nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True, nullable=False) # QUEUED, BUILDING, SUCCEEDED, FAILED, TIMED_OUT

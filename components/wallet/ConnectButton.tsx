@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSignMessage } from 'wagmi';
 import { useAuth } from '@/hooks/useAuth';
-import { Wallet, LogOut, ShieldCheck, UserCheck, Loader2, AlertCircle, LayoutDashboard } from 'lucide-react';
-import Link from 'next/link';
+import { Wallet, LogOut, ShieldCheck, UserCheck, Loader2, AlertCircle } from 'lucide-react';
 
 export function ConnectButton() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { signMessageAsync } = useSignMessage();
@@ -16,19 +18,25 @@ export function ConnectButton() {
   const [signing, setSigning] = useState<boolean>(false);
   const [siweError, setSiweError] = useState<string | null>(null);
 
+  // Reset errors whenever connected wallet address changes
   useEffect(() => {
-    if (isConnected && address && !isAuthenticated && !signing && !authLoading) {
-      handleSIWE();
-    }
-  }, [isConnected, address, isAuthenticated]);
+    setSiweError(null);
+    setSigning(false);
+  }, [address]);
 
   const handleSIWE = async () => {
     if (!address) return;
     setSigning(true);
     setSiweError(null);
+    clearError();
+
     try {
       await loginWithSIWE(address, chainId || 1, signMessageAsync);
+      if (pathname === '/login' || pathname === '/register') {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
+      console.warn('SIWE authentication attempt error:', err);
       setSiweError(err.message || 'Signature rejected or verification failed.');
     } finally {
       setSigning(false);
@@ -42,7 +50,7 @@ export function ConnectButton() {
         <div className="absolute top-12 right-0 z-50 w-72 p-3 rounded-xl bg-rose-950/90 border border-rose-500/40 text-rose-200 text-xs shadow-xl flex items-start space-x-2 backdrop-blur-md">
           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
           <div className="flex-1 space-y-1">
-            <p className="font-semibold text-rose-300">Authentication Failed</p>
+            <p className="font-semibold text-rose-300">Authentication Alert</p>
             <p className="text-[11px] leading-tight text-rose-200">{siweError || error}</p>
             <button
               onClick={() => {
@@ -104,19 +112,24 @@ export function ConnectButton() {
             );
           }
 
-          // Case 3: Wallet Connected, but SIWE Signature Pending
+          // Case 3: Wallet Connected, but SIWE Signature Pending / Required
           if (!isAuthenticated) {
             return (
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleSIWE}
-                  disabled={signing}
-                  className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-600 dark:text-cyan-400 text-xs font-mono font-bold flex items-center space-x-2 transition-all"
+                  disabled={signing || authLoading}
+                  className="px-3.5 py-2 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-600 dark:text-cyan-400 text-xs font-mono font-bold flex items-center space-x-2 transition-all shadow-sm"
                 >
                   {signing ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-                      <span>Signing SIWE...</span>
+                      <span>Confirm in MetaMask...</span>
+                    </>
+                  ) : authLoading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                      <span>Authenticating...</span>
                     </>
                   ) : (
                     <>
@@ -124,6 +137,14 @@ export function ConnectButton() {
                       <span>Sign SIWE Nonce</span>
                     </>
                   )}
+                </button>
+
+                <button
+                  onClick={openAccountModal}
+                  className="px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-mono hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  title="Disconnect or Switch Wallet"
+                >
+                  {account.displayName}
                 </button>
               </div>
             );
@@ -146,6 +167,9 @@ export function ConnectButton() {
                       <img
                         alt={chain.name ?? 'Chain icon'}
                         src={chain.iconUrl}
+                        width={14}
+                        height={14}
+                        loading="lazy"
                         className="w-3.5 h-3.5"
                       />
                     )}

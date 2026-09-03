@@ -31,20 +31,44 @@ export async function authenticateWithSIWE({
 
   const messageText = siweMessage.prepareMessage();
 
-  // 3. Request signature from Web3 wallet
-  const signature = await signMessageAsync({ message: messageText });
+  // 3. Request signature from Web3 wallet with a 30-second timeout safeguard
+  try {
+    const signPromise = signMessageAsync({ message: messageText });
+    const timeoutPromise = new Promise<string>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              'Signature prompt in MetaMask timed out after 30s. Click "Sign SIWE Nonce" to try again.'
+            )
+          ),
+        30000
+      )
+    );
 
-  // 4. Verify signature with FastAPI backend & obtain JWT session
-  const authResponse = await api.verifySIWE({
-    wallet_address: address,
-    message: messageText,
-    signature,
-  });
+    const signature = await Promise.race([signPromise, timeoutPromise]);
 
-  // 5. Store JWT token
-  if (authResponse.access_token) {
-    setToken(authResponse.access_token);
+    // 4. Verify signature with FastAPI backend & obtain JWT session
+    const authResponse = await api.verifySIWE({
+      wallet_address: address,
+      message: messageText,
+      signature,
+    });
+
+    // 5. Store JWT token
+    if (authResponse.access_token) {
+      setToken(authResponse.access_token);
+    }
+
+    return authResponse;
+  } catch (err: any) {
+    if (
+      err?.code === 4001 ||
+      err?.message?.includes('user rejected') ||
+      err?.message?.includes('User denied')
+    ) {
+      throw new Error('Signature cancelled in MetaMask. Click "Sign SIWE Nonce" to try again.');
+    }
+    throw err;
   }
-
-  return authResponse;
 }
