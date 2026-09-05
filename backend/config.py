@@ -1,6 +1,9 @@
 import os
+import logging
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger("agentchain.config")
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -77,6 +80,17 @@ a5BXNR5EN1h7AMj2KjzoY43NEz+nlQ404nFp605YODY+K7lL3EeGzr5fVP2bfu3x
 -----END RSA PRIVATE KEY-----""")
     GITHUB_APP_SLUG: str = os.getenv("GITHUB_APP_SLUG", "agentchainapp")
 
+    @property
+    def is_github_app_configured(self) -> bool:
+        """Returns True when GitHub App credentials are configured."""
+        if not self.GITHUB_APP_ID or not self.GITHUB_APP_CLIENT_ID:
+            return False
+        if not self.GITHUB_APP_CLIENT_SECRET or not self.GITHUB_APP_PRIVATE_KEY:
+            return False
+        if "BEGIN" not in self.GITHUB_APP_PRIVATE_KEY:
+            return False
+        return True
+
     # Blockchain & Smart Contracts
     POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology")
     CHAIN_ID: int = int(os.getenv("CHAIN_ID", "80002")) # Polygon Amoy Testnet
@@ -121,4 +135,13 @@ a5BXNR5EN1h7AMj2KjzoY43NEz+nlQ404nFp605YODY+K7lL3EeGzr5fVP2bfu3x
 
 settings = Settings()
 settings.validate_security()
+
+# Emit a loud warning at startup if GitHub App is not properly configured
+if not settings.is_github_app_configured:
+    logger.warning(
+        "[AgentChain] GitHub App credentials are missing or using placeholder defaults. "
+        "The 'Connect GitHub App (OAuth)' flow will use dev-redirect mode (no real GitHub OAuth). "
+        "To enable real GitHub OAuth, set: GITHUB_APP_ID, GITHUB_APP_SLUG, GITHUB_APP_CLIENT_ID, "
+        "GITHUB_APP_CLIENT_SECRET, GITHUB_APP_PRIVATE_KEY environment variables."
+    )
 

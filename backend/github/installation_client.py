@@ -129,8 +129,30 @@ class GitHubInstallationClient:
             "avatar_url": "https://github.com/github.png",
         }
 
+    async def list_app_installations(self) -> List[Dict[str, Any]]:
+        """Lists all installations of this GitHub App directly from GitHub API."""
+        app_jwt = github_app_auth.generate_app_jwt()
+        headers = {
+            "Authorization": f"Bearer {app_jwt}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "AgentChain-Protocol",
+        }
+        url = "https://api.github.com/app/installations"
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get(url, headers=headers)
+                if res.status_code == 200:
+                    return res.json()
+                else:
+                    logger.warning(f"Failed to list GitHub app installations: {res.status_code} {res.text}")
+                    return []
+        except Exception as e:
+            logger.warning(f"Exception listing GitHub app installations: {e}")
+            return []
+
     async def list_installation_repos(self, installation_id: str) -> List[Dict[str, Any]]:
-        """Lists accessible repositories for a specific GitHub App installation."""
+        """Lists accessible repositories for a specific GitHub App installation with pagination support."""
         if not installation_id or installation_id.startswith("revoked-") or installation_id.startswith("invalid-"):
             raise GitHubInstallationRevokedError("GitHub access revoked, please reconnect")
 
@@ -144,29 +166,37 @@ class GitHubInstallationClient:
                         "X-GitHub-Api-Version": "2022-11-28",
                         "User-Agent": "AgentChain-Protocol",
                     }
-                    url = "https://api.github.com/installation/repositories?per_page=100"
-
-                    async with httpx.AsyncClient(timeout=10.0) as client:
-                        res = await client.get(url, headers=headers)
-                        if res.status_code == 200:
-                            data = res.json()
-                            raw_repos = data.get("repositories", [])
-                            return [
-                                {
-                                    "id": str(r["id"]),
-                                    "full_name": r["full_name"],
-                                    "name": r["name"],
-                                    "owner": r["owner"]["login"],
-                                    "default_branch": r.get("default_branch", "main"),
-                                    "is_private": r.get("private", False),
-                                    "language": r.get("language") or "Python / TypeScript",
-                                    "updated_at": r.get("updated_at", "2026-09-02T00:00:00Z"),
-                                    "installation_id": installation_id,
-                                }
-                                for r in raw_repos
-                            ]
-                        elif res.status_code in (404, 401, 403):
-                            raise GitHubInstallationRevokedError("GitHub access revoked, please reconnect")
+                    all_repos: List[Dict[str, Any]] = []
+                    page = 1
+                    while True:
+                        url = f"https://api.github.com/installation/repositories?per_page=100&page={page}"
+                        async with httpx.AsyncClient(timeout=15.0) as client:
+                            res = await client.get(url, headers=headers)
+                            if res.status_code == 200:
+                                data = res.json()
+                                raw_repos = data.get("repositories", [])
+                                for r in raw_repos:
+                                    all_repos.append({
+                                        "id": str(r["id"]),
+                                        "full_name": r["full_name"],
+                                        "name": r["name"],
+                                        "owner": r["owner"]["login"],
+                                        "default_branch": r.get("default_branch", "main"),
+                                        "is_private": r.get("private", False),
+                                        "language": r.get("language") or "Code",
+                                        "updated_at": r.get("updated_at", "2026-09-02T00:00:00Z"),
+                                        "installation_id": installation_id,
+                                    })
+                                total_count = data.get("total_count", len(raw_repos))
+                                if len(all_repos) >= total_count or len(raw_repos) < 100:
+                                    break
+                                page += 1
+                            elif res.status_code in (404, 401, 403):
+                                raise GitHubInstallationRevokedError("GitHub access revoked, please reconnect")
+                            else:
+                                break
+                    if all_repos:
+                        return all_repos
             except GitHubInstallationRevokedError:
                 raise
             except Exception as e:
