@@ -17,25 +17,44 @@ import {
   User as UserIcon,
   AlertCircle,
   ArrowLeft,
+  RefreshCw,
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 
 function ConnectedAccountsContent() {
   const searchParams = useSearchParams();
   const installedNotice = searchParams.get('installed');
+  const installError = searchParams.get('install_error');
+  const installationIdParam = searchParams.get('installation_id');
 
   const [installations, setInstallations] = useState<any[]>([]);
   const [repoCounts, setRepoCounts] = useState<Record<string, number>>({});
   const [totalReposCount, setTotalReposCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(
-    installedNotice ? 'GitHub App installation completed successfully!' : null
-  );
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchInstallations();
+    const init = async () => {
+      if (installationIdParam) {
+        try {
+          await api.linkGitHubInstallation(installationIdParam);
+          setSuccessMsg('GitHub App installation linked successfully!');
+        } catch (e: any) {
+          setError(e.message || 'Failed to link GitHub installation.');
+        }
+      } else if (installedNotice) {
+        setSuccessMsg('GitHub App installation completed successfully!');
+      }
+      if (installError === 'invalid_installation') {
+        setError('GitHub installation was invalid or revoked. Please try connecting again.');
+      }
+      await fetchInstallations();
+    };
+    init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchInstallations = async () => {
@@ -61,6 +80,20 @@ function ConnectedAccountsContent() {
       console.warn('Failed to load GitHub installations:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSyncInstallations = async () => {
+    setIsSyncing(true);
+    setError(null);
+    try {
+      await api.syncGitHubInstallations();
+      setSuccessMsg('GitHub installations and repositories synced successfully!');
+      await fetchInstallations();
+    } catch (err: any) {
+      setError(err.message || 'Failed to sync GitHub installations.');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -135,6 +168,17 @@ function ConnectedAccountsContent() {
           </div>
 
           <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={handleSyncInstallations}
+              disabled={isSyncing || isLoading}
+              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold border border-slate-300 dark:border-slate-700 transition-colors inline-flex items-center space-x-1.5"
+              title="Sync installations directly from GitHub App"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync GitHub'}</span>
+            </button>
+
             <button
               type="button"
               onClick={handleConnectDevGitHub}
@@ -225,6 +269,16 @@ function ConnectedAccountsContent() {
               Connect your personal GitHub account or organization to grant AgentChain access to specific repositories for container builds.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleSyncInstallations}
+                disabled={isSyncing || isLoading}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/30 hover:bg-slate-700 transition-all inline-flex items-center space-x-2"
+              >
+                <RefreshCw className={`w-4 h-4 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync Active Installations'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handleConnectGitHub}

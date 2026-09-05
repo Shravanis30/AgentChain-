@@ -10,17 +10,19 @@ import { Cpu, Mail, Lock, LogIn, AlertCircle, Wallet, ShieldCheck } from 'lucide
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithPassword, isLoading, error, isAuthenticated, clearError } = useAuth();
+  const { loginWithPassword, isLoading, error, isAuthenticated, roles, clearError } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
+  // If already authenticated, route based on role (admins go to /admin)
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      const isAdmin = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') || roles.includes('admin');
+      router.push(isAdmin ? '/admin' : '/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, roles, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +36,10 @@ export default function LoginPage() {
 
     try {
       await loginWithPassword(email, password);
-      router.push('/dashboard');
+      // Route based on role: admins go directly to /admin, not /dashboard
+      // roles is updated by loginWithPassword -> refreshUser before this runs
+      const isAdmin = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') || roles.includes('admin');
+      router.push(isAdmin ? '/admin' : '/dashboard');
     } catch (err: any) {
       setFormError(err.message || 'Login failed. Invalid email or password.');
     }

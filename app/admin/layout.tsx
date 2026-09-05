@@ -25,12 +25,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
+  // Role check is server-authoritative only: the ADMIN/SUPER_ADMIN role comes from the
+  // JWT issued by the backend on login, then re-fetched from /api/v1/auth/me.
+  // Removed: email-substring bypass (any email with 'admin' in it bypassed this)
+  // Removed: NODE_ENV === 'development' bypass (it hid the bug during local testing)
   const isAdmin =
     isAuthenticated &&
     (roles.includes('ADMIN') ||
-     roles.includes('admin') ||
-     user?.email?.toLowerCase().includes('admin') ||
-     process.env.NODE_ENV === 'development');
+     roles.includes('SUPER_ADMIN') ||
+     roles.includes('admin'));
 
   useEffect(() => {
     if (!isLoading) {
@@ -47,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen pt-32 pb-20 flex items-center justify-center bg-slate-950">
         <div className="text-center space-y-3 font-mono text-amber-500">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-500" />
-          <p className="text-xs">Verifying Administrator Privileges & SIWE Signature...</p>
+          <p className="text-xs">Verifying Administrator Privileges...</p>
         </div>
       </div>
     );

@@ -145,7 +145,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     roles,
     permissions,
-    isAuthenticated: !!user || roles.length > 0,
+    // isAuthenticated is ONLY true once the user profile is fully hydrated from the
+    // server (refreshUser resolved). roles.length > 0 was removed: it created a race
+    // where roles could be set from a prior login response while user was still null
+    // during async hydration, causing layout guards to fire too early/late.
+    isAuthenticated: !!user,
     isLoading,
     error,
     loginWithSIWE,
