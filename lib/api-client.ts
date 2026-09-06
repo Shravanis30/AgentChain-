@@ -240,6 +240,16 @@ export const api = {
     });
   },
 
+  getWorkspace: async (workspaceId: string) => {
+    return apiFetch<any>(`/api/v1/workspaces/${workspaceId}`);
+  },
+
+  getWorkspaceLogs: async (workspaceId: string, tail: number = 100) => {
+    return apiFetch<{ workspace_id: string; container_id: string; logs: string }>(
+      `/api/v1/workspaces/${workspaceId}/logs?tail=${tail}`
+    );
+  },
+
   stopWorkspace: async (workspaceId: string) => {
     return apiFetch<any>(`/api/v1/workspaces/${workspaceId}/stop`, {
       method: 'POST',
@@ -280,6 +290,19 @@ export const api = {
     } catch {
       return [];
     }
+  },
+
+  syncGitHubInstallations: async () => {
+    return apiFetch<any[]>('/api/v1/github/installations/sync', {
+      method: 'POST',
+    });
+  },
+
+  linkGitHubInstallation: async (installationId: string) => {
+    return apiFetch<any>('/api/v1/github/installations/link', {
+      method: 'POST',
+      body: JSON.stringify({ installation_id: installationId }),
+    });
   },
 
   disconnectGitHubInstallation: async (installationDbId: string) => {
