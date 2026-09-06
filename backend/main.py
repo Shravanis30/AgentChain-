@@ -21,13 +21,20 @@ except Exception:
     REQUEST_COUNT = REGISTRY._names_to_collectors.get("agentchain_http_requests_total")
     REQUEST_LATENCY = REGISTRY._names_to_collectors.get("agentchain_http_request_duration_seconds")
 
+from backend.workspaces.poller import workspace_poller
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize DB tables & seed system roles/permissions on startup
     await init_db()
     async with async_session_factory() as session:
         await bootstrap_roles_and_permissions(session)
-    yield
+    await workspace_poller.start()
+    try:
+        yield
+    finally:
+        await workspace_poller.stop()
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
