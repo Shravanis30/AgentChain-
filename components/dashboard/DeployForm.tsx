@@ -99,31 +99,34 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
     {
       id: 'SMALL',
       name: 'Small Sandbox',
-      specs: '2 vCPU • 4 GB RAM • 20 GB NVMe',
+      specs: '1 vCPU • 512 MB RAM (Hard Limit)',
       multiplier: 1.0,
-      description: 'Ideal for lightweight document parsing & static code audit jobs.',
+      description: 'Isolated runtime for lightweight agent prompts and single-task execution.',
     },
     {
       id: 'MEDIUM',
       name: 'Medium Swarm',
-      specs: '4 vCPU • 8 GB RAM • 50 GB NVMe',
+      specs: '2 vCPU • 1024 MB RAM (Hard Limit)',
       multiplier: 1.5,
-      description: 'Recommended for multi-thread DEX arbitrage & parallel test runners.',
+      description: 'Standard sandboxed container for multi-step reasoning and API integrations.',
     },
     {
       id: 'LARGE',
       name: 'Large Enterprise',
-      specs: '8 vCPU • 16 GB RAM • 100 GB NVMe',
+      specs: '2 vCPU • 1536 MB RAM (Hard Limit)',
       multiplier: 2.5,
-      description: 'High-throughput cluster for heavy LLM fine-tuning & continuous indexing.',
+      description: 'High-capacity sandboxed container for heavy computational tasks.',
     },
   ];
+
+  const [deployedWorkspace, setDeployedWorkspace] = useState<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validationError) return;
 
     setErrorMsg(null);
+    setSuccess(false);
     setIsProvisioning(true);
     setProvisionStep(1);
 
@@ -136,21 +139,23 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
 
     try {
       setProvisionStep(2);
-      await api.createWorkspace({
+      const res = await api.createWorkspace({
         agent_id: selectedAgentId,
         resource_tier: resourceTier,
         pricing_mode: pricingModel,
         rate_usdc: rate,
         flat_duration_days: pricingModel === 'CUSTOM_FLAT' ? parsedFlatDays : undefined,
       });
+
       setProvisionStep(3);
+      setDeployedWorkspace(res);
       setSuccess(true);
       if (onDeployed) onDeployed();
     } catch (err: any) {
       const msg = err?.message || 'Failed to provision container workspace.';
       setErrorMsg(msg);
+      setProvisionStep(0);
     } finally {
-      setProvisionStep(4);
       setIsProvisioning(false);
     }
   };
@@ -171,7 +176,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
       )}
 
       {/* Success Notification */}
-      {success && (
+      {success && deployedWorkspace && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,16 +185,26 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
           <div className="flex items-center space-x-3">
             <Check className="w-5 h-5 text-emerald-500" />
             <div>
-              <p className="font-bold">Workspace Container Provisioned Successfully!</p>
-              <p className="text-[11px] text-slate-500">Live heartbeat stream established. Real-time earnings active.</p>
+              <p className="font-bold">Docker Container Provisioned & Running!</p>
+              <p className="text-[11px] text-slate-500">
+                Container ID: {deployedWorkspace.docker_container_id ? deployedWorkspace.docker_container_id.slice(0, 16) : deployedWorkspace.id} • Status: {deployedWorkspace.status}
+              </p>
             </div>
           </div>
-          <button
-            onClick={() => setSuccess(false)}
-            className="px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500/30 transition-colors"
-          >
-            Dismiss
-          </button>
+          <div className="flex items-center space-x-2">
+            <a
+              href="/dashboard/workspaces"
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 transition-colors flex items-center space-x-1"
+            >
+              <span>View in My Workspaces →</span>
+            </a>
+            <button
+              onClick={() => setSuccess(false)}
+              className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500/30 transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
         </motion.div>
       )}
 
@@ -455,7 +470,13 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
             {isProvisioning ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Provisioning Container ({provisionStep}/3)...</span>
+                <span>
+                  {provisionStep === 1
+                    ? 'Validating config...'
+                    : provisionStep === 2
+                    ? 'Starting Docker container on host...'
+                    : 'Verifying container running...'}
+                </span>
               </>
             ) : (
               <>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Terminal, Cpu, ShieldCheck, Copy, Check } from 'lucide-react';
-import { AgentItem } from '@/lib/api-client';
+import { AgentItem, api } from '@/lib/api-client';
 
 interface ExecutionLogsModalProps {
   agent: AgentItem | null;
@@ -12,6 +12,24 @@ interface ExecutionLogsModalProps {
 
 export function ExecutionLogsModal({ agent, onClose }: ExecutionLogsModalProps) {
   const [copied, setCopied] = React.useState(false);
+  const [realLogs, setRealLogs] = React.useState<string | null>(null);
+  const [loadingLogs, setLoadingLogs] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (agent?.id) {
+      setLoadingLogs(true);
+      api.getWorkspaceLogs(agent.id)
+        .then((res) => {
+          if (res?.logs) {
+            setRealLogs(res.logs);
+          }
+        })
+        .catch(() => {
+          // If not a workspace or logs unavailable, keep default
+        })
+        .finally(() => setLoadingLogs(false));
+    }
+  }, [agent?.id]);
 
   if (!agent) return null;
 
@@ -25,8 +43,10 @@ export function ExecutionLogsModal({ agent, onClose }: ExecutionLogsModalProps) 
     `[${new Date().toISOString()}] SUCCESS: Smart contract escrow payout distributed (85% Dev: $${(agent.price_per_call_usdc * 0.85).toFixed(2)}, 10% Stakers: $${(agent.price_per_call_usdc * 0.10).toFixed(2)}, 5% DAO: $${(agent.price_per_call_usdc * 0.05).toFixed(2)}).`,
   ];
 
+  const displayLogs = realLogs ? realLogs.split('\n') : mockLogs;
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(mockLogs.join('\n'));
+    navigator.clipboard.writeText(displayLogs.join('\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
