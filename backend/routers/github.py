@@ -7,12 +7,16 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
+import logging
+
 from backend.config import settings
 from backend.db.session import get_db
 from backend.db.models import User, GitHubInstallation, utc_now
 from backend.auth_service.rbac import get_current_user
 from backend.github.app_auth import github_app_auth
 from backend.github.installation_client import installation_client, GitHubInstallationRevokedError
+
+logger = logging.getLogger("agentchain.github")
 
 router = APIRouter(prefix="/api/v1/github", tags=["GitHub Integration"])
 
@@ -155,12 +159,7 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
         if not raw_installations:
             return
 
-        # Purge mock installations for this user
-        del_stmt = delete(GitHubInstallation).where(
-            GitHubInstallation.user_id == user_id,
-            GitHubInstallation.installation_id.startswith("inst-dev-")
-        )
-        await db.execute(del_stmt)
+        synced_any = False
 
         for item in raw_installations:
             inst_id = str(item["id"])
@@ -170,16 +169,17 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
             avatar = account.get("avatar_url", "https://github.com/github.png")
 
             stmt = select(GitHubInstallation).where(
-                GitHubInstallation.user_id == user_id,
                 GitHubInstallation.installation_id == inst_id
             )
             res = await db.execute(stmt)
             existing = res.scalar_one_or_none()
 
             if existing:
-                existing.account_login = login
-                existing.account_type = acc_type
-                existing.avatar_url = avatar
+                if existing.user_id == user_id:
+                    existing.account_login = login
+                    existing.account_type = acc_type
+                    existing.avatar_url = avatar
+                continue
             else:
                 inst = GitHubInstallation(
                     id=str(uuid.uuid4()),
@@ -195,6 +195,7 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
         await db.commit()
         _USER_REPOS_CACHE.pop(user_id, None)
     except Exception as e:
+        await db.rollback()
         logger.warning(f"Auto-sync of real GitHub installations skipped: {e}")
 
 

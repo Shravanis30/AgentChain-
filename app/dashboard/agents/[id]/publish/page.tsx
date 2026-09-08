@@ -224,6 +224,8 @@ export default function PublishAgentPage() {
             agentId={agentId}
             versionHash={agent.current_version?.version || 'v1.0.0'}
             isValidated={isValidated}
+            isAlreadyPublished={isPublished}
+            existingTxHash={txHash || agent.current_version?.onchain_tx_hash}
             onPublished={(hash) => {
               setIsPublished(true);
               setTxHash(hash);

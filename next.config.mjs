@@ -15,7 +15,11 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { webpack }) => {
+  transpilePackages: ['@rainbow-me/rainbowkit'],
+  webpack: (config, { webpack, dev, isServer }) => {
+    if (dev && isServer) {
+      config.optimization.splitChunks = false;
+    }
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     config.resolve.fallback = {
       ...config.resolve.fallback,

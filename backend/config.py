@@ -92,7 +92,7 @@ a5BXNR5EN1h7AMj2KjzoY43NEz+nlQ404nFp605YODY+K7lL3EeGzr5fVP2bfu3x
         return True
 
     # Blockchain & Smart Contracts
-    POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology")
+    POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
     CHAIN_ID: int = int(os.getenv("CHAIN_ID", "80002")) # Polygon Amoy Testnet
     MARKETPLACE_CONTRACT_ADDRESS: str = os.getenv("MARKETPLACE_CONTRACT_ADDRESS", "0x1234567890123456789012345678901234567890")
     REGISTRY_CONTRACT_ADDRESS: str = os.getenv("REGISTRY_CONTRACT_ADDRESS", "0x0987654321098765432109876543210987654321")
