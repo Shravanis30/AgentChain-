@@ -28,40 +28,46 @@ AgentChain is an enterprise-grade platform that connects goal-driven user prompt
 ## 🏛️ Enterprise System Architecture
 
 ```
-                                    +---------------------------------------+
-                                    |        Client / Browser Frontend      |
-                                    +-------------------+-------------------+
-                                                        |
-                                                        | REST API / WebSockets
-                                                        v
-                                    +---------------------------------------+
-                                    |         FastAPI Gateway Layer         |
-                                    | - SIWE Cryptographic Auth & RBAC      |
-                                    | - Idempotency Deduplication Engine    |
-                                    | - Non-blocking Task Submission        |
-                                    +-------------------+-------------------+
-                                                        |
-                                                        v
-                                    +---------------------------------------+
-                                    |    PostgreSQL Transactional DB        |
-                                    | - Workflows, Nodes & Edges            |
-                                    | - Execution Jobs (FOR UPDATE SKIP LOCK)|
-                                    | - Double-Entry Financial Ledger       |
-                                    +-------------------+-------------------+
-                                                        |
-                                                        v
-                                    +---------------------------------------+
-                                    |    Background Worker Pool Daemons     |
-                                    | - Heartbeats & Job Lease Claims       |
-                                    | - Exponential Backoff Retries & DLQ   |
-                                    | - Pinned Agent Version Execution      |
-                                    +---------+-------------------+---------+
-                                              |                   |
-                     +------------------------+                   +------------------------+
-                     |                                                                     |
-                     v                                                                     v
+                                    +-----------------------------------------------+
+                                    |     Next.js 14 Client Frontend (/frontend)     |
+                                    | - Landing & Verified Agent Marketplace        |
+                                    | - Web3 SIWE & Email/Password Authentication   |
+                                    | - Developer Dashboard & Agent Studio          |
+                                    | - Workspace Runner & GitHub Container Builds  |
+                                    | - Admin Console (Disputes, Moderation, Rev)   |
+                                    | - On-Chain Contract Publishing & Settlement   |
+                                    +-----------------------+-----------------------+
+                                                            |
+                                                            | REST API / WebSockets
+                                                            v
+                                    +-----------------------------------------------+
+                                    |             FastAPI Gateway Layer             |
+                                    | - SIWE Cryptographic Auth & RBAC              |
+                                    | - Idempotency Deduplication Engine            |
+                                    | - Non-blocking Task Submission                |
+                                    +-----------------------+-----------------------+
+                                                            |
+                                                            v
+                                    +-----------------------------------------------+
+                                    |          PostgreSQL Transactional DB          |
+                                    | - Workflows, Nodes & Edges                    |
+                                    | - Execution Jobs (FOR UPDATE SKIP LOCKED)     |
+                                    | - Double-Entry Financial Ledger               |
+                                    +-----------------------+-----------------------+
+                                                            |
+                                                            v
+                                    +-----------------------------------------------+
+                                    |        Background Worker Pool Daemons         |
+                                    | - Heartbeats & Job Lease Claims               |
+                                    | - Exponential Backoff Retries & DLQ           |
+                                    | - Pinned Agent Version Execution              |
+                                    +-----------+-----------------------+-----------+
+                                                |                       |
+                       +------------------------+                       +------------------------+
+                       |                                                                         |
+                       v                                                                         v
 +------------------------------------------+                             +------------------------------------------+
-|      Real LLM Provider Abstraction       |                             |     Blockchain & Settlement Layer        |
+|      Real LLM Provider Abstraction       |                             |      Blockchain & Settlement Layer       |
 | - OpenAI (gpt-4o, o1-mini)               |                             | - USDC Escrow Smart Contract             |
 | - Anthropic (claude-3-5-sonnet)          |                             | - Two-Phase Settlement Oracle            |
 | - Server-Side Token Cost Accounting      |                             | - On-Chain Event Indexer Daemon          |
@@ -104,6 +110,7 @@ AgentChain is an enterprise-grade platform that connects goal-driven user prompt
 
 ## 🛠️ Tech Stack
 
+- **Frontend Application**: Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons, RainbowKit 2.1, Wagmi 2.12, Viem, TanStack React Query, SIWE
 - **Backend Framework**: Python 3.14, FastAPI, Pydantic v2, Uvicorn, WebSockets
 - **Database & ORM**: PostgreSQL 16, SQLAlchemy 2.0 (Async), Alembic
 - **Caching & Nonce Engine**: Redis 7 (Async redis-py)
@@ -124,26 +131,28 @@ AgentChain is an enterprise-grade platform that connects goal-driven user prompt
 
 ### Option 1: Local Development Setup
 
-#### 1. Clone the Repository
+#### Part A: Backend Gateway Setup
+
+##### 1. Clone the Repository
 ```bash
 git clone https://github.com/Shravanis30/AgentChain.git
 cd AgentChain
 ```
 
-#### 2. Create Virtual Environment & Install Dependencies
+##### 2. Create Virtual Environment & Install Dependencies
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### 3. Run Database Migrations
+##### 3. Run Database Migrations
 ```bash
 alembic upgrade head
 alembic check
 ```
 
-#### 4. Environment Configuration
+##### 4. Backend Environment Configuration
 Create a `.env` file in the root directory:
 ```env
 PROJECT_NAME="AgentChain Enterprise"
@@ -155,14 +164,57 @@ OPENAI_API_KEY="sk-proj-your-openai-api-key"
 ANTHROPIC_API_KEY="sk-ant-your-anthropic-api-key"
 ```
 
-#### 5. Launch the Server
+##### 5. Launch the Backend Server
 ```bash
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
-Access the application interfaces:
-- **Web Client UI**: `http://localhost:8000`
-- **FastAPI OpenAPI Swagger**: `http://localhost:8000/docs`
-- **System Metrics**: `http://localhost:8000/metrics`
+Backend interfaces:
+- **FastAPI OpenAPI Swagger Docs**: `http://localhost:8000/docs`
+- **System Metrics (Prometheus)**: `http://localhost:8000/metrics`
+- **Health Gateway**: `http://localhost:8000/health`
+
+---
+
+#### Part B: Frontend Next.js Setup
+
+##### 1. Navigate to Frontend Directory
+```bash
+cd frontend
+```
+
+##### 2. Install Node Dependencies
+```bash
+npm install
+```
+
+##### 3. Frontend Environment Configuration
+Copy the template configuration:
+```bash
+cp .env.example .env.local
+```
+
+Required frontend environment variables:
+
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | Base URL of the FastAPI Gateway backend | `http://localhost:8000` |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Reown / WalletConnect Cloud project ID for SIWE & Web3 wallet connection | `3a8170812b534d0ff9d794f19a901d64` |
+| `NEXT_PUBLIC_SIWE_DOMAIN` | Domain identifier for EIP-4361 Sign-In with Ethereum signature requests | `localhost:3000` |
+| `NEXT_PUBLIC_SIWE_URI` | Origin URI for SIWE verification | `http://localhost:3000` |
+| `NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS` | Deployed `AgentMarketplace` smart contract address (Polygon Amoy / local Hardhat) | `0x1234567890123456789012345678901234567890` |
+
+##### 4. Launch the Frontend Development Server
+```bash
+npm run dev
+```
+
+The Next.js application will be live at `http://localhost:3000`:
+- **Landing & Marketplace**: `http://localhost:3000/marketplace`
+- **Authentication**: `http://localhost:3000/login` & `http://localhost:3000/register`
+- **Developer Studio & Agent Creation**: `http://localhost:3000/dashboard/agents/new`
+- **Workspace Runner & GitHub Builds**: `http://localhost:3000/dashboard/workspaces`
+- **Admin Management Console**: `http://localhost:3000/admin`
+- **On-Chain Agent Publishing**: `http://localhost:3000/dashboard/agents/[id]/publish`
 
 ---
 
@@ -183,9 +235,9 @@ Services:
 
 ## 🧪 Testing & Quality Assurance
 
-AgentChain contains comprehensive automated test suites for Python microservices, security protections, and Hardhat smart contracts.
+AgentChain contains comprehensive automated test suites for Python microservices, frontend production builds, security protections, and Hardhat smart contracts.
 
-### 1. Run Python Pytest Test Suite (64/64 PASS)
+### 1. Run Python Pytest Test Suite (76/76 PASS)
 ```bash
 pytest
 ```
@@ -198,7 +250,14 @@ Test Coverage Areas:
 - `tests/test_worker_phase5.py`: Worker heartbeats, atomic job leasing (`SKIP LOCKED`), lease crash recovery.
 - `tests/test_llm_provider_phase5.py`: Zero-mock enforcement, provider abstraction, token cost calculation.
 
-### 2. Run Hardhat Smart Contract Tests (5/5 PASS)
+### 2. Verify Frontend Production Build & TypeScript Checking
+```bash
+cd frontend
+npm run build
+```
+Verifies Next.js 14 server/client component boundaries, App Router static generation, and TypeScript type soundness.
+
+### 3. Run Hardhat Smart Contract Tests (5/5 PASS)
 ```bash
 cd contracts
 npx hardhat test

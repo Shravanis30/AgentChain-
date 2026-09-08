@@ -1,14 +1,18 @@
 # Dependencies
 node_modules/
+frontend/node_modules/
 contracts/node_modules/
 contracts/artifacts/
 contracts/cache/
 
 # Next.js Build & Cache
 .next/
+frontend/.next/
 out/
-/build/
-/dist/
+build/
+dist/
+*.tsbuildinfo
+frontend/*.tsbuildinfo
 
 # Python & Environment
 __pycache__/
@@ -27,9 +31,14 @@ htmlcov/
 *.db
 *.sqlite3
 .env
+.env.*
 .env.local
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+!frontend/.env.example
+!.env.example
 
 # IDE & System
 .DS_Store
 *.log
-*.tsbuildinfo

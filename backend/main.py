@@ -119,15 +119,13 @@ if os.path.exists(os.path.join(BASE_DIR, "diagrams")):
 
 @app.get("/", include_in_schema=False)
 def serve_index():
-    return FileResponse(os.path.join(BASE_DIR, "index.html"))
-
-@app.get("/style.css", include_in_schema=False)
-def serve_css():
-    return FileResponse(os.path.join(BASE_DIR, "style.css"), media_type="text/css")
-
-@app.get("/app.js", include_in_schema=False)
-def serve_js():
-    return FileResponse(os.path.join(BASE_DIR, "app.js"), media_type="application/javascript")
+    return {
+        "name": settings.PROJECT_NAME,
+        "status": "online",
+        "docs": "/docs",
+        "version": settings.VERSION,
+        "frontend": "Next.js frontend available at http://localhost:3000 (cd frontend && npm run dev)"
+    }
 
 @app.get("/agentchain_architecture.svg", include_in_schema=False)
 def serve_svg():
