@@ -1,0 +1,53 @@
+name: Frontend CI Pipeline
+
+on:
+  push:
+    branches: [ main, 'release/*' ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  frontend-build:
+    name: Frontend Build & Typecheck (Node 20)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: |
+          npm ci || npm install
+
+      - name: TypeScript Typecheck
+        working-directory: frontend
+        run: |
+          npx tsc --noEmit
+
+      - name: Build Next.js Production Application
+        working-directory: frontend
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_API_URL: 'http://localhost:8000'
+          NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: '3a8170812b534d0ff9d794f19a901d64'
+          NEXT_PUBLIC_SIWE_DOMAIN: 'localhost:3000'
+          NEXT_PUBLIC_SIWE_URI: 'http://localhost:3000'
+          NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS: '0x33b0709B52e782aB9576B6044132E65A3AF5206E'
+          NEXT_PUBLIC_REGISTRY_CONTRACT_ADDRESS: '0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1'
+          NEXT_PUBLIC_CHAIN_ID: '80002'
+        run: |
+          npm run build

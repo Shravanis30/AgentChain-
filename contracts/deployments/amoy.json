@@ -1,0 +1,22 @@
+{
+  "network": "amoy",
+  "chainId": 80002,
+  "rpcUrl": "https://polygon-amoy-bor-rpc.publicnode.com",
+  "deployedAt": "2026-09-09T10:32:20.000Z",
+  "deployerAddress": "0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab",
+  "AgentRegistry": "0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1",
+  "AgentMarketplace": "0x33b0709B52e782aB9576B6044132E65A3AF5206E",
+  "EscrowPayment": "0x33b0709B52e782aB9576B6044132E65A3AF5206E",
+  "WorkspaceRentalEscrow": null,
+  "contracts": {
+    "AgentRegistry": "0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1",
+    "AgentMarketplace": "0x33b0709B52e782aB9576B6044132E65A3AF5206E",
+    "EscrowPayment": "0x33b0709B52e782aB9576B6044132E65A3AF5206E",
+    "WorkspaceRentalEscrow": null,
+    "USDC": "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582"
+  },
+  "explorerUrls": {
+    "AgentRegistry": "https://amoy.polygonscan.com/address/0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1",
+    "AgentMarketplace": "https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E"
+  }
+}
