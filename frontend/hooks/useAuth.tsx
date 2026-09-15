@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRoles(profile.roles || []);
       setPermissions(profile.permissions || []);
     } catch (err: any) {
-      console.warn('Failed to fetch user profile, clearing stale token:', err);
+      // Stale or expired token is pruned automatically
       removeToken();
       setUser(null);
       setRoles([]);

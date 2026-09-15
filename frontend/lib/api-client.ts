@@ -85,6 +85,9 @@ export async function apiFetch<T>(
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      removeToken();
+    }
     const errorMsg = data.detail || data.message || `API request failed with status ${response.status}`;
     throw new Error(errorMsg);
   }

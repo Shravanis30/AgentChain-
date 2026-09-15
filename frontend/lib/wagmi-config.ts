@@ -11,6 +11,9 @@ export const wagmiConfig = getDefaultConfig({
   chains: [polygonAmoy, polygon, mainnet, sepolia],
   transports: {
     [polygonAmoy.id]: http('https://polygon-amoy-bor-rpc.publicnode.com'),
+    [polygon.id]: http('https://polygon-rpc.com'),
+    [mainnet.id]: http('https://cloudflare-eth.com'),
+    [sepolia.id]: http('https://rpc.sepolia.org'),
   },
   ssr: true,
 });
