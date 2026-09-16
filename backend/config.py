@@ -1,9 +1,20 @@
 import os
+import json
+from pathlib import Path
 import logging
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger("agentchain.config")
+
+_amoy_deployments = {}
+_deployments_path = Path(__file__).resolve().parent.parent / "contracts" / "deployments" / "amoy.json"
+if _deployments_path.exists():
+    try:
+        with open(_deployments_path, "r") as _f:
+            _amoy_deployments = json.load(_f)
+    except Exception as _e:
+        logger.warning(f"Could not load amoy.json: {_e}")
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -94,8 +105,14 @@ a5BXNR5EN1h7AMj2KjzoY43NEz+nlQ404nFp605YODY+K7lL3EeGzr5fVP2bfu3x
     # Blockchain & Smart Contracts
     POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
     CHAIN_ID: int = int(os.getenv("CHAIN_ID", "80002")) # Polygon Amoy Testnet
-    MARKETPLACE_CONTRACT_ADDRESS: str = os.getenv("MARKETPLACE_CONTRACT_ADDRESS", "0x1234567890123456789012345678901234567890")
-    REGISTRY_CONTRACT_ADDRESS: str = os.getenv("REGISTRY_CONTRACT_ADDRESS", "0x0987654321098765432109876543210987654321")
+    MARKETPLACE_CONTRACT_ADDRESS: str = os.getenv(
+        "MARKETPLACE_CONTRACT_ADDRESS",
+        _amoy_deployments.get("AgentMarketplace", "0x33b0709B52e782aB9576B6044132E65A3AF5206E")
+    )
+    REGISTRY_CONTRACT_ADDRESS: str = os.getenv(
+        "REGISTRY_CONTRACT_ADDRESS",
+        _amoy_deployments.get("AgentRegistry", "0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1")
+    )
     SETTLEMENT_ORACLE_PRIVATE_KEY: str = os.getenv("SETTLEMENT_ORACLE_PRIVATE_KEY", "")
 
     # Event Indexer Configuration
