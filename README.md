@@ -201,7 +201,8 @@ Required frontend environment variables:
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Reown / WalletConnect Cloud project ID for SIWE & Web3 wallet connection | `3a8170812b534d0ff9d794f19a901d64` |
 | `NEXT_PUBLIC_SIWE_DOMAIN` | Domain identifier for EIP-4361 Sign-In with Ethereum signature requests | `localhost:3000` |
 | `NEXT_PUBLIC_SIWE_URI` | Origin URI for SIWE verification | `http://localhost:3000` |
-| `NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS` | Deployed `AgentMarketplace` smart contract address (Polygon Amoy / local Hardhat) | `0x1234567890123456789012345678901234567890` |
+| `NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS` | Deployed `AgentMarketplace` contract (defaults to `contracts/deployments/amoy.json`) | `0x33b0709B52e782aB9576B6044132E65A3AF5206E` |
+| `NEXT_PUBLIC_REGISTRY_CONTRACT_ADDRESS` | Deployed `AgentRegistry` contract (defaults to `contracts/deployments/amoy.json`) | `0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1` |
 
 ##### 4. Launch the Frontend Development Server
 ```bash
