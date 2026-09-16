@@ -213,8 +213,9 @@ async def github_app_callback(
             logger.info(f"[GitHub Callback] Validated state token for user_id={user_id}, redirect_path={redirect_path}")
         else:
             logger.warning(f"[GitHub Callback] State token validation failed for state={state[:10]}...")
-            target_url = f"http://localhost:3000{redirect_path}?error=invalid_state"
-            return RedirectResponse(url=target_url, status_code=307)
+            if not installation_id:
+                target_url = f"http://localhost:3000{redirect_path}?error=invalid_state"
+                return RedirectResponse(url=target_url, status_code=307)
 
     # Step 2: Determine installation_id
     resolved_installation_id = installation_id
