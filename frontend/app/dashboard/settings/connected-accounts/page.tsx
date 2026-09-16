@@ -26,6 +26,7 @@ function ConnectedAccountsContent() {
   const installedNotice = searchParams.get('installed');
   const installError = searchParams.get('install_error');
   const installationIdParam = searchParams.get('installation_id');
+  const errorParam = searchParams.get('error');
 
   const [installations, setInstallations] = useState<any[]>([]);
   const [repoCounts, setRepoCounts] = useState<Record<string, number>>({});
@@ -48,9 +49,25 @@ function ConnectedAccountsContent() {
       } else if (installedNotice) {
         setSuccessMsg('GitHub App installation completed successfully!');
       }
+
       if (installError === 'invalid_installation') {
-        setError('GitHub installation was invalid or revoked. Please try connecting again.');
+        setError('GitHub connection failed: installation was invalid or revoked. Please try again.');
       }
+
+      if (errorParam) {
+        if (errorParam === 'invalid_state' || errorParam === 'state_expired') {
+          setError('GitHub connection failed, please try again (authorization session expired or state invalid).');
+        } else if (errorParam === 'missing_params') {
+          setError('GitHub connection failed, please try again (missing authorization parameters).');
+        } else if (errorParam === 'missing_installation_id') {
+          setError('GitHub connection failed, please try again (no GitHub App installation detected).');
+        } else if (errorParam === 'access_denied') {
+          setError('GitHub connection failed: access was denied on GitHub. Please try again.');
+        } else {
+          setError(`GitHub connection failed, please try again (${errorParam}).`);
+        }
+      }
+
       await fetchInstallations();
     };
     init();

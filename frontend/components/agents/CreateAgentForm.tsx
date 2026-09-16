@@ -74,9 +74,20 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
 
   useEffect(() => {
     // Check GitHub connection availability for current logged in user
-    api
-      .getGitHubRepos()
-      .then((data: any) => {
+    const checkGitHub = async () => {
+      if (typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search);
+        const instId = searchParams.get('installation_id');
+        if (instId) {
+          try {
+            await api.linkGitHubInstallation(instId);
+          } catch {
+            // Ignore link error, proceed to fetch repos
+          }
+        }
+      }
+      try {
+        const data = await api.getGitHubRepos();
         if (data && data.connected && Array.isArray(data.repos) && data.repos.length > 0) {
           setGitHubRepos(data.repos);
           setHasGitHubAccess(true);
@@ -88,11 +99,12 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
           setHasGitHubAccess(false);
           setGitHubRepos([]);
         }
-      })
-      .catch(() => {
+      } catch {
         setHasGitHubAccess(false);
         setGitHubRepos([]);
-      });
+      }
+    };
+    checkGitHub();
   }, [isRepoModeRequested]);
 
   const handleConnectGitHubInline = async () => {

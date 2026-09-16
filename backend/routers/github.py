@@ -159,8 +159,6 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
         if not raw_installations:
             return
 
-        synced_any = False
-
         for item in raw_installations:
             inst_id = str(item["id"])
             account = item.get("account", {})
@@ -169,28 +167,17 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
             avatar = account.get("avatar_url", "https://github.com/github.png")
 
             stmt = select(GitHubInstallation).where(
-                GitHubInstallation.installation_id == inst_id
+                GitHubInstallation.installation_id == inst_id,
+                GitHubInstallation.user_id == user_id
             )
             res = await db.execute(stmt)
             existing = res.scalar_one_or_none()
 
             if existing:
-                if existing.user_id == user_id:
-                    existing.account_login = login
-                    existing.account_type = acc_type
-                    existing.avatar_url = avatar
-                continue
-            else:
-                inst = GitHubInstallation(
-                    id=str(uuid.uuid4()),
-                    user_id=user_id,
-                    installation_id=inst_id,
-                    account_login=login,
-                    account_type=acc_type,
-                    github_username=login,
-                    avatar_url=avatar
-                )
-                db.add(inst)
+                existing.account_login = login
+                existing.account_type = acc_type
+                existing.avatar_url = avatar
+                existing.github_username = login
 
         await db.commit()
         _USER_REPOS_CACHE.pop(user_id, None)
@@ -201,39 +188,78 @@ async def _auto_sync_real_installations(user_id: str, db: AsyncSession):
 
 @router.get("/callback")
 async def github_app_callback(
-    installation_id: str = Query(...),
+    installation_id: Optional[str] = Query(None),
+    code: Optional[str] = Query(None),
     state: Optional[str] = Query(None),
+    setup_action: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)
 ):
-    """Callback endpoint for GitHub App installation redirect."""
+    """Callback endpoint for GitHub App installation and OAuth redirects."""
+    logger.info(
+        f"[GitHub Callback] Received params: installation_id={installation_id}, "
+        f"code={'present' if code else 'None'}, state={'present' if state else 'None'}, "
+        f"setup_action={setup_action}"
+    )
+
     redirect_path = "/dashboard/settings/connected-accounts"
     user_id = None
+
+    # Step 1: Validate state token if supplied
     if state:
         claims = github_app_auth.verify_state_token(state)
         if claims and claims.get("user_id"):
             user_id = claims["user_id"]
             redirect_path = claims.get("redirect_path", "/dashboard/settings/connected-accounts")
+            logger.info(f"[GitHub Callback] Validated state token for user_id={user_id}, redirect_path={redirect_path}")
+        else:
+            logger.warning(f"[GitHub Callback] State token validation failed for state={state[:10]}...")
+            target_url = f"http://localhost:3000{redirect_path}?error=invalid_state"
+            return RedirectResponse(url=target_url, status_code=307)
 
-    if not user_id:
-        join_char = "&" if "?" in redirect_path else "?"
-        target_url = f"http://localhost:3000{redirect_path}{join_char}installation_id={installation_id}&installed=true"
+    # Step 2: Determine installation_id
+    resolved_installation_id = installation_id
+    if not resolved_installation_id:
+        logger.info("[GitHub Callback] installation_id not in query params; querying active app installations...")
+        try:
+            raw_installations = await installation_client.list_app_installations()
+            if raw_installations:
+                resolved_installation_id = str(raw_installations[0]["id"])
+                logger.info(f"[GitHub Callback] Resolved installation_id from active app installations: {resolved_installation_id}")
+            else:
+                logger.warning("[GitHub Callback] No active installations returned by GitHub App API.")
+        except Exception as e:
+            logger.error(f"[GitHub Callback] Failed to fetch active app installations: {e}")
+
+    if not resolved_installation_id:
+        logger.error("[GitHub Callback] Unable to resolve installation_id from query params or GitHub API.")
+        target_url = f"http://localhost:3000{redirect_path}?error=missing_installation_id"
         return RedirectResponse(url=target_url, status_code=307)
 
-    # Fetch installation metadata from GitHub API (gracefully degrade if GitHub API unavailable)
+    # Step 3: If user_id is missing (GitHub stripped state on setup URL), redirect to frontend to link via active browser session
+    if not user_id:
+        join_char = "&" if "?" in redirect_path else "?"
+        target_url = f"http://localhost:3000{redirect_path}{join_char}installation_id={resolved_installation_id}&installed=true"
+        logger.info(f"[GitHub Callback] Forwarding installation to frontend for client-side linking: {target_url}")
+        return RedirectResponse(url=target_url, status_code=307)
+
+    # Step 4: Fetch installation metadata from GitHub API
     try:
-        details = await installation_client.get_installation_details(installation_id)
+        details = await installation_client.get_installation_details(resolved_installation_id)
+        logger.info(f"[GitHub Callback] Fetched installation details for account: {details.get('account_login')}")
     except GitHubInstallationRevokedError:
+        logger.warning(f"[GitHub Callback] Installation {resolved_installation_id} was revoked.")
         join_char = "&" if "?" in redirect_path else "?"
         target_url = f"http://localhost:3000{redirect_path}{join_char}install_error=invalid_installation"
         return RedirectResponse(url=target_url, status_code=307)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"[GitHub Callback] Could not fetch details for installation {resolved_installation_id}: {e}")
         details = {
-            "account_login": f"github-user-{installation_id[:8]}",
+            "account_login": f"github-user-{resolved_installation_id[:8]}",
             "account_type": "User",
             "avatar_url": "https://github.com/github.png",
         }
 
-    # Delete mock installations
+    # Step 5: Persist GithubInstallation to database before redirect
     del_stmt = delete(GitHubInstallation).where(
         GitHubInstallation.user_id == user_id,
         GitHubInstallation.installation_id.startswith("inst-dev-")
@@ -242,7 +268,7 @@ async def github_app_callback(
 
     stmt = select(GitHubInstallation).where(
         GitHubInstallation.user_id == user_id,
-        GitHubInstallation.installation_id == str(installation_id)
+        GitHubInstallation.installation_id == str(resolved_installation_id)
     )
     res = await db.execute(stmt)
     existing = res.scalar_one_or_none()
@@ -251,20 +277,24 @@ async def github_app_callback(
         existing.account_login = details["account_login"]
         existing.account_type = details["account_type"]
         existing.avatar_url = details.get("avatar_url")
+        existing.github_username = details["account_login"]
+        logger.info(f"[GitHub Callback] Updated existing GitHubInstallation row for user {user_id}")
     else:
         inst = GitHubInstallation(
             id=str(uuid.uuid4()),
             user_id=user_id,
-            installation_id=str(installation_id),
+            installation_id=str(resolved_installation_id),
             account_login=details["account_login"],
             account_type=details["account_type"],
             github_username=details["account_login"],
             avatar_url=details.get("avatar_url")
         )
         db.add(inst)
+        logger.info(f"[GitHub Callback] Created new GitHubInstallation row for user {user_id}, installation {resolved_installation_id}")
 
     await db.commit()
     _USER_REPOS_CACHE.pop(user_id, None)
+    logger.info(f"[GitHub Callback] DB write committed successfully. Redirecting browser to {redirect_path}")
 
     join_char = "&" if "?" in redirect_path else "?"
     target_url = f"http://localhost:3000{redirect_path}{join_char}installed=true"
