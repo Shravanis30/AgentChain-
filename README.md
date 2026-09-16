@@ -38,40 +38,40 @@ AgentChain is an enterprise-grade platform that connects goal-driven user prompt
                                     | - On-Chain Contract Publishing & Settlement   |
                                     +-----------------------+-----------------------+
                                                             |
-                                                            | REST API / WebSockets
+                                                            | REST API / WebSockets / SIWE
                                                             v
                                     +-----------------------------------------------+
                                     |             FastAPI Gateway Layer             |
-                                    | - SIWE Cryptographic Auth & RBAC              |
-                                    | - Idempotency Deduplication Engine            |
-                                    | - Non-blocking Task Submission                |
-                                    +-----------------------+-----------------------+
-                                                            |
+                                    | - SIWE Cryptographic Auth & RBAC Middleware   |
+                                    | - Idempotency Deduplication & Nonce Store     |
+                                    | - Non-blocking Task Submission (<50ms)        |
+                                    +---+-------------------+-------------------+---+
+                                        |                   |                   |
+                        +---------------+                   |                   +---------------+
+                        |                                   v                                   |
+                        v                   +-------------------------------+                   v
++-----------------------------------+       |  PostgreSQL Transactional DB  |       +-----------------------------------+
+|    GitHub App Multi-Tenant Auth   |       | - Workflows, Nodes & Edges    |       |   Workspace Sandboxed Runtimes    |
+| - HMAC CSRF State Validation      |       | - Execution Jobs (FOR UPDATE) |       | - Docker Daemon API / Lifecycle   |
+| - RS256 App JWT & Scoped Tokens   |       | - Double-Entry Ledger System  |       | - Nano-CPUs & Memory Enforced     |
+| - Tarball Archive Container Build |       +---------------+---------------+       | - Automated Expiration Reaper     |
++-----------------------------------+                       |                       +-----------------------------------+
                                                             v
-                                    +-----------------------------------------------+
-                                    |          PostgreSQL Transactional DB          |
-                                    | - Workflows, Nodes & Edges                    |
-                                    | - Execution Jobs (FOR UPDATE SKIP LOCKED)     |
-                                    | - Double-Entry Financial Ledger               |
-                                    +-----------------------+-----------------------+
-                                                            |
-                                                            v
-                                    +-----------------------------------------------+
-                                    |        Background Worker Pool Daemons         |
-                                    | - Heartbeats & Job Lease Claims               |
-                                    | - Exponential Backoff Retries & DLQ           |
-                                    | - Pinned Agent Version Execution              |
-                                    +-----------+-----------------------+-----------+
+                                            +-------------------------------+
+                                            | Background Worker Pool Daemon |
+                                            | - Lease Claims & Heartbeats   |
+                                            | - Exponential Backoff & DLQ   |
+                                            +---+-----------------------+---+
                                                 |                       |
-                       +------------------------+                       +------------------------+
-                       |                                                                         |
-                       v                                                                         v
-+------------------------------------------+                             +------------------------------------------+
-|      Real LLM Provider Abstraction       |                             |      Blockchain & Settlement Layer       |
-| - OpenAI (gpt-4o, o1-mini)               |                             | - USDC Escrow Smart Contract             |
-| - Anthropic (claude-3-5-sonnet)          |                             | - Two-Phase Settlement Oracle            |
-| - Server-Side Token Cost Accounting      |                             | - On-Chain Event Indexer Daemon          |
-+------------------------------------------+                             +------------------------------------------+
+                        +-----------------------+                       +-----------------------+
+                        |                                                                       |
+                        v                                                                       v
++-----------------------------------------------+                       +-----------------------------------------------+
+|          AI & RAG Memory Subsystem            |                       |         Polygon Amoy Smart Contracts          |
+| - Multi-LLM Router (OpenAI, Anthropic)        |                       | - AgentMarketplace.sol (85/10/5 Revenue Split)|
+| - Server-Side Token Cost Tracking             |                       | - AgentRegistry.sol (ERC-725/DID Metadata)    |
+| - Qdrant Vector Engine Knowledge Retrieval    |                       | - Two-Phase Settlement Oracle & Event Indexer |
++-----------------------------------------------+                       +-----------------------------------------------+
 ```
 
 ---
@@ -105,6 +105,18 @@ AgentChain is an enterprise-grade platform that connects goal-driven user prompt
 - Topological DAG Builder (`DAGBuilder`) with Kahn's algorithm cycle detection (`DAGCycleError`).
 - Production `LLMProvider` abstraction (`OpenAIProvider`, `AnthropicProvider`) with server-side token cost calculation and zero-mock policy.
 - WebSocket status streaming (`/api/v1/ws/tasks/{task_id}`).
+
+### Phase 6: Containerized Workspaces & Execution Sandbox (Fix H)
+- Multi-tier container provisioning (SMALL: 1 vCPU/512MB, MEDIUM: 2 vCPU/1024MB, LARGE: 2 vCPU/1536MB).
+- Docker API daemon connectivity via local socket (`/var/run/docker.sock`) or remote TLS `DOCKER_HOST`.
+- Security hardening: unprivileged containers (`Privileged=False`), no-new-privileges flag, isolated bridge network.
+- Automated background poller reaper for expired workspace leases.
+
+### Phase 7: Multi-Tenant GitHub App Integration & Repository Engine (Fix G)
+- Multi-tenant GitHub App installation with RS256 JWT minting and scoped installation tokens.
+- CSRF-resistant HMAC-signed OAuth state tokens with user-binding and TTL validation.
+- Secure repository archive tarball retrieval and automated Docker container image building.
+- Multi-tenant repository isolation ensuring zero cross-user visibility.
 
 ---
 
@@ -152,16 +164,38 @@ alembic upgrade head
 alembic check
 ```
 
-##### 4. Backend Environment Configuration
-Create a `.env` file in the root directory:
+##### 4. Environment Configuration
+Copy the root `.env.example` template:
+```bash
+cp .env.example .env
+```
+Key configuration parameters grouped by subsystem:
 ```env
-PROJECT_NAME="AgentChain Enterprise"
-ENVIRONMENT="development"
-DATABASE_URL="sqlite+aiosqlite:///./agentchain.db"
-REDIS_URL="redis://localhost:6379/0"
-SECRET_KEY="your-super-secret-jwt-key-min-32-chars"
-OPENAI_API_KEY="sk-proj-your-openai-api-key"
-ANTHROPIC_API_KEY="sk-ant-your-anthropic-api-key"
+# --- Existing Backend & Core Infrastructure ---
+DATABASE_URL=sqlite+aiosqlite:///./agentchain.db
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=agentchain-enterprise-super-secret-key-32bytes!
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# --- GitHub App Integration (Fix G) ---
+GITHUB_APP_ID=4802496
+GITHUB_APP_SLUG=agentchainapp
+GITHUB_APP_CLIENT_ID=Iv23liymNV2R7YU7Wtbx
+GITHUB_APP_CLIENT_SECRET=01db4c0c1346d75cdbddc7dbf10a9071bad43bdf
+GITHUB_APP_PRIVATE_KEY=
+
+# --- Blockchain / Amoy (Fix I, K) ---
+AMOY_RPC_URL=https://polygon-amoy-bor-rpc.publicnode.com
+POLYGON_RPC_URL=https://polygon-amoy-bor-rpc.publicnode.com
+DEPLOYER_PRIVATE_KEY=
+NEXT_PUBLIC_AGENT_MARKETPLACE_ADDRESS=0x33b0709B52e782aB9576B6044132E65A3AF5206E
+NEXT_PUBLIC_REGISTRY_CONTRACT_ADDRESS=0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1
+NEXT_PUBLIC_CHAIN_ID=80002
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=3a8170812b534d0ff9d794f19a901d64
+
+# --- Workspace Deployment (Fix H) ---
+DOCKER_HOST=   # unix:///var/run/docker.sock for local, or remote TLS endpoint
 ```
 
 ##### 5. Launch the Backend Server
