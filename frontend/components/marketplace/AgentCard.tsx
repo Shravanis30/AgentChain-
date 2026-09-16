@@ -7,11 +7,15 @@ import { Bot, Star, Cpu, ArrowUpRight, DollarSign } from 'lucide-react';
 import { MarketplaceAgent } from '@/lib/api/marketplace';
 import { StatusIndicator } from './StatusIndicator';
 
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
+
 interface AgentCardProps {
   agent: MarketplaceAgent;
 }
 
 export function AgentCard({ agent }: AgentCardProps) {
+  const { formattedINR, disclaimer } = useINR(agent.price_per_call_usdc);
   return (
     <motion.div
       layout
@@ -71,11 +75,15 @@ export function AgentCard({ agent }: AgentCardProps) {
 
       {/* Footer Price & View Action */}
       <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-        <div>
-          <div className="text-[10px] text-slate-500 font-mono">Price Per Call</div>
-          <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono flex items-center">
-            ${agent.price_per_call_usdc.toFixed(2)}{' '}
-            <span className="text-[10px] text-slate-400 font-sans ml-1">USDC</span>
+        <div title={disclaimer}>
+          <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+            <span>Price Per Call</span>
+          </div>
+          <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono flex items-baseline gap-1">
+            <span>{formattedINR}</span>
+            <span className="text-[10px] text-slate-400 font-normal">
+              (≈ ${agent.price_per_call_usdc.toFixed(2)} USDC)
+            </span>
           </div>
         </div>
 

@@ -4,11 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { fetchMarketplaceAgents, MarketplaceAgentDetail, fetchAgentProfile } from '@/lib/api/marketplace';
 import { RentalCheckoutModal } from '@/components/dashboard/RentalCheckoutModal';
 import { ShoppingBag, Bot, Zap, Star } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export default function RentWorkspacePage() {
   const [agents, setAgents] = useState<any[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<MarketplaceAgentDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { formatAsINR } = useINR();
 
   useEffect(() => {
     fetchMarketplaceAgents({ limit: 6 }).then((data) => setAgents(data.agents || []));
@@ -68,7 +71,12 @@ export default function RentWorkspacePage() {
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between font-mono text-xs">
               <div>
                 <div className="text-[10px] text-slate-500">Lease Rate</div>
-                <div className="font-bold text-slate-900 dark:text-white">${agent.price_per_call_usdc.toFixed(2)} / hr</div>
+                <div className="font-bold text-slate-900 dark:text-white flex items-baseline gap-1">
+                  <span>{formatAsINR(agent.price_per_call_usdc)}</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    (≈ ${agent.price_per_call_usdc.toFixed(2)} USDC / hr)
+                  </span>
+                </div>
               </div>
 
               <button

@@ -19,6 +19,12 @@ All deployed contract addresses are committed to [`contracts/deployments/amoy.js
 | **`WorkspaceRentalEscrow`** | Polygon Amoy (`80002`) | *Pending Gas* | Code in [`contracts/src/WorkspaceRentalEscrow.sol`](file:///Users/shravani/Desktop/AgentChain/contracts/src/WorkspaceRentalEscrow.sol) | **Not yet deployed** (Ready in `deploy-amoy.js`; pending additional testnet POL gas) |
 | **`USDC` (Circle Official)** | Polygon Amoy (`80002`) | `0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582) | **LIVE / INTEGRATED** |
 
+### Display-Layer Infrastructure (Non-Settlement)
+
+| Service / Endpoint | Provider / Component | Role & Scope | Settlement Status |
+|---|---|---|---|
+| **Exchange Rate Service** (`GET /api/v1/exchange-rate`) | CoinGecko API (`usd-coin`/`inr`), cached in [`backend/services/exchange_rate.py`](file:///Users/shravani/Desktop/AgentChain/backend/services/exchange_rate.py) | Fetches periodic USDC→INR rate (cached 20m) for client-side Indian Rupee display | **Display-only convenience**; not part of settlement. All on-chain escrow deposits, releases, and 85/10/5 splits execute strictly in USDC on Polygon Amoy. |
+
 ---
 
 ## 2. Deployment Metadata
@@ -71,6 +77,10 @@ Following deployment, a real agent was published to `AgentMarketplace.registerAg
        _amoy_deployments.get("AgentMarketplace", "0x33b0709B52e782aB9576B6044132E65A3AF5206E")
    )
    ```
+
+3. **Display-Layer Currency Conversion (Non-Settlement)**:
+   - **Backend**: [`backend/services/exchange_rate.py`](file:///Users/shravani/Desktop/AgentChain/backend/services/exchange_rate.py) serves cached USDC→INR rates via `GET /api/v1/exchange-rate` with automatic 20-minute cache TTL and fallback protection.
+   - **Frontend**: [`frontend/lib/currency.ts`](file:///Users/shravani/Desktop/AgentChain/frontend/lib/currency.ts) provides the `useINR()` hook and `formatINR()` utility for displaying prices in Indian Rupees (`₹`), while all deposits, escrows, and payouts settle on Polygon Amoy in USDC.
 
 ---
 

@@ -11,6 +11,8 @@
 
 AgentChain is an enterprise-grade platform that connects goal-driven user prompts to autonomous, specialized AI agent swarms. It combines **durable asynchronous DAG workflow orchestration**, **Sign-In with Ethereum (SIWE) cryptographic authentication**, **real LLM provider abstractions with zero-mock enforcement**, and **smart contract escrow settlement (85% Dev / 10% Stakers / 5% DAO)**.
 
+AgentChain settles all payments on-chain in USDC via smart contract escrow. INR values shown throughout the UI are a live-converted display convenience for Indian users and are not a separate payment system.
+
 ---
 
 ## 🌟 Key System Highlights

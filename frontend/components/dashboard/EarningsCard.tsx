@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Wallet, ArrowDownRight, ArrowUpRight, ShieldCheck, DollarSign, Download, Lock, Check } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface TaskEscrowTx {
   id: string;
@@ -75,6 +77,7 @@ const MOCK_WORKSPACE_RENTAL_TXS: WorkspaceRentalTx[] = [
 export function EarningsCard() {
   const { user } = useAuth();
   const [withdrawToast, setWithdrawToast] = useState<boolean>(false);
+  const { formatAsINR } = useINR();
 
   const primaryWallet =
     user?.wallets && user.wallets.length > 0
@@ -136,7 +139,7 @@ export function EarningsCard() {
             </p>
           </div>
           <span className="text-xs font-mono font-bold text-emerald-500">
-            Total: $144.50 Net Dev (85%)
+            Total: {formatAsINR(144.50)} Net Dev (${144.50.toFixed(2)} USDC)
           </span>
         </div>
 
@@ -161,10 +164,22 @@ export function EarningsCard() {
                       <div className="font-bold">{tx.id}</div>
                       <div className="text-[10px] text-slate-400">{tx.taskId}</div>
                     </td>
-                    <td className="p-4 font-bold">${tx.grossAmountUSDC.toFixed(2)}</td>
-                    <td className="p-4 font-extrabold text-emerald-500">${tx.devPayout85USDC.toFixed(2)}</td>
-                    <td className="p-4 text-purple-400">${tx.stakers10USDC.toFixed(2)}</td>
-                    <td className="p-4 text-cyan-400">${tx.daoFee5USDC.toFixed(2)}</td>
+                    <td className="p-4">
+                      <div className="font-bold">{formatAsINR(tx.grossAmountUSDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.grossAmountUSDC.toFixed(2)} USDC</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="font-extrabold text-emerald-500">{formatAsINR(tx.devPayout85USDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.devPayout85USDC.toFixed(2)} USDC</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-purple-400 font-bold">{formatAsINR(tx.stakers10USDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.stakers10USDC.toFixed(2)} USDC</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-cyan-400 font-bold">{formatAsINR(tx.daoFee5USDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.daoFee5USDC.toFixed(2)} USDC</div>
+                    </td>
                     <td className="p-4">
                       <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold text-[10px]">
                         {tx.status}
@@ -194,7 +209,7 @@ export function EarningsCard() {
             </p>
           </div>
           <span className="text-xs font-mono font-bold text-cyan-500">
-            Total: $4,130.70 Net Rental Payout
+            Total: {formatAsINR(4130.70)} Net Rental Payout (${4130.70.toFixed(2)} USDC)
           </span>
         </div>
 
@@ -221,9 +236,18 @@ export function EarningsCard() {
                     </td>
                     <td className="p-4 text-slate-400">{tx.renterAddress}</td>
                     <td className="p-4">{tx.durationHours} hrs</td>
-                    <td className="p-4 font-bold">${tx.grossRentalUSDC.toFixed(2)}</td>
-                    <td className="p-4 text-rose-500 font-bold">-${tx.platformFee2USDC.toFixed(2)}</td>
-                    <td className="p-4 font-extrabold text-cyan-500">${tx.netPayoutUSDC.toFixed(2)}</td>
+                    <td className="p-4">
+                      <div className="font-bold">{formatAsINR(tx.grossRentalUSDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.grossRentalUSDC.toFixed(2)} USDC</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-rose-500 font-bold">-{formatAsINR(tx.platformFee2USDC)}</div>
+                      <div className="text-[10px] text-slate-400">-${tx.platformFee2USDC.toFixed(2)} USDC</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="font-extrabold text-cyan-500">{formatAsINR(tx.netPayoutUSDC)}</div>
+                      <div className="text-[10px] text-slate-400">${tx.netPayoutUSDC.toFixed(2)} USDC</div>
+                    </td>
                     <td className="p-4 text-right text-slate-400 text-[11px]">
                       {new Date(tx.timestamp).toLocaleDateString()}
                     </td>
@@ -232,8 +256,9 @@ export function EarningsCard() {
               </tbody>
             </table>
           </div>
-          <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-            Escrow earnings and lease revenues are updated in real-time upon on-chain settlement.
+          <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+            <span>Escrow earnings and lease revenues are updated in real-time upon on-chain settlement.</span>
+            <CurrencyDisclaimer />
           </div>
         </div>
       </div>

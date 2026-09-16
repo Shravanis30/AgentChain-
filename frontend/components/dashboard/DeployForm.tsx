@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Cpu, DollarSign, Sparkles, Check, Server, ShieldCheck, Loader2, Clock, Calendar } from 'lucide-react';
 import { AgentItem, api } from '@/lib/api-client';
+import { useINR, formatINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface DeployFormProps {
   onDeployed?: () => void;
@@ -15,9 +17,11 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
   const [resourceTier, setResourceTier] = useState<'SMALL' | 'MEDIUM' | 'LARGE'>('MEDIUM');
   const [pricingModel, setPricingModel] = useState<'PER_HOUR' | 'PER_DAY' | 'CUSTOM_FLAT'>('PER_HOUR');
   
-  const [hourlyRate, setHourlyRate] = useState<string>('15.00');
-  const [dailyRate, setDailyRate] = useState<string>('280.00');
-  const [flatPrice, setFlatPrice] = useState<string>('500.00');
+  const { rate: exchangeRate } = useINR();
+
+  const [hourlyRateINR, setHourlyRateINR] = useState<string>('1250');
+  const [dailyRateINR, setDailyRateINR] = useState<string>('23400');
+  const [flatPriceINR, setFlatPriceINR] = useState<string>('41750');
   const [flatDurationDays, setFlatDurationDays] = useState<string>('7');
 
   const [buildStatuses, setBuildStatuses] = useState<Record<string, any>>({});
@@ -68,23 +72,28 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
   const selectedAgent = agents.find((ag) => ag.id === selectedAgentId);
   const selectedBuild = selectedAgentId ? buildStatuses[selectedAgentId] : null;
 
-  // Pricing range validation
-  const parsedHourly = parseFloat(hourlyRate);
-  const parsedDaily = parseFloat(dailyRate);
-  const parsedFlatPrice = parseFloat(flatPrice);
-  const parsedFlatDays = parseInt(flatDurationDays);
+  // Parsed user INR inputs
+  const parsedHourlyINR = parseFloat(hourlyRateINR) || 0;
+  const parsedDailyINR = parseFloat(dailyRateINR) || 0;
+  const parsedFlatPriceINR = parseFloat(flatPriceINR) || 0;
+  const parsedFlatDays = parseInt(flatDurationDays) || 1;
+
+  // Canonical USDC rates (stored and settled on-chain)
+  const canonicalHourlyUSDC = Number((parsedHourlyINR / exchangeRate).toFixed(2));
+  const canonicalDailyUSDC = Number((parsedDailyINR / exchangeRate).toFixed(2));
+  const canonicalFlatPriceUSDC = Number((parsedFlatPriceINR / exchangeRate).toFixed(2));
 
   const getValidationError = (): string | null => {
     if (!selectedAgentId) return 'Please select an agent to deploy.';
-    if (pricingModel === 'PER_HOUR' && (isNaN(parsedHourly) || parsedHourly <= 0)) {
-      return 'Hourly lease rate must be greater than 0 USDC.';
+    if (pricingModel === 'PER_HOUR' && (!parsedHourlyINR || parsedHourlyINR <= 0)) {
+      return 'Hourly lease rate must be greater than ₹0.';
     }
-    if (pricingModel === 'PER_DAY' && (isNaN(parsedDaily) || parsedDaily <= 0)) {
-      return 'Daily lease rate must be greater than 0 USDC.';
+    if (pricingModel === 'PER_DAY' && (!parsedDailyINR || parsedDailyINR <= 0)) {
+      return 'Daily lease rate must be greater than ₹0.';
     }
     if (pricingModel === 'CUSTOM_FLAT') {
-      if (isNaN(parsedFlatPrice) || parsedFlatPrice <= 0) {
-        return 'Flat rate price must be greater than 0 USDC.';
+      if (!parsedFlatPriceINR || parsedFlatPriceINR <= 0) {
+        return 'Flat rate price must be greater than ₹0.';
       }
       if (isNaN(parsedFlatDays) || parsedFlatDays < 1) {
         return 'Fixed lease duration must be at least 1 day.';
@@ -130,12 +139,12 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
     setIsProvisioning(true);
     setProvisionStep(1);
 
-    const rate =
+    const canonicalRate =
       pricingModel === 'PER_HOUR'
-        ? parsedHourly
+        ? canonicalHourlyUSDC
         : pricingModel === 'PER_DAY'
-        ? parsedDaily
-        : parsedFlatPrice;
+        ? canonicalDailyUSDC
+        : canonicalFlatPriceUSDC;
 
     try {
       setProvisionStep(2);
@@ -143,7 +152,7 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
         agent_id: selectedAgentId,
         resource_tier: resourceTier,
         pricing_mode: pricingModel,
-        rate_usdc: rate,
+        rate_usdc: canonicalRate,
         flat_duration_days: pricingModel === 'CUSTOM_FLAT' ? parsedFlatDays : undefined,
       });
 
@@ -377,69 +386,109 @@ export function DeployForm({ onDeployed }: DeployFormProps) {
           {/* Dynamic Rate Form Fields */}
           <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 pt-4">
             {pricingModel === 'PER_HOUR' && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-500">Hourly Lease Rate (USDC / hr)</label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono text-slate-500">Hourly Lease Rate (₹ INR)</label>
+                  <span className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+                    ≈ {canonicalHourlyUSDC.toFixed(2)} USDC
+                  </span>
+                </div>
                 <div className="relative">
-                  <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <span className="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-sm">₹</span>
                   <input
                     type="number"
-                    step="0.5"
-                    value={hourlyRate}
-                    onChange={(e) => setHourlyRate(e.target.value)}
+                    step="10"
+                    value={hourlyRateINR}
+                    onChange={(e) => setHourlyRateINR(e.target.value)}
                     required
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
                   />
+                </div>
+                <div className="flex items-baseline justify-between pt-1">
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white font-mono">
+                    {formatINR(parsedHourlyINR)} <span className="text-xs font-sans text-slate-400 font-normal">/ hr</span>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                    (≈ {canonicalHourlyUSDC.toFixed(2)} USDC, settled on-chain)
+                  </span>
                 </div>
               </div>
             )}
 
             {pricingModel === 'PER_DAY' && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-mono text-slate-500">Daily Lease Rate (USDC / day)</label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-mono text-slate-500">Daily Lease Rate (₹ INR)</label>
+                  <span className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+                    ≈ {canonicalDailyUSDC.toFixed(2)} USDC
+                  </span>
+                </div>
                 <div className="relative">
-                  <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <span className="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-sm">₹</span>
                   <input
                     type="number"
-                    step="5"
-                    value={dailyRate}
-                    onChange={(e) => setDailyRate(e.target.value)}
+                    step="100"
+                    value={dailyRateINR}
+                    onChange={(e) => setDailyRateINR(e.target.value)}
                     required
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
                   />
+                </div>
+                <div className="flex items-baseline justify-between pt-1">
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white font-mono">
+                    {formatINR(parsedDailyINR)} <span className="text-xs font-sans text-slate-400 font-normal">/ day</span>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                    (≈ {canonicalDailyUSDC.toFixed(2)} USDC, settled on-chain)
+                  </span>
                 </div>
               </div>
             )}
 
             {pricingModel === 'CUSTOM_FLAT' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-500">Flat Rate Price (USDC)</label>
-                  <div className="relative">
-                    <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono text-slate-500">Flat Rate Price (₹ INR)</label>
+                    <div className="relative">
+                      <span className="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-sm">₹</span>
+                      <input
+                        type="number"
+                        step="500"
+                        value={flatPriceINR}
+                        onChange={(e) => setFlatPriceINR(e.target.value)}
+                        required
+                        className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono text-slate-500">Fixed Lease Duration (Days)</label>
                     <input
                       type="number"
-                      step="10"
-                      value={flatPrice}
-                      onChange={(e) => setFlatPrice(e.target.value)}
+                      min="1"
+                      value={flatDurationDays}
+                      onChange={(e) => setFlatDurationDays(e.target.value)}
                       required
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
                     />
                   </div>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-500">Fixed Lease Duration (Days)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={flatDurationDays}
-                    onChange={(e) => setFlatDurationDays(e.target.value)}
-                    required
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none"
-                  />
+                <div className="flex items-baseline justify-between pt-1">
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white font-mono">
+                    {formatINR(parsedFlatPriceINR)} <span className="text-xs font-sans text-slate-400 font-normal">flat for {flatDurationDays} days</span>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                    (≈ {canonicalFlatPriceUSDC.toFixed(2)} USDC, settled on-chain)
+                  </span>
                 </div>
               </div>
             )}
+
+            <div className="pt-2">
+              <CurrencyDisclaimer />
+            </div>
 
             {validationError && (
               <p className="text-[11px] font-mono text-rose-500 font-bold">

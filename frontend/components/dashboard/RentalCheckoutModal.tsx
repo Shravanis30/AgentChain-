@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, ShieldCheck, DollarSign, Loader2, Check } from 'lucide-react';
 import { MarketplaceAgentDetail } from '@/lib/api/marketplace';
 import { api } from '@/lib/api-client';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface RentalCheckoutModalProps {
   agent: MarketplaceAgentDetail | null;
@@ -23,6 +25,8 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
   const grossTotal = rate * durationHours;
   const platformFee2Percent = (grossTotal * 0.02);
   const netOwnerPayout = grossTotal - platformFee2Percent;
+
+  const { formatAsINR } = useINR();
 
   const handleConfirmCheckout = async () => {
     setIsProcessing(true);
@@ -113,7 +117,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
               <div className="p-5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>Base Rate:</span>
-                  <span>${rate.toFixed(2)} / hr</span>
+                  <span>{formatAsINR(rate)} / hr <span className="text-[10px] text-slate-400">(${rate.toFixed(2)} USDC)</span></span>
                 </div>
                 <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>Lease Duration:</span>
@@ -121,24 +125,30 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                 </div>
                 <div className="flex items-center justify-between text-slate-900 dark:text-white font-bold pt-2 border-t border-slate-200 dark:border-slate-800">
                   <span>Gross Total Renter Price:</span>
-                  <span className="text-base">${grossTotal.toFixed(2)} USDC</span>
+                  <div className="text-right">
+                    <span className="text-base text-cyan-600 dark:text-cyan-400">{formatAsINR(grossTotal)}</span>
+                    <span className="text-[11px] text-slate-400 font-normal ml-1.5">(${grossTotal.toFixed(2)} USDC)</span>
+                  </div>
                 </div>
 
                 {/* 2% Platform Commission Transparency */}
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1 text-[11px] text-slate-400">
                   <div className="flex justify-between">
                     <span>2% AgentChain Platform Fee (Deducted from Owner):</span>
-                    <span className="text-rose-400">-${platformFee2Percent.toFixed(2)} USDC</span>
+                    <span className="text-rose-400">-{formatAsINR(platformFee2Percent, true)} <span className="text-[10px]">(-${platformFee2Percent.toFixed(2)} USDC)</span></span>
                   </div>
                   <div className="flex justify-between font-bold text-emerald-400">
                     <span>Net Owner Payout:</span>
-                    <span>${netOwnerPayout.toFixed(2)} USDC</span>
+                    <span>{formatAsINR(netOwnerPayout, true)} <span className="text-[10px] font-normal">(${netOwnerPayout.toFixed(2)} USDC)</span></span>
                   </div>
                 </div>
               </div>
 
-              <div className="text-[11px] font-mono text-slate-400">
-                USDC escrow settlement and platform commission automatically processed upon lease confirmation.
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-mono text-slate-400">
+                  USDC escrow settlement and platform commission automatically processed upon lease confirmation.
+                </div>
+                <CurrencyDisclaimer />
               </div>
 
               {/* Action Trigger */}
@@ -164,7 +174,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                   ) : (
                     <>
                       <ShieldCheck className="w-4 h-4" />
-                      <span>Confirm Lease (${grossTotal.toFixed(2)} USDC)</span>
+                      <span>Confirm Lease ({formatAsINR(grossTotal)} / ${grossTotal.toFixed(2)} USDC)</span>
                     </>
                   )}
                 </button>

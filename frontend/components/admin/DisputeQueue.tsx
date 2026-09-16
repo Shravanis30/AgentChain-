@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, ShieldOff, AlertCircle } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface MockDispute {
   id: string;
@@ -37,6 +39,7 @@ const MOCK_DISPUTES: MockDispute[] = [
 export function DisputeQueue() {
   const [disputes, setDisputes] = useState<MockDispute[]>(MOCK_DISPUTES);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { formatAsINR } = useINR();
 
   const handleResolve = (dspId: string, action: string) => {
     setToastMessage(`Resolved dispute ${dspId} via ${action}. Escrow state updated.`);
@@ -91,7 +94,10 @@ export function DisputeQueue() {
                 <td className="p-4 text-slate-400">{d.workspaceId}</td>
                 <td className="p-4">{d.renterEmail}</td>
                 <td className="p-4 font-sans text-xs max-w-xs">{d.issue}</td>
-                <td className="p-4 font-bold text-amber-400">${d.amountUSDC.toFixed(2)}</td>
+                <td className="p-4">
+                  <div className="font-bold text-amber-400">{formatAsINR(d.amountUSDC)}</div>
+                  <div className="text-[10px] text-slate-400 font-mono">${d.amountUSDC.toFixed(2)} USDC</div>
+                </td>
                 <td className="p-4">
                   <span
                     className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -128,8 +134,9 @@ export function DisputeQueue() {
           </tbody>
         </table>
         </div>
-        <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-          Escrow dispute arbitration verified on-chain via multi-signature consensus & settlement oracle.
+        <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+          <span>Escrow dispute arbitration verified on-chain via multi-signature consensus & settlement oracle.</span>
+          <CurrencyDisclaimer />
         </div>
       </div>
     </div>

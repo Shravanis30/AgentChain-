@@ -5,11 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Star, RefreshCw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { fetchMarketplaceAgents, MarketplaceAgent } from '@/lib/api/marketplace';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export function LiveAgents() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [agents, setAgents] = useState<MarketplaceAgent[]>([]);
+  const { formatAsINR, disclaimer } = useINR();
 
   const categories = ['All', 'Security Audit', 'DeFi & Trading', 'Code Quality', 'Data Mining'];
 
@@ -170,10 +173,13 @@ export function LiveAgents() {
 
                   {/* Footer Bar: Price & Action */}
                   <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
-                    <div>
+                    <div title={disclaimer}>
                       <div className="text-xs text-slate-500 dark:text-slate-400">Lease Price</div>
-                      <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono flex items-center gap-1">
-                        ${agent.price_per_call_usdc.toFixed(2)} <span className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">/ call</span>
+                      <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono flex items-baseline gap-1">
+                        <span>{formatAsINR(agent.price_per_call_usdc)}</span>
+                        <span className="text-[10px] text-slate-400 font-sans">
+                          (≈ ${agent.price_per_call_usdc.toFixed(2)} USDC)
+                        </span>
                       </div>
                     </div>
 

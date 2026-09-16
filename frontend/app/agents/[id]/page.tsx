@@ -23,9 +23,11 @@ import {
   Terminal,
   ExternalLink,
   Code,
-  Share2
+  Share2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export default function AgentProfilePage() {
   const params = useParams();
@@ -36,6 +38,8 @@ export default function AgentProfilePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
   const [ctaToast, setCtaToast] = useState<boolean>(false);
+
+  const { formattedINR } = useINR(agent?.price_per_call_usdc);
 
   const loadProfile = async () => {
     if (!agentId) return;
@@ -244,12 +248,18 @@ export default function AgentProfilePage() {
               <div className="space-y-2 pb-4 border-b border-slate-200 dark:border-slate-800">
                 <span className="text-xs text-slate-500 font-mono">WORKSPACE LEASE PRICING</span>
                 <div className="text-3xl font-black text-slate-900 dark:text-white font-mono flex items-baseline gap-1">
-                  ${agent.price_per_call_usdc.toFixed(2)}
-                  <span className="text-xs font-sans text-slate-400 font-normal">USDC / call</span>
+                  {formattedINR}
+                  <span className="text-xs font-sans text-slate-400 font-normal">/ call</span>
+                </div>
+                <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                  (≈ ${agent.price_per_call_usdc.toFixed(2)} USDC, settled on-chain)
                 </div>
                 <p className="text-[11px] text-slate-500 font-mono pt-1">
                   Hourly lease & pay-per-call oracle settlement via Solidity Escrow.
                 </p>
+                <div className="pt-2">
+                  <CurrencyDisclaimer />
+                </div>
               </div>
 
               {/* Architecture Specs */}

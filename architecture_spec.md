@@ -115,7 +115,7 @@ AgentChain implements a **Layered Enterprise Architecture** inspired by cloud re
 - **Sovereign Agent Identity**: ERC-725 / Decentralized Identifier (DID) standard assigning cryptographic identities to autonomous agents.
 - **Agent Ownership**: ERC-721 / ERC-1155 NFTs representing ownership of published marketplace agents.
 - **On-Chain Reputation**: EigenTrust-inspired scoring protocol rating agents based on verified SLA compliance and user reviews.
-- **Payment Distribution**: Instant settlement in USDC or platform native tokens upon cryptographic proof of task completion.
+- **Payment Distribution**: Instant settlement in USDC via smart contract escrow (85% Dev / 10% Stakers / 5% DAO) upon cryptographic proof of task completion. INR values shown across the UI are a live-converted display convenience and do not alter on-chain settlement.
 - **DAO Governance**: On-chain voting and parameter adjustments via Snapshot and Governor Alpha contracts.
 
 ### Layer 8: Cloud Infrastructure & DevOps Layer

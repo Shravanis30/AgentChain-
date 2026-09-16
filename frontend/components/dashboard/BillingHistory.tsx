@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { FileText, Printer, Download, Check, ShieldCheck } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface InvoiceReceipt {
   id: string;
@@ -41,6 +43,7 @@ const MOCK_INVOICES: InvoiceReceipt[] = [
 
 export function BillingHistory() {
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceReceipt | null>(null);
+  const { formatAsINR } = useINR();
 
   const handlePrint = () => {
     window.print();
@@ -58,21 +61,17 @@ export function BillingHistory() {
             Downloadable PDF invoices & oracle payment receipts
           </p>
         </div>
-
-        <span className="text-xs font-mono text-slate-400">
-          Showing {MOCK_INVOICES.length} Invoices
-        </span>
       </div>
 
       {/* Invoice Table */}
       <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-xs min-w-[650px]">
+        <table className="w-full text-left font-mono text-xs min-w-[650px]">
           <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="p-4">Invoice ID</th>
-              <th className="p-4">Date</th>
-              <th className="p-4">Lease Description</th>
+              <th className="p-4">Billing Date</th>
+              <th className="p-4">Workspace / Item</th>
               <th className="p-4">Amount</th>
               <th className="p-4">Status</th>
               <th className="p-4 text-right">Receipt</th>
@@ -84,7 +83,10 @@ export function BillingHistory() {
                 <td className="p-4 font-bold">{inv.id}</td>
                 <td className="p-4 text-slate-400">{inv.date}</td>
                 <td className="p-4 font-sans text-xs">{inv.item}</td>
-                <td className="p-4 font-bold text-slate-900 dark:text-white">${inv.amountUSDC.toFixed(2)} USDC</td>
+                <td className="p-4">
+                  <div className="font-bold text-slate-900 dark:text-white">{formatAsINR(inv.amountUSDC)}</div>
+                  <div className="text-[10px] text-slate-400 font-mono">${inv.amountUSDC.toFixed(2)} USDC</div>
+                </td>
                 <td className="p-4">
                   <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold text-[10px]">
                     {inv.status}
@@ -104,8 +106,9 @@ export function BillingHistory() {
           </tbody>
         </table>
         </div>
-        <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400">
-          PDF invoices and receipts are generated automatically upon billing cycle completion.
+        <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+          <span>PDF invoices and receipts are generated automatically upon billing cycle completion.</span>
+          <CurrencyDisclaimer />
         </div>
       </div>
 
@@ -143,9 +146,14 @@ export function BillingHistory() {
               </div>
               <div className="flex justify-between text-slate-700 font-sans text-xs">
                 <span>{selectedInvoice.item}</span>
-                <span className="font-mono">${selectedInvoice.amountUSDC.toFixed(2)} USDC</span>
+                <div className="text-right">
+                  <div className="font-bold font-mono text-slate-900">{formatAsINR(selectedInvoice.amountUSDC)}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">${selectedInvoice.amountUSDC.toFixed(2)} USDC</div>
+                </div>
               </div>
             </div>
+
+            <CurrencyDisclaimer className="text-[10px]" />
 
             <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 print:hidden">
               <button

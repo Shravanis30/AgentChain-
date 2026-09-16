@@ -2,8 +2,12 @@
 
 import React from 'react';
 import { Bot, Server, DollarSign, ShieldAlert, PieChart, TrendingUp, Layers } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export function OverviewCards() {
+  const { formatAsINR } = useINR();
+
   const stats = [
     {
       title: 'Total Platform Agents',
@@ -23,32 +27,32 @@ export function OverviewCards() {
     },
     {
       title: 'Task Escrow GMV',
-      value: '$18,450.00',
-      subtitle: 'Settled via 85/10/5 Smart Escrow',
+      value: formatAsINR(18450),
+      subtitle: '$18,450.00 USDC • 85/10/5 Smart Escrow',
       icon: TrendingUp,
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10 border-emerald-500/30',
     },
     {
       title: 'Workspace Rental GMV',
-      value: '$34,890.00',
-      subtitle: 'Lease Volume (Aggregated Metric)',
+      value: formatAsINR(34890),
+      subtitle: '$34,890.00 USDC • Container Lease Volume',
       icon: Layers,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-500/10 border-cyan-500/30',
     },
     {
       title: '2% Treasury Fees',
-      value: '$697.80 USDC',
-      subtitle: 'Accumulated Platform Commission',
+      value: formatAsINR(697.80, true),
+      subtitle: '$697.80 USDC Platform Commission',
       icon: DollarSign,
       color: 'text-amber-400',
       bgColor: 'bg-amber-400/10 border-amber-400/30',
     },
     {
       title: 'Escrow Distributions',
-      value: '$15,682.50 Devs',
-      subtitle: '$1,845.00 Stakers • $922.50 DAO',
+      value: `${formatAsINR(15682.50)} Devs`,
+      subtitle: `${formatAsINR(1845)} Stakers • ${formatAsINR(922.50)} DAO ($18.45k USDC)`,
       icon: PieChart,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10 border-purple-500/30',
@@ -101,8 +105,9 @@ export function OverviewCards() {
         })}
       </div>
 
-      <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
-        Platform metrics aggregated from on-chain escrow settlements and active container lease runtimes.
+      <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-cyan-600 dark:text-cyan-400">
+        <span>Platform metrics aggregated from on-chain escrow settlements and active container lease runtimes.</span>
+        <CurrencyDisclaimer />
       </div>
     </div>
   );
