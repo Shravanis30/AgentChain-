@@ -47,8 +47,20 @@ class AgentValidator:
             risk_score += 30
 
         valid_categories = {"research", "coding", "finance", "legal", "security", "devops", "data_analysis", "vision", "voice", "general"}
-        if category.lower() not in valid_categories:
-            findings.append({"severity": "MEDIUM", "message": f"Category '{category}' is invalid. Allowed: {', '.join(valid_categories)}"})
+        category_normalized = category.lower().strip()
+        category_aliases = {
+            "defi": "finance",
+            "trading": "finance",
+            "developer tools": "coding",
+            "security audit": "security",
+            "smart contract": "coding",
+            "ai": "general",
+            "code quality": "coding",
+            "data mining": "data_analysis",
+        }
+        resolved_category = category_aliases.get(category_normalized, category_normalized)
+        if resolved_category not in valid_categories:
+            findings.append({"severity": "MEDIUM", "message": f"Category '{category}' is invalid. Allowed: {', '.join(sorted(valid_categories))}"})
             risk_score += 15
 
         # 2. Check Pricing

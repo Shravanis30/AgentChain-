@@ -28,20 +28,23 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
 
   const { formatAsINR } = useINR();
 
+  const [rentalError, setRentalError] = useState<string | null>(null);
+
   const handleConfirmCheckout = async () => {
     setIsProcessing(true);
+    setRentalError(null);
 
     try {
       await api.rentWorkspace(agent.id, durationHours);
-    } catch (err) {
-      console.warn('Lease rental notice:', err);
-    } finally {
-      setIsProcessing(false);
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
         onClose();
       }, 2000);
+    } catch (err: any) {
+      setRentalError(err?.message || 'Failed to complete workspace lease checkout.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -76,6 +79,12 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {rentalError && (
+            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-mono">
+              {rentalError}
+            </div>
+          )}
 
           {/* Success Banner */}
           {success ? (

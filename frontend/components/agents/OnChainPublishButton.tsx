@@ -71,6 +71,27 @@ export function OnChainPublishButton({
   const [activeTxHash, setActiveTxHash] = useState<string | null>(existingTxHash || null);
   const [blockNumber, setBlockNumber] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDirectPublishing, setIsDirectPublishing] = useState<boolean>(false);
+
+  const handleDirectPublish = async () => {
+    setIsDirectPublishing(true);
+    setErrorMessage(null);
+    try {
+      const res = await api.publishAgent(agentId, {
+        tx_hash: activeTxHash || undefined,
+        block_number: blockNumber || undefined,
+      });
+      setPublishStep('confirmed');
+      if (onPublished) {
+        onPublished(res.tx_hash || 'direct-platform-deployment');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to deploy agent to marketplace.');
+      setPublishStep('failed');
+    } finally {
+      setIsDirectPublishing(false);
+    }
+  };
 
   // Synchronize when existing publication data loads asynchronously
   useEffect(() => {
@@ -356,68 +377,96 @@ export function OnChainPublishButton({
         </div>
       )}
 
-      {/* Primary Action Button */}
+      {/* Primary Action Buttons */}
       {publishStep !== 'confirmed' && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-          <div className="text-xs text-slate-500 font-mono">
-            Target Contract: <span className="text-slate-700 dark:text-slate-300 font-bold">{AGENT_MARKETPLACE_ADDRESS.slice(0, 10)}...</span>
+        <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-mono">
+            <div>
+              Deployment Target: <span className="text-cyan-600 dark:text-cyan-400 font-bold">Public Marketplace & Smart Contract</span>
+            </div>
+            <div>
+              Contract: <span className="text-slate-700 dark:text-slate-300 font-bold">{AGENT_MARKETPLACE_ADDRESS.slice(0, 8)}...{AGENT_MARKETPLACE_ADDRESS.slice(-6)}</span>
+            </div>
           </div>
 
-          {!isConnected ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Option 1: Instant Platform & Marketplace Deployment */}
             <button
               type="button"
-              onClick={() => openConnectModal?.()}
-              disabled={!isValidated}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white font-bold text-sm shadow-xl shadow-purple-500/25 hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
+              onClick={handleDirectPublish}
+              disabled={!isValidated || isDirectPublishing || publishStep === 'publishing_to_db'}
+              className="p-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 min-h-[48px]"
             >
-              <Wallet className="w-4 h-4" />
-              <span>Connect Wallet to Publish</span>
-            </button>
-          ) : !isCorrectNetwork ? (
-            <button
-              type="button"
-              onClick={handleSwitchToAmoy}
-              disabled={!isValidated || isSwitchingChain}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-sm shadow-xl shadow-amber-500/25 hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
-            >
-              <ArrowRightLeft className="w-4 h-4" />
-              <span>{isSwitchingChain ? 'Switching Network...' : 'Switch to Polygon Amoy'}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleTriggerOnChainPublish}
-              disabled={
-                !isValidated ||
-                publishStep === 'awaiting_signature' ||
-                publishStep === 'confirming_on_chain' ||
-                publishStep === 'publishing_to_db'
-              }
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white font-bold text-sm shadow-xl shadow-purple-500/25 hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
-            >
-              {publishStep === 'awaiting_signature' ? (
+              {isDirectPublishing ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Awaiting Wallet Signature in MetaMask...</span>
-                </>
-              ) : publishStep === 'confirming_on_chain' ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Confirming Transaction on Polygon Amoy...</span>
-                </>
-              ) : publishStep === 'publishing_to_db' ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Syncing Marketplace Registry...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Publishing to Marketplace...</span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-4 h-4" />
-                  <span>Sign & Publish Agent On-Chain</span>
+                  <Zap className="w-4 h-4 text-cyan-200" />
+                  <span>1-Click Deploy to Marketplace</span>
                 </>
               )}
             </button>
-          )}
+
+            {/* Option 2: Web3 Polygon Amoy Smart Contract Registration */}
+            {!isConnected ? (
+              <button
+                type="button"
+                onClick={() => openConnectModal?.()}
+                disabled={!isValidated}
+                className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-xs border border-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                <Wallet className="w-4 h-4 text-purple-400" />
+                <span>Connect Wallet for On-Chain Hash</span>
+              </button>
+            ) : !isCorrectNetwork ? (
+              <button
+                type="button"
+                onClick={handleSwitchToAmoy}
+                disabled={!isValidated || isSwitchingChain}
+                className="p-4 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs border border-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                <span>{isSwitchingChain ? 'Switching...' : 'Switch to Amoy (80002)'}</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleTriggerOnChainPublish}
+                disabled={
+                  !isValidated ||
+                  publishStep === 'awaiting_signature' ||
+                  publishStep === 'confirming_on_chain' ||
+                  publishStep === 'publishing_to_db'
+                }
+                className="p-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-purple-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                {publishStep === 'awaiting_signature' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Signing in Wallet...</span>
+                  </>
+                ) : publishStep === 'confirming_on_chain' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Confirming on Polygon Amoy...</span>
+                  </>
+                ) : publishStep === 'publishing_to_db' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Syncing Registry...</span>
+                  </>
+                ) : (
+                  <>
+                    <Globe className="w-4 h-4" />
+                    <span>Sign & Publish On-Chain</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

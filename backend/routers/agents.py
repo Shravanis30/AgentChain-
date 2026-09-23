@@ -335,6 +335,51 @@ async def update_agent_draft(
 
     return {"status": "success", "agent_id": agent.id, "name": agent.name}
 
+class UpdateToolPermissionsSchema(BaseModel):
+    tool_permissions: List[CreateToolPermissionSchema]
+
+@router.patch("/{agent_id}/permissions")
+async def update_agent_permissions(
+    agent_id: str,
+    req: UpdateToolPermissionsSchema,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """Updates sandbox tool permissions for an agent to resolve validation findings."""
+    stmt = select(Agent).options(selectinload(Agent.tool_permissions)).where(Agent.id == agent_id)
+    res = await session.execute(stmt)
+    agent = res.scalar_one_or_none()
+
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found.")
+
+    user_roles = _get_user_roles(user)
+    assert_agent_ownership(agent, user, user_roles)
+
+    for tp in list(agent.tool_permissions):
+        await session.delete(tp)
+
+    for tp in req.tool_permissions:
+        perm = AgentToolPermission(
+            agent_id=agent.id,
+            tool_name=tp.tool_name,
+            network_enabled=tp.network_enabled,
+            filesystem_read=tp.filesystem_read,
+            filesystem_write=tp.filesystem_write,
+            shell_enabled=tp.shell_enabled,
+            allowed_domains=tp.allowed_domains
+        )
+        session.add(perm)
+
+    session.add(AuditLog(
+        actor_id=user.id,
+        action="AGENT_PERMISSIONS_UPDATED",
+        resource_type="agent",
+        resource_id=agent.id
+    ))
+    await session.commit()
+    return {"status": "success", "agent_id": agent.id, "message": "Permissions updated successfully."}
+
 @router.post("/{agent_id}/versions")
 async def create_agent_version(
     agent_id: str,
@@ -634,7 +679,7 @@ async def publish_agent(
     session: AsyncSession = Depends(get_db)
 ):
     """Publishes a VALIDATED or APPROVED agent to the public marketplace after on-chain confirmation."""
-    stmt = select(Agent).where(Agent.id == agent_id)
+    stmt = select(Agent).options(selectinload(Agent.versions)).where(Agent.id == agent_id)
     res = await session.execute(stmt)
     agent = res.scalar_one_or_none()
 
@@ -644,7 +689,7 @@ async def publish_agent(
     user_roles = _get_user_roles(user)
     assert_agent_ownership(agent, user, user_roles)
 
-    if agent.status not in ["APPROVED", "PAUSED", "VALIDATED"]:
+    if agent.status not in ["APPROVED", "PAUSED", "VALIDATED", "PUBLISHED"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Agent must be VALIDATED or APPROVED before publishing. Current status: '{agent.status}'."

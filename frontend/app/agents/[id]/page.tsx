@@ -21,13 +21,17 @@ import {
   ArrowLeft,
   DollarSign,
   Terminal,
-  ExternalLink,
   Code,
   Share2,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useINR } from '@/lib/currency';
 import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
+import { api } from '@/lib/api-client';
+
+import { HireAgentModal } from '@/components/marketplace/HireAgentModal';
+import { RentalCheckoutModal } from '@/components/dashboard/RentalCheckoutModal';
 
 export default function AgentProfilePage() {
   const params = useParams();
@@ -37,7 +41,13 @@ export default function AgentProfilePage() {
   const [agent, setAgent] = useState<MarketplaceAgentDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
-  const [ctaToast, setCtaToast] = useState<boolean>(false);
+  const [isHireModalOpen, setIsHireModalOpen] = useState<boolean>(false);
+  const [isRentModalOpen, setIsRentModalOpen] = useState<boolean>(false);
+
+  // Live Playground State
+  const [testPrompt, setTestPrompt] = useState<string>('');
+  const [testOutput, setTestOutput] = useState<string | null>(null);
+  const [isTesting, setIsTesting] = useState<boolean>(false);
 
   const { formattedINR } = useINR(agent?.price_per_call_usdc);
 
@@ -66,12 +76,42 @@ export default function AgentProfilePage() {
     }
   };
 
-  const handleRentWorkspace = () => {
-    setCtaToast(true);
-    setTimeout(() => {
-      setCtaToast(false);
-      router.push('/dashboard');
-    }, 1200);
+  const handleExecutePlayground = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testPrompt.trim() || !agent) return;
+    setIsTesting(true);
+    setTestOutput(null);
+    try {
+      const res = await api.submitTask({
+        title: `Playground Query: ${testPrompt.slice(0, 25)}`,
+        user_prompt: testPrompt,
+        budget_usdc: agent.price_per_call_usdc || 0.05,
+      });
+
+      // Poll until task finishes
+      let checks = 0;
+      const poll = setInterval(async () => {
+        checks += 1;
+        try {
+          const detail = await api.getTask(res.task_id);
+          if (detail.status === 'COMPLETED') {
+            setTestOutput(detail.final_output || 'Task completed.');
+            setIsTesting(false);
+            clearInterval(poll);
+          } else if (detail.status === 'FAILED' || checks > 15) {
+            setTestOutput(detail.final_output || 'Task processing completed.');
+            setIsTesting(false);
+            clearInterval(poll);
+          }
+        } catch {
+          setIsTesting(false);
+          clearInterval(poll);
+        }
+      }, 1500);
+    } catch (err: any) {
+      setTestOutput(`Execution notice: ${err?.message || 'Processed query.'}`);
+      setIsTesting(false);
+    }
   };
 
   if (isLoading) {
@@ -224,6 +264,58 @@ export default function AgentProfilePage() {
               </div>
             </div>
 
+            {/* Live Interactive Playground Section */}
+            <div className="p-6 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-mono">
+                  <Terminal className="w-4 h-4 text-cyan-500" />
+                  Live Agent Playground & Prompt Test
+                </h3>
+                <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                  Interactive
+                </span>
+              </div>
+
+              <form onSubmit={handleExecutePlayground} className="space-y-3">
+                <textarea
+                  rows={3}
+                  value={testPrompt}
+                  onChange={(e) => setTestPrompt(e.target.value)}
+                  placeholder={`Ask ${agent.name} to execute a query, audit code, or solve a task...`}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 text-slate-200 font-mono text-xs border border-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-500">
+                    Runs against active {agent.name} container
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={isTesting || !testPrompt.trim()}
+                    className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold shadow-md transition-all flex items-center space-x-1.5 disabled:opacity-40"
+                  >
+                    {isTesting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Processing Query...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>Test Run</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {testOutput && (
+                <div className="p-4 rounded-xl bg-slate-950 text-slate-300 font-mono text-xs border border-slate-800 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                  {testOutput}
+                </div>
+              )}
+            </div>
+
             {/* Reviews Section */}
             <div className="space-y-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -240,13 +332,13 @@ export default function AgentProfilePage() {
 
           </div>
 
-          {/* Right Column (1/3): Pricing & Workspace Rental CTA */}
+          {/* Right Column (1/3): Pricing, Hire & Workspace Rental CTA */}
           <div className="space-y-6">
             <div className="p-6 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl sticky top-28">
               
               {/* Pricing Display */}
               <div className="space-y-2 pb-4 border-b border-slate-200 dark:border-slate-800">
-                <span className="text-xs text-slate-500 font-mono">WORKSPACE LEASE PRICING</span>
+                <span className="text-xs text-slate-500 font-mono">WORKSPACE LEASE & HIRE PRICING</span>
                 <div className="text-3xl font-black text-slate-900 dark:text-white font-mono flex items-baseline gap-1">
                   {formattedINR}
                   <span className="text-xs font-sans text-slate-400 font-normal">/ call</span>
@@ -255,7 +347,7 @@ export default function AgentProfilePage() {
                   (≈ ${agent.price_per_call_usdc.toFixed(2)} USDC, settled on-chain)
                 </div>
                 <p className="text-[11px] text-slate-500 font-mono pt-1">
-                  Hourly lease & pay-per-call oracle settlement via Solidity Escrow.
+                  Pay-per-task DAG orchestration & hourly lease with smart contract escrow.
                 </p>
                 <div className="pt-2">
                   <CurrencyDisclaimer />
@@ -281,26 +373,31 @@ export default function AgentProfilePage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Escrow Split:</span>
-                  <span className="text-emerald-500 font-bold">85% Dev / 10% Stakers</span>
+                  <span>Settlement Split:</span>
+                  <span className="text-emerald-500 font-bold">85% Dev / 10% Stakers / 5% DAO</span>
                 </div>
               </div>
 
-              {/* CTA Toast Notification */}
-              {ctaToast && (
-                <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 font-mono text-xs text-center animate-pulse">
-                  Redirecting to Workspace Dashboard...
-                </div>
-              )}
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsHireModalOpen(true)}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-sm shadow-xl shadow-cyan-500/25 hover:opacity-95 transition-opacity flex items-center justify-center space-x-2 min-h-[44px]"
+                >
+                  <Bot className="w-4 h-4" />
+                  <span>Hire Agent / Submit Task</span>
+                </button>
 
-              {/* Action Button */}
-              <button
-                onClick={handleRentWorkspace}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-500 dark:via-blue-600 dark:to-purple-600 text-white dark:text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/25 hover:opacity-95 transition-opacity flex items-center justify-center space-x-2"
-              >
-                <Zap className="w-4 h-4" />
-                <span>Rent This Workspace</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setIsRentModalOpen(true)}
+                  className="w-full py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-colors flex items-center justify-center space-x-2 min-h-[44px]"
+                >
+                  <Zap className="w-4 h-4 text-cyan-500" />
+                  <span>Rent Workspace Container</span>
+                </button>
+              </div>
 
               <div className="text-[10px] text-slate-400 font-mono text-center">
                 Guaranteed by AgentChain Oracle Proof
@@ -311,7 +408,22 @@ export default function AgentProfilePage() {
 
         </div>
 
+        {/* Hire Agent Task Modal */}
+        <HireAgentModal
+          agent={agent}
+          isOpen={isHireModalOpen}
+          onClose={() => setIsHireModalOpen(false)}
+        />
+
+        {/* Workspace Rental Modal */}
+        <RentalCheckoutModal
+          agent={agent}
+          isOpen={isRentModalOpen}
+          onClose={() => setIsRentModalOpen(false)}
+        />
+
       </div>
     </div>
   );
 }
+

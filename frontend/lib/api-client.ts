@@ -392,6 +392,58 @@ export const api = {
     });
   },
 
+  updateAgentPermissions: async (agentId: string, toolPermissions: any[]) => {
+    return apiFetch<any>(`/api/v1/agents/${agentId}/permissions`, {
+      method: 'PATCH',
+      body: JSON.stringify({ tool_permissions: toolPermissions }),
+    });
+  },
+
+  // Task & Multi-Agent Execution Operations
+  submitTask: async (payload: {
+    title: string;
+    user_prompt: string;
+    budget_usdc: number;
+    agent_version_id?: string;
+    project_id?: string;
+  }) => {
+    return apiFetch<{
+      status: string;
+      task_id: string;
+      current_status: string;
+      workflow_id?: string;
+      total_nodes?: number;
+      final_output?: string;
+      proof_of_task_hash?: string;
+    }>('/api/v1/tasks/submit', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  getTask: async (taskId: string) => {
+    return apiFetch<{
+      id: string;
+      title: string;
+      user_prompt: string;
+      status: string;
+      budget_usdc: number;
+      proof_of_task_hash?: string;
+      final_output?: string;
+      steps: Array<{
+        id: string;
+        step_order: number;
+        domain: string;
+        title: string;
+        status: string;
+        output_result?: string;
+        tokens_used?: number;
+      }>;
+      created_at: string;
+      completed_at?: string;
+    }>(`/api/v1/tasks/${taskId}`);
+  },
+
   getAdminUsers: async (): Promise<AdminUser[]> => {
     return apiFetch<AdminUser[]>('/api/v1/admin/users');
   },

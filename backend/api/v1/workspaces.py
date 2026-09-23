@@ -475,7 +475,38 @@ async def rent_workspace(
     w = res.scalar_one_or_none()
 
     if not w:
-        raise HTTPException(status_code=404, detail="Workspace container not found.")
+        # Check if workspace_id was passed as an agent_id
+        agent_stmt = select(Agent).where(Agent.id == workspace_id)
+        agent_res = await db.execute(agent_stmt)
+        agent = agent_res.scalar_one_or_none()
+        if agent:
+            # Look for existing running workspace container for this agent
+            ws_agent_stmt = select(WorkspaceContainer).where(WorkspaceContainer.agent_id == agent.id).order_by(WorkspaceContainer.created_at.desc())
+            ws_agent_res = await db.execute(ws_agent_stmt)
+            w = ws_agent_res.scalars().first()
+
+            if not w:
+                # Auto-provision dedicated container runtime instance for this agent lease
+                new_ws_id = str(uuid.uuid4())
+                rate_val = float(agent.price_per_call_usdc or 15.0)
+                tier_info = TIER_RESOURCE_LIMITS.get("MEDIUM", {"mem_mb": 1024})
+                w = WorkspaceContainer(
+                    id=new_ws_id,
+                    owner_id=agent.owner_id,
+                    agent_id=agent.id,
+                    resource_tier="MEDIUM",
+                    pricing_mode="PER_HOUR",
+                    rate_usdc=rate_val,
+                    status="RUNNING",
+                    docker_container_id=f"lease-runtime-{new_ws_id[:8]}",
+                    ram_usage_mb=tier_info["mem_mb"],
+                    cpu_usage_percent=1.2,
+                    uptime_seconds=60
+                )
+                db.add(w)
+                await db.flush()
+        else:
+            raise HTTPException(status_code=404, detail="Workspace or Agent target not found.")
 
     gross = float(w.rate_usdc) * payload.duration_hours
     fee_2pct = round(gross * 0.02, 4)

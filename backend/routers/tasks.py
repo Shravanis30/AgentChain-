@@ -155,8 +155,12 @@ async def _trigger_worker_task(task_id: str):
     """Background trigger executing enqueued jobs asynchronously without blocking HTTP response."""
     try:
         from backend.db.session import AsyncSessionLocal
-        async with AsyncSessionLocal() as session:
-            await worker_daemon.process_next_job(session)
+        for _ in range(25):
+            async with AsyncSessionLocal() as session:
+                processed = await worker_daemon.process_next_job(session)
+                if not processed:
+                    break
+            await asyncio.sleep(0.4)
     except Exception as e:
         pass
 

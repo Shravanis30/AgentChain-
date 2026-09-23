@@ -153,7 +153,7 @@ export function ValidatorResult({ agentId, onValidated }: ValidatorResultProps) 
 
           {/* Findings List if Any */}
           {result.findings && result.findings.length > 0 && (
-            <div className="space-y-2 font-mono text-xs">
+            <div className="space-y-3 font-mono text-xs">
               <span className="text-slate-400 font-bold block">Audit Findings ({result.findings.length})</span>
               <div className="space-y-1.5">
                 {result.findings.map((item: any, idx: number) => (
@@ -166,6 +166,53 @@ export function ValidatorResult({ agentId, onValidated }: ValidatorResultProps) 
                   </div>
                 ))}
               </div>
+
+              {/* 1-Click Auto-Remediation Card */}
+              {!result.passed && (
+                <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <Lock className="w-4 h-4 text-cyan-500" />
+                      <span>Auto-Remediate Permissions for Deployment</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Disables unisolated shell execution and restricts code sandbox to safe memory boundaries.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsValidating(true);
+                      try {
+                        await api.updateAgentPermissions(agentId, [
+                          {
+                            tool_name: 'web_search',
+                            network_enabled: true,
+                            shell_enabled: false,
+                            filesystem_read: true,
+                            filesystem_write: false,
+                          },
+                          {
+                            tool_name: 'code_execution',
+                            network_enabled: false,
+                            shell_enabled: false,
+                            filesystem_read: true,
+                            filesystem_write: false,
+                          },
+                        ]);
+                        await runValidation();
+                      } catch (err: any) {
+                        setError(err.message || 'Failed to remediate permissions.');
+                        setIsValidating(false);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-95 text-white font-bold text-xs shadow-md shadow-cyan-500/20 transition-all shrink-0 flex items-center justify-center space-x-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Apply Safe Policy & Re-Audit</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
