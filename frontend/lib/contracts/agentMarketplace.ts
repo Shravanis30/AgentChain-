@@ -100,6 +100,52 @@ export const AGENT_MARKETPLACE_ABI = [
   },
 ] as const;
 
+export const WORKSPACE_RENTAL_ESCROW_ABI = [
+  {
+    inputs: [
+      { internalType: 'bytes32', name: '_leaseId', type: 'bytes32' },
+      { internalType: 'bytes32', name: '_workspaceId', type: 'bytes32' },
+      { internalType: 'address', name: '_owner', type: 'address' },
+      { internalType: 'uint256', name: '_amountUSDC', type: 'uint256' },
+      { internalType: 'uint256', name: '_durationSeconds', type: 'uint256' }
+    ],
+    name: 'createLease',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [{ internalType: 'bytes32', name: '_leaseId', type: 'bytes32' }],
+    name: 'settleCompletedLease',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [{ internalType: 'bytes32', name: '_leaseId', type: 'bytes32' }],
+    name: 'earlyTerminateRefund',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    name: 'leases',
+    outputs: [
+      { internalType: 'bytes32', name: 'leaseId', type: 'bytes32' },
+      { internalType: 'bytes32', name: 'workspaceId', type: 'bytes32' },
+      { internalType: 'address', name: 'renter', type: 'address' },
+      { internalType: 'address', name: 'owner', type: 'address' },
+      { internalType: 'uint256', name: 'totalAmountUSDC', type: 'uint256' },
+      { internalType: 'uint256', name: 'leaseDurationSeconds', type: 'uint256' },
+      { internalType: 'uint256', name: 'startTime', type: 'uint256' },
+      { internalType: 'uint8', name: 'status', type: 'uint8' }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  }
+] as const;
+
 export function getExplorerTxUrl(txHash: string, chainId: number = 80002): string {
   if (!txHash) return '#';
   if (chainId === 137) {

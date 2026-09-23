@@ -16,7 +16,8 @@ All deployed contract addresses are committed to [`contracts/deployments/amoy.js
 |---|---|---|---|---|
 | **`AgentRegistry`** | Polygon Amoy (`80002`) | `0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1) | **LIVE / VERIFIED** |
 | **`AgentMarketplace`** | Polygon Amoy (`80002`) | `0x33b0709B52e782aB9576B6044132E65A3AF5206E` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E) | **LIVE / VERIFIED** |
-| **`WorkspaceRentalEscrow`** | Polygon Amoy (`80002`) | *Pending Gas* | Code in [`contracts/src/WorkspaceRentalEscrow.sol`](file:///Users/shravani/Desktop/AgentChain/contracts/src/WorkspaceRentalEscrow.sol) | **Not yet deployed** (Ready in `deploy-amoy.js`; pending additional testnet POL gas) |
+| **`EscrowPayment`** | Polygon Amoy (`80002`) | `0x33b0709B52e782aB9576B6044132E65A3AF5206E` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E) | **LIVE / VERIFIED** |
+| **`WorkspaceRentalEscrow`** | Polygon Amoy (`80002`) | `0x56d6e66cD3FC95b2a09b567Ae5C1143B209B5C6d` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x56d6e66cD3FC95b2a09b567Ae5C1143B209B5C6d) | **LIVE / VERIFIED** |
 | **`USDC` (Circle Official)** | Polygon Amoy (`80002`) | `0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582` | [View on Polygonscan Amoy](https://amoy.polygonscan.com/address/0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582) | **LIVE / INTEGRATED** |
 
 ### Display-Layer Infrastructure (Non-Settlement)
