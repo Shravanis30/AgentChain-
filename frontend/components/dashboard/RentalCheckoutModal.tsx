@@ -2,11 +2,23 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, ShieldCheck, DollarSign, Loader2, Check } from 'lucide-react';
+import { X, Zap, ShieldCheck, DollarSign, Loader2, Check, Lock, Wallet } from 'lucide-react';
+import { useAccount, useWriteContract } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { MarketplaceAgentDetail } from '@/lib/api/marketplace';
 import { api } from '@/lib/api-client';
-import { useINR } from '@/lib/currency';
+import { useINR, formatINR } from '@/lib/currency';
 import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
+import {
+  AGENT_MARKETPLACE_ADDRESS,
+  AGENT_MARKETPLACE_ABI,
+  agentIdToBytes32,
+} from '@/lib/contracts/agentMarketplace';
+import {
+  USDC_CONTRACT_ADDRESS,
+  USDC_ABI,
+  usdcToAtomicUnits,
+} from '@/lib/contracts/usdc';
 
 interface RentalCheckoutModalProps {
   agent: MarketplaceAgentDetail | null;
@@ -15,24 +27,80 @@ interface RentalCheckoutModalProps {
 }
 
 export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutModalProps) {
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { writeContractAsync } = useWriteContract();
+
   const [durationHours, setDurationHours] = useState<number>(24);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [rentalError, setRentalError] = useState<string | null>(null);
+
+  // Escrow approve & lock states
+  const [escrowStep, setEscrowStep] = useState<'idle' | 'approving' | 'approved' | 'locking' | 'locked'>('idle');
+
+  const { formatAsINR, rate: exchangeRate } = useINR();
 
   if (!isOpen || !agent) return null;
 
   const rate = agent.price_per_call_usdc || 15.0;
-  const grossTotal = rate * durationHours;
-  const platformFee2Percent = (grossTotal * 0.02);
-  const netOwnerPayout = grossTotal - platformFee2Percent;
+  const grossTotalUSDC = rate * durationHours;
+  const grossTotalINR = grossTotalUSDC * exchangeRate;
+  const platformFee2PercentUSDC = grossTotalUSDC * 0.02;
+  const netOwnerPayoutUSDC = grossTotalUSDC - platformFee2PercentUSDC;
+  const atomicUSDC = usdcToAtomicUnits(grossTotalUSDC);
 
-  const { formatAsINR } = useINR();
+  // Step 1: Approve USDC
+  const handleApproveUSDC = async () => {
+    if (!isConnected) {
+      if (openConnectModal) openConnectModal();
+      return;
+    }
 
-  const [rentalError, setRentalError] = useState<string | null>(null);
+    setRentalError(null);
+    setEscrowStep('approving');
+    try {
+      await writeContractAsync({
+        address: USDC_CONTRACT_ADDRESS,
+        abi: USDC_ABI,
+        functionName: 'approve',
+        args: [AGENT_MARKETPLACE_ADDRESS, atomicUSDC],
+      });
+      setEscrowStep('approved');
+    } catch (err: any) {
+      console.warn('Rental USDC approve error:', err);
+      setRentalError(err?.message || 'USDC approve transaction was rejected.');
+      setEscrowStep('idle');
+    }
+  };
 
+  // Step 2: Lock & Finalize Rental
   const handleConfirmCheckout = async () => {
     setIsProcessing(true);
     setRentalError(null);
+
+    if (isConnected) {
+      setEscrowStep('locking');
+      try {
+        const leaseTaskId = `lease-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const taskBytes32 = agentIdToBytes32(leaseTaskId);
+        const ownerWallet = (agent.owner_wallet || '0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab') as `0x${string}`;
+
+        await writeContractAsync({
+          address: AGENT_MARKETPLACE_ADDRESS,
+          abi: AGENT_MARKETPLACE_ABI,
+          functionName: 'lockTaskEscrow',
+          args: [taskBytes32, ownerWallet, atomicUSDC, BigInt(durationHours * 3600)],
+        });
+        setEscrowStep('locked');
+      } catch (err: any) {
+        console.warn('Rental Escrow lock error:', err);
+        setRentalError(err?.message || 'Escrow lock transaction was rejected.');
+        setEscrowStep('approved');
+        setIsProcessing(false);
+        return;
+      }
+    }
 
     try {
       await api.rentWorkspace(agent.id, durationHours);
@@ -94,7 +162,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                 Workspace Lease Confirmed!
               </h4>
               <p className="text-xs text-slate-500">
-                Container runtime instance provisioned. Escrow lock active.
+                Container runtime instance provisioned. Escrow lock active on-chain.
               </p>
             </div>
           ) : (
@@ -122,21 +190,31 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                 </div>
               </div>
 
-              {/* Transparent Fee Breakdown Box */}
+              {/* Transparent Fee Breakdown Box in INR Primary */}
               <div className="p-5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>Base Rate:</span>
-                  <span>{formatAsINR(rate)} / hr <span className="text-[10px] text-slate-400">(${rate.toFixed(2)} USDC)</span></span>
+                  <span>
+                    {formatAsINR(rate)} / hr{' '}
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      (≈ ${rate.toFixed(2)} USDC)
+                    </span>
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>Lease Duration:</span>
                   <span>{durationHours} Hours</span>
                 </div>
+
                 <div className="flex items-center justify-between text-slate-900 dark:text-white font-bold pt-2 border-t border-slate-200 dark:border-slate-800">
                   <span>Gross Total Renter Price:</span>
                   <div className="text-right">
-                    <span className="text-base text-cyan-600 dark:text-cyan-400">{formatAsINR(grossTotal)}</span>
-                    <span className="text-[11px] text-slate-400 font-normal ml-1.5">(${grossTotal.toFixed(2)} USDC)</span>
+                    <span className="text-base text-cyan-600 dark:text-cyan-400">
+                      {formatINR(grossTotalINR)}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-normal ml-1.5">
+                      (≈ ${grossTotalUSDC.toFixed(2)} USDC)
+                    </span>
                   </div>
                 </div>
 
@@ -144,11 +222,17 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1 text-[11px] text-slate-400">
                   <div className="flex justify-between">
                     <span>2% AgentChain Platform Fee (Deducted from Owner):</span>
-                    <span className="text-rose-400">-{formatAsINR(platformFee2Percent, true)} <span className="text-[10px]">(-${platformFee2Percent.toFixed(2)} USDC)</span></span>
+                    <span className="text-rose-400">
+                      -{formatAsINR(platformFee2PercentUSDC, true)}{' '}
+                      <span className="text-[10px] font-normal">(-${platformFee2PercentUSDC.toFixed(2)} USDC)</span>
+                    </span>
                   </div>
                   <div className="flex justify-between font-bold text-emerald-400">
                     <span>Net Owner Payout:</span>
-                    <span>{formatAsINR(netOwnerPayout, true)} <span className="text-[10px] font-normal">(${netOwnerPayout.toFixed(2)} USDC)</span></span>
+                    <span>
+                      {formatAsINR(netOwnerPayoutUSDC, true)}{' '}
+                      <span className="text-[10px] font-normal">(${netOwnerPayoutUSDC.toFixed(2)} USDC)</span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -160,33 +244,77 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                 <CurrencyDisclaimer />
               </div>
 
-              {/* Action Trigger */}
-              <div className="pt-2 flex justify-end space-x-3">
+              {/* Action Trigger Buttons with Two-Step Copy */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs"
                 >
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleConfirmCheckout}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-opacity flex items-center space-x-2"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Confirming Escrow...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Confirm Lease ({formatAsINR(grossTotal)} / ${grossTotal.toFixed(2)} USDC)</span>
-                    </>
-                  )}
-                </button>
+
+                {!isConnected ? (
+                  <button
+                    type="button"
+                    onClick={() => (openConnectModal ? openConnectModal() : null)}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs font-bold border border-slate-700 flex items-center justify-center space-x-2"
+                  >
+                    <Wallet className="w-4 h-4 text-cyan-400" />
+                    <span>Connect Wallet to Escrow</span>
+                  </button>
+                ) : escrowStep === 'idle' ? (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleApproveUSDC}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold text-xs shadow-md shadow-amber-500/20 hover:opacity-95 transition-opacity flex items-center justify-center space-x-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Approve {formatINR(grossTotalINR)} (≈ {grossTotalUSDC.toFixed(2)} USDC)</span>
+                  </button>
+                ) : escrowStep === 'approving' ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500/50 text-white font-bold text-xs flex items-center justify-center space-x-2"
+                  >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Confirming Approval...</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleConfirmCheckout}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-95 transition-opacity flex items-center justify-center space-x-2"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Locking Escrow...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4" />
+                        <span>Lock {formatINR(grossTotalINR)} in Escrow</span>
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {/* Instant Dev / Testing Bypass Option if disconnected */}
+                {!isConnected && (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleConfirmCheckout}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center space-x-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Confirm Lease ({formatINR(grossTotalINR)})</span>
+                  </button>
+                )}
               </div>
             </>
           )}

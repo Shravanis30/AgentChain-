@@ -9,15 +9,17 @@ logger = logging.getLogger("agentchain.services.exchange_rate")
 # Fallback baseline rate if external APIs are completely unreachable
 DEFAULT_USDC_INR_RATE = 83.50
 CACHE_TTL_SECONDS = 1200  # 20 minutes (within 15-30 minute window)
+DISCLAIMER_TEXT = "Settled on-chain in USDC at the live exchange rate — INR is shown for convenience."
 
 
 class ExchangeRateService:
-    """Service to fetch and cache USDC to INR exchange rates for UI display."""
+    """Enterprise service to fetch, cache, and serve USDC to INR exchange rates."""
 
     def __init__(self):
         self._cached_rate: float = DEFAULT_USDC_INR_RATE
         self._last_fetched_at: float = 0.0
         self._last_updated_iso: str = datetime.now(timezone.utc).isoformat()
+        self._is_stale: bool = False
         self._primary_url = (
             "https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=inr"
         )
@@ -68,6 +70,8 @@ class ExchangeRateService:
                 "usd_to_inr": self._cached_rate,
                 "updated_at": self._last_updated_iso,
                 "cached": True,
+                "is_stale": self._is_stale,
+                "disclaimer": DISCLAIMER_TEXT,
             }
 
         # Attempt primary source (CoinGecko)
@@ -81,17 +85,20 @@ class ExchangeRateService:
             self._cached_rate = round(rate, 2)
             self._last_fetched_at = now
             self._last_updated_iso = datetime.now(timezone.utc).isoformat()
+            self._is_stale = False
             logger.info(f"Updated USDC->INR rate: {self._cached_rate}")
         else:
+            self._is_stale = True
             logger.warning(
-                f"All exchange rate sources failed. Using last cached rate: {self._cached_rate}"
+                f"All exchange rate sources failed. Using last cached rate: {self._cached_rate} (stale)"
             )
-            # Retain existing cached rate or default without updating last_fetched_at so we retry later
 
         return {
             "usd_to_inr": self._cached_rate,
             "updated_at": self._last_updated_iso,
             "cached": False if rate is not None else True,
+            "is_stale": self._is_stale,
+            "disclaimer": DISCLAIMER_TEXT,
         }
 
 

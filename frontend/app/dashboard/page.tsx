@@ -5,8 +5,11 @@ import { motion } from 'framer-motion';
 import { Bot, Plus, Play, Pause, Terminal, Search, Cpu, FolderOpen, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { AgentItem, api } from '@/lib/api-client';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export default function DashboardOverviewPage() {
+  const { formatAsINR } = useINR();
   const [agents, setAgents] = useState<AgentItem[]>([]);
   const [buildStatuses, setBuildStatuses] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -96,6 +99,9 @@ export default function DashboardOverviewPage() {
           <p className="text-xs text-slate-500 font-mono">
             Manage, publish, and inspect your created agent containers
           </p>
+          <div className="pt-1">
+            <CurrencyDisclaimer />
+          </div>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -201,8 +207,11 @@ export default function DashboardOverviewPage() {
                       <Cpu className="w-3.5 h-3.5 text-purple-500" />
                       <span>{agent.model_provider || 'OpenAI'} ({agent.model_name || 'gpt-4o'})</span>
                     </div>
-                    <div className="font-bold text-slate-900 dark:text-white">
-                      ${(agent.price_per_call_usdc || 0.05).toFixed(3)} / call
+                    <div className="font-bold text-slate-900 dark:text-white flex items-baseline gap-1">
+                      <span>{formatAsINR(agent.price_per_call_usdc || 0.05)}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">
+                        (≈ ${(agent.price_per_call_usdc || 0.05).toFixed(2)} USDC)
+                      </span>
                     </div>
                   </div>
 

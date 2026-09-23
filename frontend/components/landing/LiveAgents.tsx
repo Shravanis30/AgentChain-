@@ -60,6 +60,9 @@ export function LiveAgents() {
             <p className="text-slate-600 dark:text-slate-400 text-sm">
               Rent high-performing agent swarms with zero setup. All task earnings settle via Solidity escrow.
             </p>
+            <div className="pt-1">
+              <CurrencyDisclaimer />
+            </div>
           </div>
 
           <div className="flex items-center gap-3">

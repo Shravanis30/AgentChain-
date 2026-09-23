@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Server, Terminal, Plus, RefreshCw, Loader2, StopCircle, CheckCircle2, AlertCircle, GitBranch } from 'lucide-react';
 import { api, AgentItem } from '@/lib/api-client';
 import { ExecutionLogsModal } from '@/components/dashboard/ExecutionLogsModal';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface WorkspaceItem {
   id: string;
@@ -104,10 +106,13 @@ export function WorkspaceTable() {
     return `${secs}s`;
   };
 
+  const { formatAsINR } = useINR();
+
   const formatRate = (mode: string, rate: number) => {
-    if (mode === 'PER_DAY') return `$${rate.toFixed(2)} / day`;
-    if (mode === 'CUSTOM_FLAT') return `$${rate.toFixed(2)} flat`;
-    return `$${rate.toFixed(2)} / hr`;
+    const inrStr = formatAsINR(rate);
+    if (mode === 'PER_DAY') return `${inrStr} / day (≈ $${rate.toFixed(2)} USDC)`;
+    if (mode === 'CUSTOM_FLAT') return `${inrStr} flat (≈ $${rate.toFixed(2)} USDC)`;
+    return `${inrStr} / hr (≈ $${rate.toFixed(2)} USDC)`;
   };
 
   const handleRedeploy = async (agentId: string) => {
@@ -135,6 +140,9 @@ export function WorkspaceTable() {
           <p className="text-xs text-slate-500 font-mono">
             Active Docker container instances running isolated AI agent workloads
           </p>
+          <div className="pt-1">
+            <CurrencyDisclaimer />
+          </div>
         </div>
 
         <div className="flex items-center space-x-3">

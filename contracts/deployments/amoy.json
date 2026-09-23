@@ -17,6 +17,7 @@
   },
   "explorerUrls": {
     "AgentRegistry": "https://amoy.polygonscan.com/address/0x8218bDB16D7E71d4F51D31D6F0e919C1302CD6d1",
-    "AgentMarketplace": "https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E"
+    "AgentMarketplace": "https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E",
+    "EscrowPayment": "https://amoy.polygonscan.com/address/0x33b0709B52e782aB9576B6044132E65A3AF5206E"
   }
 }

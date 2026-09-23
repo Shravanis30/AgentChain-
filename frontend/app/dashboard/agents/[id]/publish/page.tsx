@@ -20,8 +20,11 @@ import {
 import { api } from '@/lib/api-client';
 import { ValidatorResult } from '@/components/agents/ValidatorResult';
 import { OnChainPublishButton } from '@/components/agents/OnChainPublishButton';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export default function PublishAgentPage() {
+  const { formatAsINR } = useINR();
   const params = useParams();
   const agentId = params.id as string;
 
@@ -129,9 +132,18 @@ export default function PublishAgentPage() {
                   <span className="text-[10px] font-mono text-slate-500 uppercase">{agent.category}</span>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
-                ${(agent.price_per_call_usdc || 0.05).toFixed(3)} USDC / call
-              </span>
+              <div className="text-right">
+                <div className="text-xs font-mono font-bold text-slate-900 dark:text-white">
+                  {formatAsINR(agent.price_per_call_usdc || 0.05)} / call
+                </div>
+                <div className="text-[10px] font-mono text-slate-400">
+                  (≈ ${(agent.price_per_call_usdc || 0.05).toFixed(2)} USDC)
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-1">
+              <CurrencyDisclaimer short />
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">

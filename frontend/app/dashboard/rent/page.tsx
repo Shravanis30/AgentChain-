@@ -34,6 +34,9 @@ export default function RentWorkspacePage() {
           <p className="text-xs text-slate-500 font-mono">
             Browse published agent swarms available for instant workspace lease
           </p>
+          <div className="pt-1.5">
+            <CurrencyDisclaimer />
+          </div>
         </div>
       </div>
 

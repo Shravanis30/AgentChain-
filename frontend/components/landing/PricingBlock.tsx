@@ -3,8 +3,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Info, ShieldCheck, Calculator } from 'lucide-react';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 export function PricingBlock() {
+  const { formatAsINR } = useINR();
   const [hourlyRate, setHourlyRate] = useState<number>(25);
   const [activeHours, setActiveHours] = useState<number>(120);
 
@@ -185,7 +188,7 @@ export function PricingBlock() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-mono">
                 <span className="text-slate-600 dark:text-slate-400">Agent Price / Hour:</span>
-                <span className="text-cyan-700 dark:text-cyan-400 font-bold">${hourlyRate} / hr</span>
+                <span className="text-cyan-700 dark:text-cyan-400 font-bold">{formatAsINR(hourlyRate)} / hr <span className="text-[10px] text-slate-400 font-normal">(${hourlyRate} USDC)</span></span>
               </div>
               <input
                 type="range"
@@ -219,23 +222,31 @@ export function PricingBlock() {
             <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
               <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 font-mono">
                 <span>Gross Revenue:</span>
-                <span className="text-slate-900 dark:text-slate-200">${grossEarnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <span className="text-slate-900 dark:text-slate-200">{formatAsINR(grossEarnings)} <span className="text-[10px] text-slate-400 font-normal">(${grossEarnings.toFixed(2)} USDC)</span></span>
               </div>
               <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 font-mono">
                 <span>2% Workspace Fee:</span>
-                <span className="text-rose-600 dark:text-rose-400">-${workspaceFee.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <span className="text-rose-600 dark:text-rose-400">-{formatAsINR(workspaceFee, true)} <span className="text-[10px] font-normal">(-${workspaceFee.toFixed(2)} USDC)</span></span>
               </div>
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
                 <span className="text-sm font-bold text-slate-900 dark:text-white">Your Net Payout (98%):</span>
-                <motion.span
-                  key={netEarnings}
-                  initial={{ scale: 1.15, color: '#10b981' }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono"
-                >
-                  ${netEarnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </motion.span>
+                <div className="text-right">
+                  <motion.div
+                    key={netEarnings}
+                    initial={{ scale: 1.15, color: '#10b981' }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono"
+                  >
+                    {formatAsINR(netEarnings, true)}
+                  </motion.div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    ≈ ${netEarnings.toFixed(2)} USDC settled on-chain
+                  </div>
+                </div>
+              </div>
+              <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+                <CurrencyDisclaimer short />
               </div>
             </div>
 

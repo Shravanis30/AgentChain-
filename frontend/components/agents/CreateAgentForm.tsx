@@ -16,8 +16,9 @@ import {
   Layers,
   FileText,
   Lock,
-} from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { useINR } from '@/lib/currency';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 
 interface CreateAgentFormProps {
   onCreated?: (agentId: string) => void;
@@ -35,7 +36,8 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
   const [category, setCategory] = useState('security');
   const [tags, setTags] = useState('audit, solidity, security');
   const [pricingModel, setPricingModel] = useState('pay_per_call');
-  const [pricePerCall, setPricePerCall] = useState('0.05');
+  const [pricePerCallINR, setPricePerCallINR] = useState('50');
+  const { toUSDC, rate } = useINR();
 
   // Agent Mode: PROMPT_CONFIGURED vs REPO_BACKED
   const [agentMode, setAgentMode] = useState<'PROMPT_CONFIGURED' | 'REPO_BACKED'>(
@@ -166,7 +168,8 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-      const parsedPrice = parseFloat(pricePerCall) || 0.05;
+      const parsedPriceINR = Math.max(0.1, parseFloat(pricePerCallINR) || 50);
+      const parsedPrice = toUSDC(parsedPriceINR);
 
       const toolPermissionsList = [
         {
@@ -301,20 +304,25 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-              Price Per Call (USDC)
+              Price Per Call (₹ INR)
             </label>
             <div className="relative">
-              <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">₹</span>
               <input
                 type="number"
-                step="0.001"
-                min="0.0001"
-                value={pricePerCall}
-                onChange={(e) => setPricePerCall(e.target.value)}
+                step="1"
+                min="1"
+                value={pricePerCallINR}
+                onChange={(e) => setPricePerCallINR(e.target.value)}
                 required
-                className="w-full pl-9 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                className="w-full pl-8 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
               />
             </div>
+            <div className="flex justify-between items-center text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <span>≈ {toUSDC(parseFloat(pricePerCallINR) || 0).toFixed(6)} USDC / call</span>
+              <span>1 USDC ≈ ₹{rate.toFixed(2)}</span>
+            </div>
+            <CurrencyDisclaimer short />
           </div>
 
           <div className="space-y-2">

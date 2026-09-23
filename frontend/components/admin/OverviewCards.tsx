@@ -70,6 +70,9 @@ export function OverviewCards() {
           <p className="text-xs text-slate-600 dark:text-slate-400 font-mono mt-0.5">
             High-level metrics strictly separating Task Escrow vs Workspace Rental revenue
           </p>
+          <div className="pt-1">
+            <CurrencyDisclaimer />
+          </div>
         </div>
 
         <span className="text-xs font-mono px-2.5 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/30 w-fit">
