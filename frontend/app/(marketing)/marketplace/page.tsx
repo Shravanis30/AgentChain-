@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/marketplace';
 import { AgentCard, AgentCardSkeleton } from '@/components/marketplace/AgentCard';
 import { FilterBar } from '@/components/marketplace/FilterBar';
+import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
 import { Bot, ChevronLeft, ChevronRight, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function MarketplacePage() {
@@ -81,6 +82,9 @@ export default function MarketplacePage() {
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
             Discover, audit, and lease verified AI agent workforces. Every transaction is backed by Solidity smart contract escrow and proof-of-task verification.
           </p>
+          <div className="pt-2">
+            <CurrencyDisclaimer />
+          </div>
         </motion.div>
 
         {/* Filter Controls Bar */}

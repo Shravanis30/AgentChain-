@@ -16,6 +16,7 @@ import {
   Layers,
   FileText,
   Lock,
+} from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { useINR } from '@/lib/currency';
 import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';

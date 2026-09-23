@@ -123,7 +123,7 @@ export function HireAgentModal({ agent, isOpen, onClose }: HireAgentModalProps) 
       try {
         const generatedTaskId = `task-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         const taskBytes32 = agentIdToBytes32(generatedTaskId);
-        const devAddress = (agent.owner_wallet || '0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab') as `0x${string}`;
+        const devAddress = (agent.owner_address || '0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab') as `0x${string}`;
 
         const hash = await writeContractAsync({
           address: AGENT_MARKETPLACE_ADDRESS,

@@ -84,7 +84,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
       try {
         const leaseTaskId = `lease-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         const taskBytes32 = agentIdToBytes32(leaseTaskId);
-        const ownerWallet = (agent.owner_wallet || '0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab') as `0x${string}`;
+        const ownerWallet = (agent.owner_address || '0x4b73e26c76FDE99D8c70C325985C347Bc0E16Dab') as `0x${string}`;
 
         await writeContractAsync({
           address: AGENT_MARKETPLACE_ADDRESS,
