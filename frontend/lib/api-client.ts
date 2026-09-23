@@ -127,6 +127,13 @@ export const api = {
     return apiFetch<UserProfile>('/api/v1/auth/me');
   },
 
+  updateProfile: async (payload: { full_name: string }): Promise<UserProfile> => {
+    return apiFetch<UserProfile>('/api/v1/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
   logout: async (): Promise<{ status: string; message: string }> => {
     try {
       return await apiFetch<{ status: string; message: string }>('/api/v1/auth/logout', {
@@ -194,24 +201,21 @@ export const api = {
     });
   },
 
-  approveAgent: async (agentId: string): Promise<{ status: string; message: string }> => {
-    try {
-      return await apiFetch<{ status: string; message: string }>(`/api/v1/agents/${agentId}/approve`, {
-        method: 'POST',
-      });
-    } catch {
-      return { status: 'success', message: 'Agent marked approved in registry.' };
-    }
+  getPendingAgents: async (): Promise<any[]> => {
+    return apiFetch<any[]>('/api/v1/admin/agents/pending');
   },
 
-  rejectAgent: async (agentId: string): Promise<{ status: string; message: string }> => {
-    try {
-      return await apiFetch<{ status: string; message: string }>(`/api/v1/agents/${agentId}/reject`, {
-        method: 'POST',
-      });
-    } catch {
-      return { status: 'success', message: 'Agent returned to DRAFT.' };
-    }
+  approveAgent: async (agentId: string): Promise<{ status: string; agent_id: string; new_status: string }> => {
+    return apiFetch<{ status: string; agent_id: string; new_status: string }>(`/api/v1/admin/agents/${agentId}/approve`, {
+      method: 'POST',
+    });
+  },
+
+  rejectAgent: async (agentId: string, reason?: string): Promise<{ status: string; agent_id: string; new_status: string }> => {
+    return apiFetch<{ status: string; agent_id: string; new_status: string }>(`/api/v1/admin/agents/${agentId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason || 'Admin rejection during moderation' }),
+    });
   },
 
   // Workspace Operations
@@ -225,6 +229,29 @@ export const api = {
     return apiFetch<any>('/api/v1/workspaces', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  deployFromGitHub: async (payload: {
+    repo_full_name: string;
+    branch?: string;
+    installation_id?: string;
+    project_name?: string;
+    resource_tier?: string;
+    pricing_mode?: string;
+    rate_usdc?: number;
+    flat_duration_days?: number;
+    env_vars?: Record<string, string>;
+  }) => {
+    return apiFetch<any>('/api/v1/workspaces/deploy-github', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  rebuildAgent: async (agentId: string) => {
+    return apiFetch<any>(`/api/v1/agents/${agentId}/rebuild`, {
+      method: 'POST',
     });
   },
 
@@ -364,4 +391,30 @@ export const api = {
       body: payload ? JSON.stringify(payload) : undefined,
     });
   },
+
+  getAdminUsers: async (): Promise<AdminUser[]> => {
+    return apiFetch<AdminUser[]>('/api/v1/admin/users');
+  },
+
+  updateAdminUserStatus: async (userId: string, isActive: boolean): Promise<{ status: string; user_id: string; is_active: boolean }> => {
+    return apiFetch<{ status: string; user_id: string; is_active: boolean }>(`/api/v1/admin/users/${userId}/status`, {
+      method: 'POST',
+      body: JSON.stringify({ is_active: isActive }),
+    });
+  },
 };
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  raw_email?: string | null;
+  full_name: string;
+  is_active: boolean;
+  roles: string[];
+  primary_role: string;
+  primary_wallet: string | null;
+  wallets: string[];
+  wallets_count: number;
+  created_at: string;
+}
+

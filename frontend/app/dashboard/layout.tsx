@@ -15,7 +15,8 @@ import {
   GitBranch,
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  User
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -49,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'My Agents', shortName: 'Agents', href: '/dashboard', icon: Bot },
     { name: 'Deploy Workspace', shortName: 'Deploy', href: '/dashboard/deploy', icon: PlusCircle },
     { name: 'My Workspaces', shortName: 'Workspaces', href: '/dashboard/workspaces', icon: Server },
+    { name: 'Profile Settings', shortName: 'Profile', href: '/dashboard/settings', icon: User },
     { name: 'Connected Accounts', shortName: 'GitHub', href: '/dashboard/settings/connected-accounts', icon: GitBranch },
     { name: 'Wallet & Payouts', shortName: 'Wallet', href: '/dashboard/wallet', icon: Wallet },
     { name: 'Rent Workspace', shortName: 'Rent', href: '/dashboard/rent', icon: ShoppingBag },

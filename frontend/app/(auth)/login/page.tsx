@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -10,19 +10,22 @@ import { Cpu, Mail, Lock, LogIn, AlertCircle, Wallet, ShieldCheck } from 'lucide
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithPassword, isLoading, error, isAuthenticated, roles, clearError } = useAuth();
+  const { loginWithPassword, isLoading, error, isAuthenticated, user, roles, clearError } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const isSubmitting = useRef(false);
 
-  // If already authenticated, route based on role (admins go to /admin)
+  // If already authenticated on initial page load, route based on role
   useEffect(() => {
-    if (isAuthenticated) {
-      const isAdmin = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') || roles.includes('admin');
-      router.push(isAdmin ? '/admin' : '/dashboard');
+    if (isSubmitting.current) return;
+    if (!isLoading && isAuthenticated) {
+      const userRoles = (user?.roles && user.roles.length > 0) ? user.roles : roles;
+      const isAdmin = userRoles.includes('ADMIN') || userRoles.includes('SUPER_ADMIN') || userRoles.includes('admin');
+      window.location.href = isAdmin ? '/admin' : '/dashboard';
     }
-  }, [isAuthenticated, roles, router]);
+  }, [isAuthenticated, isLoading, user, roles]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +38,13 @@ export default function LoginPage() {
     }
 
     try {
-      await loginWithPassword(email, password);
-      // Route based on role: admins go directly to /admin, not /dashboard
-      // roles is updated by loginWithPassword -> refreshUser before this runs
-      const isAdmin = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') || roles.includes('admin');
-      router.push(isAdmin ? '/admin' : '/dashboard');
+      isSubmitting.current = true;
+      const authRes = await loginWithPassword(email, password);
+      const userRoles = authRes?.roles || user?.roles || roles || [];
+      const isAdmin = userRoles.includes('ADMIN') || userRoles.includes('SUPER_ADMIN') || userRoles.includes('admin');
+      window.location.href = isAdmin ? '/admin' : '/dashboard';
     } catch (err: any) {
+      isSubmitting.current = false;
       setFormError(err.message || 'Login failed. Invalid email or password.');
     }
   };
@@ -87,7 +91,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => {
                 setEmail('admin@agentchain.ai');
-                setPassword('admin123');
+                setPassword('AdminChain2026!');
               }}
               className="px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-mono text-xs font-bold hover:bg-amber-500/20 transition-colors flex items-center space-x-1.5"
             >

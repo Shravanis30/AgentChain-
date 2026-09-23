@@ -425,23 +425,91 @@ async def get_version_build_status(
     res = await session.execute(stmt)
     build = res.scalar_one_or_none()
 
-    if not build:
+    if build:
         return {
             "version_id": version_id,
-            "status": "PROMPT_ONLY",
+            "status": build.status,
+            "image_digest": build.image_digest or "",
+            "build_strategy": build.build_strategy or "DOCKERFILE",
+            "build_log": build.build_log or "",
+            "built_at": build.built_at.isoformat() if build.built_at else utc_now().isoformat()
+        }
+
+    # Check if a BuildJob is currently queued or building
+    stmt_job = select(BuildJob).where(BuildJob.agent_version_id == version_id).order_by(BuildJob.created_at.desc())
+    res_job = await session.execute(stmt_job)
+    job = res_job.scalar_one_or_none()
+
+    if job:
+        return {
+            "version_id": version_id,
+            "status": job.status,
             "image_digest": "",
-            "build_strategy": "PROMPT_ONLY",
-            "build_log": "[INFO] Prompt-only agent version. No container image build required.",
-            "built_at": utc_now().isoformat()
+            "build_strategy": "DOCKERFILE",
+            "build_log": f"[BUILD QUEUED] Build job {job.id} for {job.source_repo}@{job.source_ref} is currently {job.status.lower()}...\n[INFO] Ephemeral sandbox worker acquiring pipeline lease...",
+            "built_at": job.created_at.isoformat() if job.created_at else utc_now().isoformat()
         }
 
     return {
         "version_id": version_id,
-        "status": build.status,
-        "image_digest": build.image_digest,
-        "build_strategy": build.build_strategy,
-        "build_log": build.build_log,
-        "built_at": build.built_at.isoformat()
+        "status": "PROMPT_ONLY",
+        "image_digest": "",
+        "build_strategy": "PROMPT_ONLY",
+        "build_log": "[INFO] Prompt-only agent version. No container image build required.",
+        "built_at": utc_now().isoformat()
+    }
+
+
+@router.post("/{agent_id}/rebuild")
+async def rebuild_agent(
+    agent_id: str,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """Triggers an on-demand container rebuild and re-deployment for a repository-backed agent."""
+    stmt = select(Agent).options(selectinload(Agent.versions)).where(Agent.id == agent_id, Agent.owner_id == user.id)
+    res = await session.execute(stmt)
+    agent = res.scalar_one_or_none()
+
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found or access denied.")
+
+    version = next((v for v in agent.versions if v.id == agent.current_version_id), None)
+    if not version and agent.versions:
+        version = agent.versions[-1]
+
+    if not version:
+        raise HTTPException(status_code=400, detail="Agent has no configured version to build.")
+
+    if not version.source_repo:
+        raise HTTPException(status_code=400, detail="Cannot rebuild a prompt-only agent. Repository required.")
+
+    stmt_inst = select(GitHubInstallation).where(GitHubInstallation.user_id == user.id).order_by(GitHubInstallation.created_at.desc())
+    res_inst = await session.execute(stmt_inst)
+    insts = res_inst.scalars().all()
+    installation_id = None
+    if insts:
+        owner_login = version.source_repo.split('/')[0] if '/' in version.source_repo else None
+        matched = next((i for i in insts if i.account_login == owner_login), insts[0])
+        installation_id = matched.installation_id
+
+    agent.status = "BUILDING"
+    await session.commit()
+
+    job = await build_queue.enqueue_build_job(
+        agent_id=agent.id,
+        agent_version_id=version.id,
+        owner_id=user.id,
+        source_repo=version.source_repo,
+        source_ref=version.source_ref or "main",
+        installation_id=installation_id
+    )
+
+    return {
+        "status": "success",
+        "message": f"Container rebuild queued for {version.source_repo}@{version.source_ref}",
+        "build_job_id": job.id,
+        "version_id": version.id
     }
 
 @router.post("/{agent_id}/validate")

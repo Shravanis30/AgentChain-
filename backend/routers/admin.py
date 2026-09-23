@@ -11,45 +11,128 @@ from backend.auth_service.rbac import get_current_user, require_permission
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin & Platform Governance"])
 
 class AdminRejectSchema(BaseModel):
-    reason: str
+    reason: Optional[str] = "Admin rejection during moderation"
+
+class AdminUserStatusUpdate(BaseModel):
+    is_active: bool
 
 @router.get("/users", dependencies=[Depends(require_permission("admin:users"))])
 async def list_all_users(session: AsyncSession = Depends(get_db)):
     stmt = select(User).order_by(User.created_at.desc()).limit(100)
     res = await session.execute(stmt)
-    users = res.scalars().all()
-    return [
-        {
+    users = res.unique().scalars().all()
+    results = []
+    for u in users:
+        roles = [ur.role.name for ur in u.user_roles if ur.role]
+        if not roles:
+            roles = ["USER"]
+        
+        primary_wallet = None
+        for w in u.wallets:
+            if w.is_primary:
+                primary_wallet = w.address
+                break
+        if not primary_wallet and u.wallets:
+            primary_wallet = u.wallets[0].address
+
+        display_email = u.email
+        if not display_email and primary_wallet:
+            display_email = f"{primary_wallet[:6]}...{primary_wallet[-4:]}"
+        elif not display_email:
+            display_email = "No Email"
+
+        if "SUPER_ADMIN" in roles:
+            primary_role = "SUPER_ADMIN"
+        elif "ADMIN" in roles:
+            primary_role = "ADMIN"
+        elif "AGENT_OWNER" in roles:
+            primary_role = "AGENT_OWNER"
+        else:
+            primary_role = roles[0]
+
+        results.append({
             "id": u.id,
-            "email": u.email,
+            "email": display_email,
+            "raw_email": u.email,
             "full_name": u.full_name,
             "is_active": u.is_active,
+            "roles": roles,
+            "primary_role": primary_role,
+            "primary_wallet": primary_wallet,
+            "wallets": [w.address for w in u.wallets],
             "wallets_count": len(u.wallets),
             "created_at": u.created_at.isoformat()
-        }
-        for u in users
-    ]
+        })
+    return results
+
+@router.post("/users/{user_id}/status", dependencies=[Depends(require_permission("admin:users"))])
+async def update_user_status(
+    user_id: str,
+    payload: AdminUserStatusUpdate,
+    admin_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """Updates user active status (suspend / reactivate), preventing self-suspension."""
+    if admin_user.id == user_id and not payload.is_active:
+        raise HTTPException(status_code=400, detail="Administrators cannot suspend their own account.")
+
+    stmt = select(User).where(User.id == user_id)
+    res = await session.execute(stmt)
+    target_user = res.scalar_one_or_none()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    target_user.is_active = payload.is_active
+    audit = AuditLog(
+        actor_id=admin_user.id,
+        action="USER_SUSPENDED_BY_ADMIN" if not payload.is_active else "USER_REACTIVATED_BY_ADMIN",
+        resource_type="user",
+        resource_id=target_user.id,
+        details={"new_is_active": payload.is_active}
+    )
+    session.add(audit)
+    await session.commit()
+    await session.refresh(target_user)
+
+    return {
+        "status": "success",
+        "user_id": target_user.id,
+        "is_active": target_user.is_active
+    }
 
 @router.get("/agents/pending", dependencies=[Depends(require_permission("admin:agents"))])
 async def list_pending_agents(session: AsyncSession = Depends(get_db)):
     """Lists agents waiting for administrative review."""
-    stmt = select(Agent).where(Agent.status == "PENDING_REVIEW").order_by(Agent.updated_at.asc())
+    stmt = select(Agent).where(Agent.status.in_(["PENDING_REVIEW", "VALIDATED"])).order_by(Agent.updated_at.asc())
     res = await session.execute(stmt)
     agents = res.scalars().all()
-    return [
-        {
+    results = []
+    for a in agents:
+        owner_wallet = None
+        if a.owner and a.owner.wallets:
+            for w in a.owner.wallets:
+                if w.is_primary:
+                    owner_wallet = w.address
+                    break
+            if not owner_wallet and a.owner.wallets:
+                owner_wallet = a.owner.wallets[0].address
+
+        results.append({
             "id": a.id,
             "name": a.name,
             "slug": a.slug,
+            "description": a.description,
             "category": a.category,
             "status": a.status,
             "owner_id": a.owner_id,
-            "created_at": a.created_at.isoformat(),
+            "owner_wallet": owner_wallet,
+            "price_per_call_usdc": float(a.price_per_call_usdc or 0),
+            "pricing_model": a.pricing_model,
+            "created_at": a.created_at.isoformat() if a.created_at else None,
             "latest_version": a.versions[-1].version if a.versions else "v1.0.0",
             "last_validation": a.validations[-1].passed if a.validations else False
-        }
-        for a in agents
-    ]
+        })
+    return results
 
 @router.post("/agents/{agent_id}/approve", dependencies=[Depends(require_permission("admin:agents"))])
 async def approve_agent(
@@ -71,10 +154,10 @@ async def approve_agent(
             detail="Conflict of interest: Agent owners cannot approve their own agents."
         )
 
-    if agent.status != "PENDING_REVIEW":
+    if agent.status not in ["PENDING_REVIEW", "VALIDATED"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Agent is not in PENDING_REVIEW state (current: '{agent.status}')."
+            detail=f"Agent is not in reviewable state (current: '{agent.status}')."
         )
 
     agent.status = "APPROVED"
@@ -93,7 +176,7 @@ async def approve_agent(
 @router.post("/agents/{agent_id}/reject", dependencies=[Depends(require_permission("admin:agents"))])
 async def reject_agent(
     agent_id: str,
-    req: AdminRejectSchema,
+    req: Optional[AdminRejectSchema] = None,
     admin_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db)
 ):
@@ -106,17 +189,18 @@ async def reject_agent(
         raise HTTPException(status_code=404, detail="Agent not found.")
 
     agent.status = "REJECTED"
+    reason = req.reason if req and req.reason else "Admin rejection during moderation"
     audit = AuditLog(
         actor_id=admin_user.id,
         action="AGENT_REJECTED_BY_ADMIN",
         resource_type="agent",
         resource_id=agent.id,
-        details={"reason": req.reason}
+        details={"reason": reason}
     )
     session.add(audit)
     await session.commit()
 
-    return {"status": "success", "agent_id": agent.id, "new_status": agent.status, "reason": req.reason}
+    return {"status": "success", "agent_id": agent.id, "new_status": agent.status, "reason": reason}
 
 @router.post("/agents/{agent_id}/suspend", dependencies=[Depends(require_permission("admin:agents"))])
 async def suspend_agent(

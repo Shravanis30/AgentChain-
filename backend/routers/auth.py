@@ -43,6 +43,10 @@ class LinkWalletRequest(BaseModel):
 class PrimaryWalletRequest(BaseModel):
     wallet_address: str
 
+class UpdateProfileRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=100)
+
+
 class SessionRevokeRequest(BaseModel):
     session_id: Optional[str] = None
     revoke_all: bool = False
@@ -232,6 +236,44 @@ async def get_current_user_profile(
     session: AsyncSession = Depends(get_db)
 ):
     """Returns authenticated user profile, roles, permissions, and linked wallets."""
+    roles, permissions = await auth_service.get_user_roles_and_permissions(session, user.id)
+    wallets = await wallet_service.list_wallets(session, user.id)
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "avatar_url": user.avatar_url,
+        "roles": roles,
+        "permissions": permissions,
+        "wallets": wallets,
+        "created_at": user.created_at.isoformat()
+    }
+
+
+@router.patch("/me")
+async def update_current_user_profile(
+    req: UpdateProfileRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db)
+):
+    """
+    Updates the authenticated user's display name.
+    MetaMask wallet address / ID is cryptographically fixed and cannot be edited.
+    """
+    name = req.full_name.strip()
+    if not name or len(name) < 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Display name must be at least 2 characters."
+        )
+
+    user.full_name = name
+    user.updated_at = datetime.now(timezone.utc)
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
     roles, permissions = await auth_service.get_user_roles_and_permissions(session, user.id)
     wallets = await wallet_service.list_wallets(session, user.id)
 

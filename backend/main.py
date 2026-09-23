@@ -22,6 +22,7 @@ except Exception:
     REQUEST_LATENCY = REGISTRY._names_to_collectors.get("agentchain_http_request_duration_seconds")
 
 from backend.workspaces.poller import workspace_poller
+from backend.build_engine.worker import build_worker
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,9 +31,11 @@ async def lifespan(app: FastAPI):
     async with async_session_factory() as session:
         await bootstrap_roles_and_permissions(session)
     await workspace_poller.start()
+    await build_worker.start()
     try:
         yield
     finally:
+        await build_worker.stop()
         await workspace_poller.stop()
 
 

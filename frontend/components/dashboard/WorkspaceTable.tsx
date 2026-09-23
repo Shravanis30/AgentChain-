@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Server, Terminal, Plus, RefreshCw, Loader2, StopCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Server, Terminal, Plus, RefreshCw, Loader2, StopCircle, CheckCircle2, AlertCircle, GitBranch } from 'lucide-react';
 import { api, AgentItem } from '@/lib/api-client';
 import { ExecutionLogsModal } from '@/components/dashboard/ExecutionLogsModal';
 
@@ -23,14 +23,28 @@ interface WorkspaceItem {
 
 export function WorkspaceTable() {
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
+  const [agentsMap, setAgentsMap] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stoppingId, setStoppingId] = useState<string | null>(null);
+  const [redeployingId, setRedeployingId] = useState<string | null>(null);
   const [activeLogsAgent, setActiveLogsAgent] = useState<AgentItem | null>(null);
 
   const fetchWorkspaces = useCallback(async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
-      const data = await api.getMyWorkspaces();
+      const [data, myAgents] = await Promise.all([
+        api.getMyWorkspaces(),
+        api.getMyAgents().catch(() => []),
+      ]);
+
+      if (Array.isArray(myAgents)) {
+        const map: Record<string, any> = {};
+        myAgents.forEach((a: any) => {
+          map[a.id] = a;
+        });
+        setAgentsMap(map);
+      }
+
       if (Array.isArray(data)) {
         setWorkspaces(
           data.map((w: any) => ({
@@ -94,6 +108,19 @@ export function WorkspaceTable() {
     if (mode === 'PER_DAY') return `$${rate.toFixed(2)} / day`;
     if (mode === 'CUSTOM_FLAT') return `$${rate.toFixed(2)} flat`;
     return `$${rate.toFixed(2)} / hr`;
+  };
+
+  const handleRedeploy = async (agentId: string) => {
+    setRedeployingId(agentId);
+    try {
+      await api.rebuildAgent(agentId);
+      alert('Vercel/Render-style container rebuild and redeployment queued successfully!');
+      fetchWorkspaces(true);
+    } catch (err: any) {
+      alert(err?.message || 'Failed to trigger redeploy.');
+    } finally {
+      setRedeployingId(null);
+    }
   };
 
   return (
@@ -162,7 +189,7 @@ export function WorkspaceTable() {
             <table className="w-full text-left font-mono text-xs min-w-[760px]">
               <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
                 <tr>
-                  <th className="p-4">Workspace / Container ID</th>
+                  <th className="p-4">Workspace / Project Origin</th>
                   <th className="p-4">Resource Tier</th>
                   <th className="p-4">Docker Status</th>
                   <th className="p-4">Uptime</th>
@@ -175,13 +202,22 @@ export function WorkspaceTable() {
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
                 {workspaces.map((ws) => {
                   const isStopping = stoppingId === ws.id;
+                  const isRedeploying = redeployingId === ws.agentId;
+                  const linkedAgent = agentsMap[ws.agentId];
+                  const sourceRepo = linkedAgent?.current_version?.source_repo;
 
                   return (
                     <tr key={ws.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
                       <td className="p-4">
                         <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Workspace {ws.id.slice(0, 8)}</span>
+                          <span>{linkedAgent?.name || `Workspace ${ws.id.slice(0, 8)}`}</span>
                         </div>
+                        {sourceRepo && (
+                          <div className="flex items-center space-x-1 text-[10px] text-cyan-600 dark:text-cyan-400 font-mono mt-0.5">
+                            <GitBranch className="w-3 h-3 shrink-0" />
+                            <span className="truncate max-w-[220px]">{sourceRepo}</span>
+                          </div>
+                        )}
                         <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                           {ws.dockerContainerId ? (
                             <span>Container: <code className="text-cyan-600 dark:text-cyan-400">{ws.dockerContainerId.slice(0, 12)}</code></span>
@@ -261,6 +297,18 @@ export function WorkspaceTable() {
                             <Terminal className="w-3.5 h-3.5" />
                             <span>Logs</span>
                           </button>
+
+                          {sourceRepo && (
+                            <button
+                              onClick={() => handleRedeploy(ws.agentId)}
+                              disabled={isRedeploying}
+                              className="px-2.5 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 font-bold text-[11px] transition-colors flex items-center space-x-1 disabled:opacity-50"
+                              title="Redeploy from GitHub repository"
+                            >
+                              <RefreshCw className={`w-3.5 h-3.5 ${isRedeploying ? 'animate-spin' : ''}`} />
+                              <span>{isRedeploying ? 'Building...' : 'Redeploy'}</span>
+                            </button>
+                          )}
 
                           {ws.status === 'RUNNING' ? (
                             <button

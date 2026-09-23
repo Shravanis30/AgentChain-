@@ -51,32 +51,32 @@ export function DisputeQueue() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-amber-500/20">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-500" />
             Workspace Rental Disputes & Escrow Claims
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-mono mt-0.5">
             Arbitrate tenant complaints and issue partial/full escrow refunds
           </p>
         </div>
-        <span className="text-xs font-mono px-2.5 py-1 rounded bg-amber-500/10 text-amber-500 font-bold border border-amber-500/30">
+        <span className="text-xs font-mono px-2.5 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/30 w-fit">
           {disputes.filter((d) => d.status === 'OPEN').length} OPEN DISPUTES
         </span>
       </div>
 
       {toastMessage && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-mono text-xs flex items-center space-x-2">
-          <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-500" />
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 font-mono text-xs flex items-center space-x-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-500" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
+      <div className="rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono text-xs min-w-[700px]">
-          <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+          <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="p-4">Dispute ID</th>
               <th className="p-4">Workspace</th>
@@ -89,21 +89,21 @@ export function DisputeQueue() {
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
             {disputes.map((d) => (
-              <tr key={d.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                <td className="p-4 font-bold">{d.id}</td>
-                <td className="p-4 text-slate-400">{d.workspaceId}</td>
-                <td className="p-4">{d.renterEmail}</td>
-                <td className="p-4 font-sans text-xs max-w-xs">{d.issue}</td>
+              <tr key={d.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                <td className="p-4 font-bold text-slate-900 dark:text-white">{d.id}</td>
+                <td className="p-4 text-slate-500 dark:text-slate-400">{d.workspaceId}</td>
+                <td className="p-4 text-slate-700 dark:text-slate-300">{d.renterEmail}</td>
+                <td className="p-4 font-sans text-xs max-w-xs text-slate-800 dark:text-slate-200">{d.issue}</td>
                 <td className="p-4">
-                  <div className="font-bold text-amber-400">{formatAsINR(d.amountUSDC)}</div>
-                  <div className="text-[10px] text-slate-400 font-mono">${d.amountUSDC.toFixed(2)} USDC</div>
+                  <div className="font-bold text-amber-600 dark:text-amber-400">{formatAsINR(d.amountUSDC)}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">${d.amountUSDC.toFixed(2)} USDC</div>
                 </td>
                 <td className="p-4">
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                       d.status === 'OPEN'
-                        ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30'
-                        : 'bg-emerald-500/10 text-emerald-500'
+                        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
                     }`}
                   >
                     {d.status}
@@ -114,19 +114,19 @@ export function DisputeQueue() {
                     <>
                       <button
                         onClick={() => handleResolve(d.id, 'REFUND_BUYER')}
-                        className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-bold text-[11px] hover:bg-rose-500/20"
+                        className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold text-[11px] hover:bg-rose-500/20 border border-rose-500/30 transition-colors"
                       >
                         Refund Renter
                       </button>
                       <button
                         onClick={() => handleResolve(d.id, 'RELEASE_TO_OWNER')}
-                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 font-bold text-[11px] hover:bg-emerald-500/20"
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-[11px] hover:bg-emerald-500/20 border border-emerald-500/30 transition-colors"
                       >
                         Release Escrow
                       </button>
                     </>
                   ) : (
-                    <span className="text-[11px] text-slate-400 font-semibold">Case Closed</span>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Case Closed</span>
                   )}
                 </td>
               </tr>
@@ -134,7 +134,7 @@ export function DisputeQueue() {
           </tbody>
         </table>
         </div>
-        <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+        <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400">
           <span>Escrow dispute arbitration verified on-chain via multi-signature consensus & settlement oracle.</span>
           <CurrencyDisclaimer />
         </div>

@@ -98,8 +98,9 @@ async def build_log_websocket(websocket: WebSocket, version_id: str):
     logger.info(f"[WS] Client connected to build log stream for version {version_id}")
 
     try:
-        from backend.db.models import AgentBuild
+        from backend.db.models import AgentBuild, BuildJob
         last_log = ""
+        sent_queued = False
 
         while True:
             async with AsyncSessionLocal() as session:
@@ -113,16 +114,32 @@ async def build_log_websocket(websocket: WebSocket, version_id: str):
                         "event": "BUILD_LOG_UPDATE",
                         "version_id": version_id,
                         "status": build.status,
-                        "image_digest": build.image_digest,
-                        "build_strategy": build.build_strategy,
+                        "image_digest": build.image_digest or "",
+                        "build_strategy": build.build_strategy or "DOCKERFILE",
                         "build_log": build.build_log
                     })
+
+                elif not build and not sent_queued:
+                    # Check if a BuildJob is pending
+                    stmt_job = select(BuildJob).where(BuildJob.agent_version_id == version_id).order_by(BuildJob.created_at.desc())
+                    res_job = await session.execute(stmt_job)
+                    job = res_job.scalar_one_or_none()
+                    if job:
+                        sent_queued = True
+                        await websocket.send_json({
+                            "event": "BUILD_LOG_UPDATE",
+                            "version_id": version_id,
+                            "status": job.status,
+                            "image_digest": "",
+                            "build_strategy": "DOCKERFILE",
+                            "build_log": f"[BUILD INIT] Build job {job.id} for {job.source_repo}@{job.source_ref} is {job.status.lower()}...\n[INFO] Allocating rootless compiler container runtime..."
+                        })
 
                 if build and build.status in ["SUCCEEDED", "FAILED", "BLOCKED_SECRET"]:
                     logger.info(f"[WS] Build for version {version_id} reached terminal state '{build.status}'. Closing socket.")
                     break
 
-            await asyncio.sleep(1.0)
+            await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         logger.info(f"[WS] Client disconnected from build stream {version_id}")
     except Exception as e:

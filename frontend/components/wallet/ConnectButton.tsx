@@ -5,7 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useChainId, useSignMessage } from 'wagmi';
 import { useAuth } from '@/hooks/useAuth';
-import { Wallet, LogOut, ShieldCheck, UserCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Wallet, LogOut, ShieldCheck, UserCheck, Loader2, AlertCircle, Pencil } from 'lucide-react';
+import { EditProfileModal } from '@/components/wallet/EditProfileModal';
 
 export function ConnectButton() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function ConnectButton() {
 
   const [signing, setSigning] = useState<boolean>(false);
   const [siweError, setSiweError] = useState<string | null>(null);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState<boolean>(false);
 
   // Reset errors whenever connected wallet address changes
   useEffect(() => {
@@ -31,9 +33,11 @@ export function ConnectButton() {
     clearError();
 
     try {
-      await loginWithSIWE(address, chainId || 1, signMessageAsync);
+      const authRes = await loginWithSIWE(address, chainId || 1, signMessageAsync);
       if (pathname === '/login' || pathname === '/register') {
-        router.push('/dashboard');
+        const userRoles = authRes?.roles || user?.roles || roles || [];
+        const isAdmin = userRoles.includes('ADMIN') || userRoles.includes('SUPER_ADMIN') || userRoles.includes('admin');
+        window.location.href = isAdmin ? '/admin' : '/dashboard';
       }
     } catch (err: any) {
       console.warn('SIWE authentication attempt error:', err);
@@ -183,12 +187,22 @@ export function ConnectButton() {
                 <button
                   onClick={openAccountModal}
                   className="flex items-center space-x-1.5 text-xs font-mono font-semibold text-slate-800 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                  title="View MetaMask Wallet details"
                 >
                   <UserCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   <span className="truncate max-w-[80px] xs:max-w-[110px] sm:max-w-[140px] md:max-w-none">{displayName}</span>
                   <span className="hidden xs:inline-block text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20">
-                    {primaryRole}
+                    {primaryRole === 'AGENT_OWNER' ? 'DEVELOPER' : primaryRole}
                   </span>
+                </button>
+
+                {/* Edit Display Name Button */}
+                <button
+                  onClick={() => setIsEditProfileOpen(true)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 transition-colors flex items-center justify-center"
+                  title="Edit Display Name (Visible on Admin Console)"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-amber-500" />
                 </button>
 
                 {/* Logout Button */}
@@ -204,6 +218,12 @@ export function ConnectButton() {
           );
         }}
       </RainbowConnectButton.Custom>
+
+      <EditProfileModal
+        isOpen={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+        walletAddress={address}
+      />
     </div>
   );
 }

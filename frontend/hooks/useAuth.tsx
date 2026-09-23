@@ -11,11 +11,12 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  loginWithSIWE: (address: string, chainId: number, signMessageAsync: (args: { message: string }) => Promise<string>) => Promise<void>;
-  loginWithPassword: (email: string, password: string) => Promise<void>;
+  loginWithSIWE: (address: string, chainId: number, signMessageAsync: (args: { message: string }) => Promise<string>) => Promise<any>;
+  loginWithPassword: (email: string, password: string) => Promise<any>;
   registerWithPassword: (email: string, password: string, fullName: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateProfileName: (fullName: string) => Promise<UserProfile>;
   clearError: () => void;
 }
 
@@ -73,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRoles(authRes.roles || []);
       setPermissions(authRes.permissions || []);
       await refreshUser();
+      return authRes;
     } catch (err: any) {
       const msg = err.message || 'SIWE authentication failed.';
       setError(msg);
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setPermissions(res.permissions || []);
         await refreshUser();
       }
+      return res;
     } catch (err: any) {
       const msg = err.message || 'Login failed. Please check your credentials.';
       setError(msg);
@@ -141,14 +144,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfileName = async (fullName: string) => {
+    setError(null);
+    try {
+      const updated = await api.updateProfile({ full_name: fullName });
+      setUser(updated);
+      return updated;
+    } catch (err: any) {
+      const msg = err.message || 'Failed to update profile name.';
+      setError(msg);
+      throw new Error(msg);
+    }
+  };
+
+  const effectiveRoles = (user?.roles && user.roles.length > 0) ? user.roles : roles;
+  const effectivePermissions = (user?.permissions && user.permissions.length > 0) ? user.permissions : permissions;
+
   const value: AuthContextType = {
     user,
-    roles,
-    permissions,
-    // isAuthenticated is ONLY true once the user profile is fully hydrated from the
-    // server (refreshUser resolved). roles.length > 0 was removed: it created a race
-    // where roles could be set from a prior login response while user was still null
-    // during async hydration, causing layout guards to fire too early/late.
+    roles: effectiveRoles,
+    permissions: effectivePermissions,
     isAuthenticated: !!user,
     isLoading,
     error,
@@ -157,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     registerWithPassword,
     logout,
     refreshUser,
+    updateProfileName,
     clearError,
   };
 

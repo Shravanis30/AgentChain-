@@ -28,7 +28,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { isAuthenticated, roles, user, logout } = useAuth();
 
-  const isAdmin = isAuthenticated && (roles.includes('ADMIN') || roles.includes('admin'));
+  const isAdmin = isAuthenticated && (roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') || roles.includes('admin'));
   const isDashboardOrAdmin = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin');
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export function Navbar() {
               {/* Sub-Context Badge (Dashboard vs Admin) */}
               <div className="hidden xs:flex items-center space-x-2 pl-3 border-l border-slate-200 dark:border-slate-800">
                 {pathname?.startsWith('/admin') ? (
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                     ADMIN CONSOLE
                   </span>
                 ) : (
@@ -99,7 +99,7 @@ export function Navbar() {
               {isAdmin && pathname?.startsWith('/dashboard') && (
                 <Link
                   href="/admin"
-                  className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/30 font-mono text-xs font-bold hover:bg-amber-500/20 transition-colors min-h-[44px]"
+                  className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-mono text-xs font-bold hover:bg-amber-500/20 transition-colors min-h-[44px]"
                 >
                   <span>Admin Console</span>
                 </Link>
@@ -124,6 +124,18 @@ export function Navbar() {
               )}
 
               <ConnectButton />
+
+              {/* Logout Button */}
+              {isAuthenticated && (
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 font-mono text-xs font-bold hover:bg-rose-500/20 transition-colors min-h-[44px]"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -185,7 +197,7 @@ export function Navbar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="text-xs lg:text-sm font-bold text-amber-500 hover:text-amber-400 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 shadow-sm font-mono min-h-[44px]"
+                    className="text-xs lg:text-sm font-bold text-amber-700 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 shadow-sm font-mono min-h-[44px]"
                   >
                     <span>Admin</span>
                   </Link>
@@ -269,6 +281,18 @@ export function Navbar() {
               </Link>
             )}
 
+            {/* Logout Button for authenticated users */}
+            {isAuthenticated && (
+              <button
+                onClick={logout}
+                className="text-xs font-semibold px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 hover:bg-rose-500/20 flex items-center space-x-1.5 transition-colors min-h-[44px] font-mono"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            )}
+
             {/* RainbowKit Wallet Connect (MetaMask & standard Web3 wallets) */}
             <ConnectButton />
           </div>
@@ -312,7 +336,7 @@ export function Navbar() {
                 <Link
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-3 rounded-xl text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center gap-2 font-mono min-h-[44px]"
+                  className="px-3 py-3 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 flex items-center justify-center gap-2 font-mono min-h-[44px]"
                 >
                   <span>Admin Console</span>
                 </Link>
@@ -340,6 +364,15 @@ export function Navbar() {
               >
                 Email Login / Register
               </Link>
+            )}
+            {isAuthenticated && (
+              <button
+                onClick={() => { setMobileMenuOpen(false); logout(); }}
+                className="w-full py-3 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 hover:bg-rose-500/20 text-sm font-bold flex items-center justify-center space-x-2 transition-colors min-h-[44px] font-mono"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
             )}
             <div className="flex justify-center pt-1">
               <ConnectButton />

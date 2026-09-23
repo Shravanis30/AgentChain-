@@ -27,40 +27,40 @@ export function SystemHealthPanel() {
   }, []);
 
   const metrics = [
-    { name: 'API Server Status', value: healthStatus, icon: Server, color: 'text-emerald-500' },
-    { name: 'PostgreSQL Pool', value: dbStatus, icon: Database, color: 'text-cyan-500' },
-    { name: 'Average API Latency', value: '42 ms', icon: Activity, color: 'text-amber-400' },
-    { name: 'Prometheus Task Queue', value: '0 Backlog', icon: Cpu, color: 'text-purple-400' },
+    { name: 'API Server Status', value: healthStatus, icon: Server, color: 'text-emerald-600 dark:text-emerald-400' },
+    { name: 'PostgreSQL Pool', value: dbStatus, icon: Database, color: 'text-cyan-600 dark:text-cyan-400' },
+    { name: 'Average API Latency', value: '42 ms', icon: Activity, color: 'text-amber-600 dark:text-amber-400' },
+    { name: 'Prometheus Task Queue', value: '0 Backlog', icon: Cpu, color: 'text-purple-600 dark:text-purple-400' },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-amber-500/20">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-amber-500" />
+            <Activity className="w-5 h-5 text-amber-600 dark:text-amber-500" />
             System Health & Infrastructure Telemetry
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-mono mt-0.5">
             Real-time status metrics from FastAPI backend (/health & /metrics)
           </p>
         </div>
 
         <button
           onClick={fetchHealth}
-          className="px-3.5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold hover:bg-amber-500/10 hover:text-amber-500 transition-colors flex items-center space-x-1.5 min-h-[44px]"
+          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-mono text-xs font-bold border border-slate-200 dark:border-slate-700 hover:text-amber-600 dark:hover:text-amber-400 transition-colors flex items-center space-x-1.5 min-h-[44px] w-fit"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           <span>Refresh Telemetry</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {metrics.map((m, i) => {
           const Icon = m.icon;
           return (
-            <div key={i} className="p-5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 shadow-md">
-              <div className="flex items-center justify-between text-xs font-mono text-slate-500">
+            <div key={i} className="p-5 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm dark:shadow-md">
+              <div className="flex items-center justify-between text-xs font-mono text-slate-600 dark:text-slate-400">
                 <span>{m.name}</span>
                 <Icon className={`w-4 h-4 ${m.color}`} />
               </div>
@@ -73,16 +73,16 @@ export function SystemHealthPanel() {
       </div>
 
       {/* Raw Health Response Container */}
-      <div className="p-6 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl font-mono text-xs">
+      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm dark:shadow-xl font-mono text-xs">
         <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
           <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             Prometheus Metrics Endpoint Stream
           </span>
-          <span className="text-[10px] text-slate-400">http://localhost:8000/metrics</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">http://localhost:8000/metrics</span>
         </div>
 
-        <pre className="p-4 rounded-xl bg-slate-900 text-emerald-400 text-[11px] overflow-x-auto">
+        <pre className="p-4 rounded-xl bg-slate-900 dark:bg-slate-950 text-emerald-400 border border-slate-800 text-[11px] overflow-x-auto shadow-inner">
 {`# HELP python_gc_objects_collected_total Objects collected by gc.
 # TYPE python_gc_objects_collected_total counter
 python_gc_objects_collected_total{generation="0"} 41829.0
