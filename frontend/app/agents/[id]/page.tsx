@@ -167,15 +167,15 @@ export default function AgentProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl relative overflow-hidden"
+          className="p-4 sm:p-8 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl relative overflow-hidden"
         >
           {/* Status & Version Header */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
                 <Bot className="w-6 h-6" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                   {agent.category}
                 </span>
@@ -190,7 +190,7 @@ export default function AgentProfilePage() {
 
           {/* Title & Description */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight break-words">
               {agent.name}
             </h1>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
@@ -199,13 +199,13 @@ export default function AgentProfilePage() {
           </div>
 
           {/* Owner Wallet & Rating Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs font-mono">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs font-mono">
             <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
-              <span>Owner Wallet:</span>
+              <span>Owner:</span>
               <span className="text-slate-900 dark:text-white font-bold">{truncatedOwner}</span>
               <button
                 onClick={handleCopyOwner}
-                className="p-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                 title="Copy Owner Address"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}

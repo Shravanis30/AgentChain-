@@ -154,7 +154,7 @@ export function UserTable() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">Total Registered</div>
           <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1">
@@ -257,8 +257,8 @@ export function UserTable() {
       </div>
 
       {/* Main Table */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl">
-        <div className="overflow-x-auto">
+      <div className="rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl w-full max-w-full">
+        <div className="overflow-x-auto w-full max-w-full">
           <table className="w-full text-left font-mono text-xs min-w-[700px]">
             <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
               <tr>

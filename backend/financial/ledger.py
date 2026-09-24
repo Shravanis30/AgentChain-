@@ -105,13 +105,72 @@ class FinancialLedgerService:
 
         await session.flush()
 
+    async def record_workspace_lease_settlement(
+        self,
+        session: AsyncSession,
+        lease_id: str,
+        developer_id: str,
+        gross_amount_usdc: float,
+        workspace_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Executes idempotent 85/10/5 double-entry revenue distribution for workspace rental:
+        - 85% to Workspace Developer/Owner
+        - 10% to Platform Treasury / Staking Pool
+        - 5% to DAO Governance Treasury
+        """
+        gross = Decimal(str(gross_amount_usdc))
+        dev_amt = (gross * Decimal("8500")) / Decimal("10000")
+        platform_amt = (gross * Decimal("1000")) / Decimal("10000")
+        dao_amt = gross - dev_amt - platform_amt
+
+        # 1. Developer / Workspace Owner Account
+        dev_acc = await self.get_or_create_account(session, "DEVELOPER_EARNINGS", user_id=developer_id)
+        dev_acc.balance = float(Decimal(str(dev_acc.balance)) + dev_amt)
+        entry_dev = LedgerEntry(
+            account_id=dev_acc.id,
+            reference_id=lease_id,
+            entry_type="CREDIT",
+            amount=float(dev_amt),
+            balance_after=dev_acc.balance,
+            description=f"85% Workspace owner payout for lease {lease_id}"
+        )
+        session.add(entry_dev)
+
+        # 2. Platform Treasury Account
+        platform_acc = await self.get_or_create_account(session, "PLATFORM_TREASURY")
+        platform_acc.balance = float(Decimal(str(platform_acc.balance)) + platform_amt)
+        entry_platform = LedgerEntry(
+            account_id=platform_acc.id,
+            reference_id=lease_id,
+            entry_type="CREDIT",
+            amount=float(platform_amt),
+            balance_after=platform_acc.balance,
+            description=f"10% Platform treasury fee for lease {lease_id}"
+        )
+        session.add(entry_platform)
+
+        # 3. DAO Treasury Account
+        dao_acc = await self.get_or_create_account(session, "DAO_TREASURY")
+        dao_acc.balance = float(Decimal(str(dao_acc.balance)) + dao_amt)
+        entry_dao = LedgerEntry(
+            account_id=dao_acc.id,
+            reference_id=lease_id,
+            entry_type="CREDIT",
+            amount=float(dao_amt),
+            balance_after=dao_acc.balance,
+            description=f"5% DAO governance cut for lease {lease_id}"
+        )
+        session.add(entry_dao)
+
+        await session.flush()
+
         return {
-            "task_id": task_id,
+            "lease_id": lease_id,
             "gross_usdc": float(gross),
             "developer_payout_usdc": float(dev_amt),
-            "staking_yield_usdc": float(staker_amt),
-            "dao_fee_usdc": float(dao_amt),
-            "proof_hash": proof_hash
+            "platform_fee_usdc": float(platform_amt),
+            "dao_fee_usdc": float(dao_amt)
         }
 
     async def get_user_balance(self, session: AsyncSession, user_id: str) -> float:

@@ -29,8 +29,8 @@ export function Hero() {
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       
       {/* Animated DAG Network Background with Traveling Data Packets */}
-      <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-40 overflow-hidden">
-        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-40 overflow-hidden max-w-full">
+        <svg className="w-full h-full max-w-full" viewBox="0 0 1300 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="dag-line" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#0284c7" stopOpacity="0.8" />
@@ -52,22 +52,22 @@ export function Hero() {
           <circle cx="300" cy="200" r="5" fill="#818cf8" />
         </svg>
 
-        {/* Ambient Pulsing Glow Orbs */}
+        {/* Ambient Pulsing Glow Orbs (lightweight on mobile) */}
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.15, 1],
+            opacity: [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-cyan-500/15 dark:bg-cyan-500/25 rounded-full blur-[130px] pointer-events-none"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] bg-cyan-500/15 dark:bg-cyan-500/25 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none"
         />
         <motion.div
           animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.4, 0.2],
+            scale: [1.15, 1, 1.15],
+            opacity: [0.15, 0.35, 0.15],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-purple-600/15 dark:bg-purple-600/25 rounded-full blur-[140px] pointer-events-none"
+          className="hidden sm:block absolute top-1/3 right-10 w-[400px] h-[400px] bg-purple-600/15 dark:bg-purple-600/25 rounded-full blur-[120px] pointer-events-none"
         />
       </div>
 

@@ -188,7 +188,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </aside>
 
           {/* Admin Main Content View */}
-          <main className="md:col-span-3">
+          <main className="md:col-span-3 min-w-0 w-full">
             {children}
           </main>
 
@@ -196,28 +196,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* Mobile Persistent Admin Bottom Navigation Bar (<768px) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-amber-500/30 backdrop-blur-md px-2 py-1.5 shadow-2xl transition-colors">
-        <div className="flex items-center justify-around max-w-md mx-auto overflow-x-auto">
-          {adminNavItems.map((item) => {
+      <nav
+        aria-label="Mobile Admin Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-amber-500/30 backdrop-blur-md px-2 py-1.5 shadow-2xl transition-colors"
+      >
+        <div className="grid grid-cols-5 items-center max-w-md mx-auto">
+          {adminNavItems.slice(0, 4).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-colors min-h-[44px] min-w-[44px] shrink-0 ${
+                className={`flex flex-col items-center justify-center py-1 rounded-xl transition-colors min-h-[44px] min-w-[44px] ${
                   isActive
                     ? 'text-amber-600 dark:text-amber-400 font-bold'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
-                <span className="text-[9px] font-mono mt-0.5">{item.shortName}</span>
+                <span className="text-[10px] font-mono mt-0.5">{item.shortName}</span>
               </Link>
             );
           })}
+
+          {/* 5th Button: More / Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+            className={`flex flex-col items-center justify-center py-1 rounded-xl transition-colors min-h-[44px] min-w-[44px] ${
+              mobileDrawerOpen || adminNavItems.slice(4).some((it) => it.href === pathname)
+                ? 'text-amber-600 dark:text-amber-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+            aria-label="Toggle all admin menu items"
+            aria-expanded={mobileDrawerOpen}
+          >
+            {mobileDrawerOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+            <span className="text-[10px] font-mono mt-0.5">More</span>
+          </button>
         </div>
-      </div>
+      </nav>
 
     </div>
   );

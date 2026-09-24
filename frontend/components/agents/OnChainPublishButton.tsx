@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 import {
   Zap,
   CheckCircle2,
+  CheckCircle,
   ExternalLink,
   Loader2,
   AlertCircle,
@@ -23,6 +24,7 @@ import {
   Lock,
   ArrowRightLeft,
   Clock,
+  Coins,
 } from 'lucide-react';
 import {
   AGENT_MARKETPLACE_ADDRESS,
@@ -30,6 +32,7 @@ import {
   agentIdToBytes32,
   getExplorerTxUrl,
 } from '@/lib/contracts/agentMarketplace';
+import { parseGwei } from 'viem';
 import { api } from '@/lib/api-client';
 
 interface OnChainPublishButtonProps {
@@ -72,6 +75,27 @@ export function OnChainPublishButton({
   const [blockNumber, setBlockNumber] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDirectPublishing, setIsDirectPublishing] = useState<boolean>(false);
+  const [isClaimingFaucet, setIsClaimingFaucet] = useState<boolean>(false);
+  const [faucetSuccess, setFaucetSuccess] = useState<string | null>(null);
+
+  const handleClaimFaucet = async () => {
+    if (!address) {
+      openConnectModal?.();
+      return;
+    }
+    setIsClaimingFaucet(true);
+    setFaucetSuccess(null);
+    try {
+      const res = await api.claimTestnetFaucet(address);
+      setFaucetSuccess(`Airdropped 0.02 POL to your wallet! Tx: ${res.tx_hash.slice(0, 10)}... You can now retry on-chain registration.`);
+      setErrorMessage(null);
+      setPublishStep('idle');
+    } catch (err: any) {
+      alert(err?.message || 'Failed to claim faucet POL.');
+    } finally {
+      setIsClaimingFaucet(false);
+    }
+  };
 
   const handleDirectPublish = async () => {
     setIsDirectPublishing(true);
@@ -95,11 +119,11 @@ export function OnChainPublishButton({
 
   // Synchronize when existing publication data loads asynchronously
   useEffect(() => {
-    if (existingTxHash && isAlreadyPublished && publishStep === 'idle') {
+    if (existingTxHash && isAlreadyPublished) {
       setActiveTxHash(existingTxHash);
       setPublishStep('confirmed');
     }
-  }, [existingTxHash, isAlreadyPublished, publishStep]);
+  }, [existingTxHash, isAlreadyPublished]);
 
   // Wagmi Receipt Wait Hook (only queries when a real transaction hash exists)
   const effectiveHash = (activeTxHash || txHashFromWagmi) as `0x${string}` | undefined;
@@ -219,6 +243,8 @@ export function OnChainPublishButton({
         abi: AGENT_MARKETPLACE_ABI,
         functionName: 'registerAgent',
         args: [formattedBytes32Id, versionHash, developerAddr],
+        maxPriorityFeePerGas: parseGwei('30'), // 30 Gwei (Polygon Amoy Bor min is 25 Gwei)
+        maxFeePerGas: parseGwei('120'), // 120 Gwei
       });
       setActiveTxHash(hash);
       setPublishStep('confirming_on_chain');
@@ -228,7 +254,7 @@ export function OnChainPublishButton({
       const msg = (err?.shortMessage || err?.message || '').toLowerCase();
       if (msg.includes('user rejected') || msg.includes('denied') || msg.includes('cancelled')) {
         setErrorMessage('Wallet signature was cancelled in your wallet. Click retry to sign again.');
-      } else if (msg.includes('insufficient funds') || msg.includes('gas')) {
+      } else if (msg.includes('insufficient funds') || (msg.includes('gas') && msg.includes('balance'))) {
         setErrorMessage('Insufficient testnet POL for gas fees on Polygon Amoy.');
       } else {
         setErrorMessage(err?.shortMessage || err?.message || 'Transaction broadcast failed.');
@@ -251,7 +277,7 @@ export function OnChainPublishButton({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           {isConnected ? (
             <>
               <span
@@ -273,7 +299,7 @@ export function OnChainPublishButton({
             <button
               type="button"
               onClick={() => openConnectModal?.()}
-              className="px-3 py-1 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5 transition-colors min-h-[44px]"
             >
               <Wallet className="w-3.5 h-3.5" />
               <span>Connect Wallet</span>
@@ -292,7 +318,7 @@ export function OnChainPublishButton({
 
       {/* Network Warning Guard */}
       {isConnected && !isCorrectNetwork && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-mono flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-mono flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>Connected to wrong network. Polygon Amoy Testnet (Chain ID 80002) is required.</span>
@@ -301,7 +327,7 @@ export function OnChainPublishButton({
             type="button"
             onClick={handleSwitchToAmoy}
             disabled={isSwitchingChain}
-            className="px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold flex items-center space-x-1.5"
+            className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold flex items-center justify-center space-x-1.5 min-h-[44px] w-full sm:w-auto shrink-0"
           >
             <ArrowRightLeft className="w-3.5 h-3.5" />
             <span>{isSwitchingChain ? 'Switching...' : 'Switch Network'}</span>
@@ -351,24 +377,81 @@ export function OnChainPublishButton({
         </motion.div>
       )}
 
+      {faucetSuccess && (
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="w-4 h-4 shrink-0" />
+            <span>{faucetSuccess}</span>
+          </div>
+          <button
+            onClick={() => setFaucetSuccess(null)}
+            className="text-slate-400 hover:text-slate-200 text-xs ml-2"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {publishStep === 'failed' && errorMessage && (
         <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-mono space-y-3">
-          <div className="flex items-center space-x-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <div>
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="space-y-1">
               <p className="font-bold text-sm">On-Chain Publication Unsuccessful</p>
               <p className="opacity-90">{errorMessage}</p>
+              {errorMessage.includes('POL') && (
+                <div className="pt-2 text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                  <p>
+                    Your wallet needs a tiny amount of free testnet POL (≈ 0.005 POL) to pay Polygon Amoy gas fees for the smart contract transaction.
+                  </p>
+                  <p className="text-amber-600 dark:text-amber-400 font-semibold">
+                    💡 Shortcut: You can click the blue <strong>&quot;1-Click Deploy to Marketplace&quot;</strong> button below to publish immediately without needing any gas tokens!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="pt-2 border-t border-rose-500/20 flex justify-end">
+          <div className="pt-2 border-t border-rose-500/20 flex flex-wrap items-center justify-between gap-2">
+            {errorMessage.includes('POL') ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleClaimFaucet}
+                  disabled={isClaimingFaucet}
+                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-sm flex items-center space-x-1.5 text-[11px] disabled:opacity-60"
+                >
+                  {isClaimingFaucet ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Sending 0.02 POL...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Coins className="w-3.5 h-3.5 text-emerald-200" />
+                      <span>Claim Free 0.02 POL (Instant In-App)</span>
+                    </>
+                  )}
+                </button>
+                <a
+                  href="https://faucet.polygon.technology/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-600 dark:text-purple-300 font-bold transition-colors flex items-center space-x-1.5 text-[11px]"
+                >
+                  <span>Official Polygon Faucet</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            ) : <div />}
+
             <button
               onClick={() => {
                 setErrorMessage(null);
                 setPublishStep('idle');
                 if (resetWrite) resetWrite();
               }}
-              className="px-4 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-bold transition-colors flex items-center space-x-1.5"
+              className="px-4 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-bold transition-colors flex items-center space-x-1.5 ml-auto"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry Transaction</span>

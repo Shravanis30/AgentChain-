@@ -46,8 +46,9 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
   const rate = agent.price_per_call_usdc || 15.0;
   const grossTotalUSDC = rate * durationHours;
   const grossTotalINR = grossTotalUSDC * exchangeRate;
-  const platformFee2PercentUSDC = grossTotalUSDC * 0.02;
-  const netOwnerPayoutUSDC = grossTotalUSDC - platformFee2PercentUSDC;
+  const devPayout85USDC = grossTotalUSDC * 0.85;
+  const platformFee10USDC = grossTotalUSDC * 0.10;
+  const daoFee5USDC = grossTotalUSDC * 0.05;
   const atomicUSDC = usdcToAtomicUnits(grossTotalUSDC);
 
   // Step 1: Approve USDC
@@ -218,20 +219,31 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
                   </div>
                 </div>
 
-                {/* 2% Platform Commission Transparency */}
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1 text-[11px] text-slate-400">
-                  <div className="flex justify-between">
-                    <span>2% AgentChain Platform Fee (Deducted from Owner):</span>
-                    <span className="text-rose-400">
-                      -{formatAsINR(platformFee2PercentUSDC, true)}{' '}
-                      <span className="text-[10px] font-normal">(-${platformFee2PercentUSDC.toFixed(2)} USDC)</span>
-                    </span>
+                {/* 85/10/5 Escrow Security Model */}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5 text-[11px] text-slate-400">
+                  <div className="flex justify-between font-bold text-amber-500">
+                    <span>Escrow Guarantee:</span>
+                    <span>100% Locked in Smart Contract</span>
                   </div>
                   <div className="flex justify-between font-bold text-emerald-400">
-                    <span>Net Owner Payout:</span>
+                    <span>85% Workspace Owner Payout (Released on Task OK):</span>
                     <span>
-                      {formatAsINR(netOwnerPayoutUSDC, true)}{' '}
-                      <span className="text-[10px] font-normal">(${netOwnerPayoutUSDC.toFixed(2)} USDC)</span>
+                      {formatAsINR(devPayout85USDC, true)}{' '}
+                      <span className="text-[10px] font-normal">(${devPayout85USDC.toFixed(2)} USDC)</span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>10% Platform Protocol Fee:</span>
+                    <span>
+                      {formatAsINR(platformFee10USDC, true)}{' '}
+                      <span className="text-[10px] font-normal">(${platformFee10USDC.toFixed(2)} USDC)</span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-purple-400">
+                    <span>5% DAO Staking & Governance Cut:</span>
+                    <span>
+                      {formatAsINR(daoFee5USDC, true)}{' '}
+                      <span className="text-[10px] font-normal">(${daoFee5USDC.toFixed(2)} USDC)</span>
                     </span>
                   </div>
                 </div>
@@ -239,7 +251,7 @@ export function RentalCheckoutModal({ agent, isOpen, onClose }: RentalCheckoutMo
 
               <div className="space-y-1.5">
                 <div className="text-[11px] font-mono text-slate-400">
-                  USDC escrow settlement and platform commission automatically processed upon lease confirmation.
+                  Funds are safely locked in smart contract escrow. Once task execution is verified OK on your side, the 85/10/5 distribution is released.
                 </div>
                 <CurrencyDisclaimer />
               </div>

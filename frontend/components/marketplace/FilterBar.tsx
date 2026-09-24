@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Search, SlidersHorizontal, RotateCcw, ArrowUpDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, SlidersHorizontal, RotateCcw, ArrowUpDown, X, Check } from 'lucide-react';
 import { MarketplaceFilterParams } from '@/lib/api/marketplace';
 
 interface FilterBarProps {
@@ -11,121 +11,308 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const categories = ['All', 'Security Audit', 'DeFi & Trading', 'Code Quality', 'Data Mining', 'Database Ops'];
 
-  return (
-    <div className="p-4 sm:p-6 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-      {/* Top Search & Sort Row */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-96">
-          <label htmlFor="marketplace-search-input" className="sr-only">
-            Search Marketplace Agents
-          </label>
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            id="marketplace-search-input"
-            type="text"
-            value={filters.search || ''}
-            onChange={(e) => onChange({ ...filters, search: e.target.value, offset: 0 })}
-            placeholder="Search agents by name, tag, or function..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 shadow-sm"
-          />
-        </div>
+  const hasActiveFilters =
+    (filters.category && filters.category !== 'All') ||
+    filters.min_price !== undefined ||
+    filters.max_price !== undefined ||
+    filters.sort_by !== 'newest';
 
-        {/* Sort Dropdown & Reset */}
-        <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
-          <div className="flex items-center space-x-2">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
-            <label htmlFor="marketplace-sort-select" className="sr-only">
-              Sort Order
-            </label>
-            <select
-              id="marketplace-sort-select"
-              value={filters.sort_by || 'newest'}
-              onChange={(e) => onChange({ ...filters, sort_by: e.target.value as any, offset: 0 })}
-              className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 font-mono"
-            >
-              <option value="newest">Newest First</option>
-              <option value="rating">Highest Rated</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-            </select>
+  return (
+    <>
+      {/* MOBILE COMPACT VIEW (<640px) */}
+      <div className="sm:hidden p-3.5 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={filters.search || ''}
+              onChange={(e) => onChange({ ...filters, search: e.target.value, offset: 0 })}
+              placeholder="Search agents..."
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 min-h-[44px]"
+            />
           </div>
 
+          {/* Filters Button */}
           <button
-            onClick={onReset}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors text-xs font-mono flex items-center gap-1"
-            title="Reset Filters"
-            aria-label="Reset all search and price filters"
+            type="button"
+            onClick={() => setMobileSheetOpen(true)}
+            className={`px-3.5 py-2.5 rounded-xl border font-mono text-xs font-bold flex items-center gap-1.5 transition-colors min-h-[44px] shrink-0 ${
+              hasActiveFilters
+                ? 'bg-cyan-600 text-white border-cyan-500 shadow-sm'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50'
+            }`}
+            aria-label="Open Filters Sheet"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filters</span>
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            )}
           </button>
         </div>
-      </div>
 
-      {/* Category Pills & Price Inputs Row */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2 border-t border-slate-200 dark:border-slate-800/60">
-        {/* Category Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none -mx-1 px-1 touch-pan-x">
-          {categories.map((cat) => {
-            const isActive =
-              (cat === 'All' && (!filters.category || filters.category === 'All')) ||
-              filters.category?.toLowerCase() === cat.toLowerCase();
-            return (
-              <button
-                key={cat}
-                onClick={() => onChange({ ...filters, category: cat, offset: 0 })}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono transition-all whitespace-nowrap min-h-[40px] flex items-center ${
-                  isActive
-                    ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-sm'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Price Range Filter */}
-        <div className="flex flex-wrap items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">
-          <div className="flex items-center space-x-1.5">
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Price:</span>
+        {/* Selected Category Pill Indicator on Mobile */}
+        {filters.category && filters.category !== 'All' && (
+          <div className="flex items-center justify-between text-[11px] font-mono px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-500/20">
+            <span>Category: {filters.category}</span>
+            <button
+              onClick={() => onChange({ ...filters, category: 'All', offset: 0 })}
+              className="p-1 hover:text-cyan-900 dark:hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <input
-            type="number"
-            placeholder="Min"
-            min="0"
-            value={filters.min_price !== undefined ? filters.min_price : ''}
-            onChange={(e) =>
-              onChange({
-                ...filters,
-                min_price: e.target.value ? parseFloat(e.target.value) : undefined,
-                offset: 0,
-              })
-            }
-            className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
-          />
-          <span>-</span>
-          <input
-            type="number"
-            placeholder="Max"
-            min="0"
-            value={filters.max_price !== undefined ? filters.max_price : ''}
-            onChange={(e) =>
-              onChange({
-                ...filters,
-                max_price: e.target.value ? parseFloat(e.target.value) : undefined,
-                offset: 0,
-              })
-            }
-            className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
-          />
+        )}
+      </div>
+
+      {/* MOBILE SHEET / DRAWER MODAL (<640px) */}
+      {mobileSheetOpen && (
+        <div className="sm:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/80 backdrop-blur-md">
+          <div className="bg-white dark:bg-slate-900 rounded-t-3xl border-t border-slate-200 dark:border-slate-800 p-6 space-y-6 max-h-[85vh] overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-200">
+            
+            {/* Sheet Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center space-x-2">
+                <SlidersHorizontal className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">Filter & Sort Agents</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileSheetOpen(false)}
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Close Filter Sheet"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Sort Options */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                Sort By
+              </label>
+              <select
+                value={filters.sort_by || 'newest'}
+                onChange={(e) => onChange({ ...filters, sort_by: e.target.value as any, offset: 0 })}
+                className="w-full px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
+              >
+                <option value="newest">Newest First</option>
+                <option value="rating">Highest Rated</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+
+            {/* Categories */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+                Categories
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => {
+                  const isActive =
+                    (cat === 'All' && (!filters.category || filters.category === 'All')) ||
+                    filters.category?.toLowerCase() === cat.toLowerCase();
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => onChange({ ...filters, category: cat, offset: 0 })}
+                      className={`p-3 rounded-xl text-xs font-mono text-center transition-all min-h-[44px] flex items-center justify-center ${
+                        isActive
+                          ? 'bg-cyan-600 text-white font-bold shadow-sm'
+                          : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+                Price Filter (USDC)
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="number"
+                  placeholder="Min USDC"
+                  min="0"
+                  value={filters.min_price !== undefined ? filters.min_price : ''}
+                  onChange={(e) =>
+                    onChange({
+                      ...filters,
+                      min_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                      offset: 0,
+                    })
+                  }
+                  className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
+                />
+                <input
+                  type="number"
+                  placeholder="Max USDC"
+                  min="0"
+                  value={filters.max_price !== undefined ? filters.max_price : ''}
+                  onChange={(e) =>
+                    onChange({
+                      ...filters,
+                      max_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                      offset: 0,
+                    })
+                  }
+                  className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="pt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  onReset();
+                  setMobileSheetOpen(false);
+                }}
+                className="w-1/2 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold min-h-[44px]"
+              >
+                Reset All
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileSheetOpen(false)}
+                className="w-1/2 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-mono text-xs font-bold shadow-md min-h-[44px]"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DESKTOP & TABLET VIEW (>=640px) */}
+      <div className="hidden sm:block p-4 sm:p-6 rounded-2xl glass-panel border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+        {/* Top Search & Sort Row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Search Bar */}
+          <div className="relative w-full sm:w-96">
+            <label htmlFor="marketplace-search-input" className="sr-only">
+              Search Marketplace Agents
+            </label>
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              id="marketplace-search-input"
+              type="text"
+              value={filters.search || ''}
+              onChange={(e) => onChange({ ...filters, search: e.target.value, offset: 0 })}
+              placeholder="Search agents by name, tag, or function..."
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 shadow-sm"
+            />
+          </div>
+
+          {/* Sort Dropdown & Reset */}
+          <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
+            <div className="flex items-center space-x-2">
+              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+              <label htmlFor="marketplace-sort-select" className="sr-only">
+                Sort Order
+              </label>
+              <select
+                id="marketplace-sort-select"
+                value={filters.sort_by || 'newest'}
+                onChange={(e) => onChange({ ...filters, sort_by: e.target.value as any, offset: 0 })}
+                className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 font-mono"
+              >
+                <option value="newest">Newest First</option>
+                <option value="rating">Highest Rated</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+
+            <button
+              onClick={onReset}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors text-xs font-mono flex items-center gap-1 min-h-[44px]"
+              title="Reset Filters"
+              aria-label="Reset all search and price filters"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reset</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Category Pills & Price Inputs Row */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2 border-t border-slate-200 dark:border-slate-800/60">
+          {/* Category Pills */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar -mx-1 px-1 touch-pan-x">
+            {categories.map((cat) => {
+              const isActive =
+                (cat === 'All' && (!filters.category || filters.category === 'All')) ||
+                filters.category?.toLowerCase() === cat.toLowerCase();
+              return (
+                <button
+                  key={cat}
+                  onClick={() => onChange({ ...filters, category: cat, offset: 0 })}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-mono transition-all whitespace-nowrap min-h-[40px] flex items-center ${
+                    isActive
+                      ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-bold shadow-sm'
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Price Range Filter */}
+          <div className="flex flex-wrap items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">
+            <div className="flex items-center space-x-1.5">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Price:</span>
+            </div>
+            <input
+              type="number"
+              placeholder="Min"
+              min="0"
+              value={filters.min_price !== undefined ? filters.min_price : ''}
+              onChange={(e) =>
+                onChange({
+                  ...filters,
+                  min_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                  offset: 0,
+                })
+              }
+              className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
+            />
+            <span>-</span>
+            <input
+              type="number"
+              placeholder="Max"
+              min="0"
+              value={filters.max_price !== undefined ? filters.max_price : ''}
+              onChange={(e) =>
+                onChange({
+                  ...filters,
+                  max_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                  offset: 0,
+                })
+              }
+              className="w-16 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none min-h-[36px]"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
+

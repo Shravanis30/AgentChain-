@@ -22,6 +22,7 @@ from backend.db.models import (
 from backend.auth_service.rbac import get_current_user
 from backend.workspaces.lifecycle import lifecycle_manager, TIER_RESOURCE_LIMITS
 from backend.build_engine.queue import build_queue
+from backend.financial.ledger import ledger_service
 
 logger = logging.getLogger("agentchain.api.workspaces")
 
@@ -59,6 +60,9 @@ class WorkspaceResponse(BaseModel):
     ram_usage_mb: int
     uptime_seconds: int
     created_at: str
+    active_lease: Optional[Dict[str, Any]] = None
+    total_leases_count: int = 0
+    total_earnings_usdc: float = 0.0
 
 class RentWorkspaceRequest(BaseModel):
     duration_hours: int = Field(24, ge=1)
@@ -67,13 +71,23 @@ class RentWorkspaceRequest(BaseModel):
 class LeaseResponse(BaseModel):
     id: str
     workspace_id: str
+    workspace_name: Optional[str] = None
+    agent_name: Optional[str] = None
     renter_id: str
+    renter_email: Optional[str] = None
+    owner_id: Optional[str] = None
+    owner_name: Optional[str] = None
     duration_hours: int
     gross_amount_usdc: float
-    platform_fee_2percent: float
-    net_owner_payout: float
+    developer_payout_85percent: float = 0.0
+    platform_fee_10percent: float = 0.0
+    dao_fee_5percent: float = 0.0
+    platform_fee_2percent: float = 0.0
+    net_owner_payout: float = 0.0
+    tx_hash: Optional[str] = None
     status: str
     created_at: str
+    settled_at: Optional[str] = None
 
 # Endpoints
 @router.post("", response_model=WorkspaceResponse, status_code=status.HTTP_201_CREATED)
@@ -352,6 +366,28 @@ async def get_my_workspaces(
                 uptime = get_uptime_seconds(w.created_at)
                 w.uptime_seconds = max(w.uptime_seconds, uptime)
 
+        # Check leases for this workspace
+        lease_stmt = select(WorkspaceLease).where(WorkspaceLease.workspace_id == w.id).order_by(WorkspaceLease.created_at.desc())
+        lease_res = await db.execute(lease_stmt)
+        leases = lease_res.scalars().all()
+
+        active_lease_data = None
+        for l in leases:
+            if l.status == "ACTIVE":
+                active_lease_data = {
+                    "id": l.id,
+                    "renter_id": l.renter_id,
+                    "duration_hours": l.duration_hours,
+                    "gross_amount_usdc": float(l.gross_amount_usdc),
+                    "net_owner_payout": float(l.net_owner_payout),
+                    "status": l.status,
+                    "tx_hash": l.tx_hash,
+                    "created_at": l.created_at.isoformat()
+                }
+                break
+
+        total_earnings = sum(float(l.net_owner_payout) for l in leases if l.status in ["ACTIVE", "COMPLETED"])
+
         output.append(
             WorkspaceResponse(
                 id=w.id,
@@ -365,7 +401,10 @@ async def get_my_workspaces(
                 cpu_usage_percent=float(w.cpu_usage_percent),
                 ram_usage_mb=w.ram_usage_mb,
                 uptime_seconds=w.uptime_seconds,
-                created_at=w.created_at.isoformat()
+                created_at=w.created_at.isoformat(),
+                active_lease=active_lease_data,
+                total_leases_count=len(leases),
+                total_earnings_usdc=round(total_earnings, 4)
             )
         )
 
@@ -509,8 +548,9 @@ async def rent_workspace(
             raise HTTPException(status_code=404, detail="Workspace or Agent target not found.")
 
     gross = float(w.rate_usdc) * payload.duration_hours
-    fee_2pct = round(gross * 0.02, 4)
-    net_owner = round(gross - fee_2pct, 4)
+    dev_85 = round(gross * 0.85, 4)
+    platform_10 = round(gross * 0.10, 4)
+    dao_5 = round(gross * 0.05, 4)
 
     lease = WorkspaceLease(
         id=str(uuid.uuid4()),
@@ -518,22 +558,176 @@ async def rent_workspace(
         renter_id=current_user.id,
         duration_hours=payload.duration_hours,
         gross_amount_usdc=gross,
-        platform_fee_2percent=fee_2pct,
-        net_owner_payout=net_owner,
+        platform_fee_2percent=platform_10,
+        platform_fee_10percent=platform_10,
+        dao_fee_5percent=dao_5,
+        developer_payout_85percent=dev_85,
+        net_owner_payout=dev_85,
         tx_hash=payload.tx_hash,
-        status="ACTIVE"
+        status="ESCROW_LOCKED"
     )
     db.add(lease)
     await db.commit()
+    await db.refresh(lease)
+
+    agent_obj = await db.get(Agent, w.agent_id) if w.agent_id else None
+    owner_obj = await db.get(User, w.owner_id) if w.owner_id else None
 
     return LeaseResponse(
         id=lease.id,
         workspace_id=lease.workspace_id,
+        workspace_name=w.docker_container_id,
+        agent_name=agent_obj.name if agent_obj else "Dedicated Agent",
         renter_id=lease.renter_id,
+        renter_email=current_user.email,
+        owner_id=w.owner_id,
+        owner_name=owner_obj.full_name if owner_obj else None,
         duration_hours=lease.duration_hours,
-        gross_amount_usdc=float(lease.gross_amount_usdc),
-        platform_fee_2percent=float(lease.platform_fee_2percent),
-        net_owner_payout=float(lease.net_owner_payout),
+        gross_amount_usdc=gross,
+        developer_payout_85percent=dev_85,
+        platform_fee_10percent=platform_10,
+        dao_fee_5percent=dao_5,
+        platform_fee_2percent=platform_10,
+        net_owner_payout=dev_85,
+        tx_hash=lease.tx_hash,
         status=lease.status,
-        created_at=lease.created_at.isoformat()
+        created_at=lease.created_at.isoformat() if lease.created_at else "",
+        settled_at=lease.settled_at.isoformat() if lease.settled_at else None
+    )
+
+
+@router.get("/leases/my", response_model=List[LeaseResponse])
+async def get_my_workspace_leases(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Retrieve all workspace leases where the current user is the renter or workspace creator."""
+    user_ws_stmt = select(WorkspaceContainer.id).where(WorkspaceContainer.owner_id == current_user.id)
+    user_ws_ids = (await db.execute(user_ws_stmt)).scalars().all()
+
+    conditions = [WorkspaceLease.renter_id == current_user.id]
+    if user_ws_ids:
+        conditions.append(WorkspaceLease.workspace_id.in_(user_ws_ids))
+
+    from sqlalchemy import or_
+    stmt = (
+        select(WorkspaceLease)
+        .where(or_(*conditions))
+        .order_by(WorkspaceLease.created_at.desc())
+    )
+    leases = (await db.execute(stmt)).scalars().all()
+
+    res = []
+    for l in leases:
+        ws = await db.get(WorkspaceContainer, l.workspace_id)
+        agent = await db.get(Agent, ws.agent_id) if ws and ws.agent_id else None
+        owner = await db.get(User, ws.owner_id) if ws and ws.owner_id else None
+        renter = await db.get(User, l.renter_id) if l.renter_id else None
+
+        gross = float(l.gross_amount_usdc)
+        dev_85 = float(getattr(l, "developer_payout_85percent", 0.0)) or round(gross * 0.85, 4)
+        plat_10 = float(getattr(l, "platform_fee_10percent", 0.0)) or round(gross * 0.10, 4)
+        dao_5 = float(getattr(l, "dao_fee_5percent", 0.0)) or round(gross * 0.05, 4)
+
+        res.append(
+            LeaseResponse(
+                id=l.id,
+                workspace_id=l.workspace_id,
+                workspace_name=ws.docker_container_id if ws else None,
+                agent_name=agent.name if agent else "Dedicated Agent",
+                renter_id=l.renter_id,
+                renter_email=renter.email if renter else None,
+                owner_id=ws.owner_id if ws else None,
+                owner_name=owner.full_name if owner else None,
+                duration_hours=l.duration_hours,
+                gross_amount_usdc=gross,
+                developer_payout_85percent=dev_85,
+                platform_fee_10percent=plat_10,
+                dao_fee_5percent=dao_5,
+                platform_fee_2percent=plat_10,
+                net_owner_payout=dev_85,
+                tx_hash=l.tx_hash,
+                status=l.status,
+                created_at=l.created_at.isoformat() if l.created_at else "",
+                settled_at=l.settled_at.isoformat() if l.settled_at else None
+            )
+        )
+    return res
+
+
+@router.post("/leases/{lease_id}/settle", response_model=LeaseResponse)
+async def settle_workspace_lease(
+    lease_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Called when the user confirms the task/workspace execution is OK.
+    Releases locked escrow:
+    - 85% to Workspace Owner (Developer)
+    - 10% to Platform Treasury
+    - 5% to DAO Governance Pool
+    """
+    lease = await db.get(WorkspaceLease, lease_id)
+    if not lease:
+        raise HTTPException(status_code=404, detail="Workspace lease not found.")
+
+    ws = await db.get(WorkspaceContainer, lease.workspace_id)
+    is_renter = lease.renter_id == current_user.id
+    is_owner = ws and ws.owner_id == current_user.id
+    is_admin = getattr(current_user, "role", "") in ["ADMIN", "SUPER_ADMIN"]
+
+    if not (is_renter or is_owner or is_admin):
+        raise HTTPException(status_code=403, detail="Not authorized to settle this lease escrow.")
+
+    if lease.status in ["SETTLED", "COMPLETED"]:
+        raise HTTPException(status_code=400, detail="Escrow for this workspace lease is already settled.")
+
+    gross = float(lease.gross_amount_usdc)
+    dev_85 = round(gross * 0.85, 4)
+    plat_10 = round(gross * 0.10, 4)
+    dao_5 = round(gross * 0.05, 4)
+
+    lease.status = "SETTLED"
+    lease.settled_at = utc_now()
+    lease.developer_payout_85percent = dev_85
+    lease.platform_fee_10percent = plat_10
+    lease.dao_fee_5percent = dao_5
+    lease.net_owner_payout = dev_85
+
+    owner_id = ws.owner_id if ws else current_user.id
+    await ledger_service.record_workspace_lease_settlement(
+        session=db,
+        lease_id=lease.id,
+        developer_id=owner_id,
+        gross_amount_usdc=gross,
+        workspace_id=lease.workspace_id
+    )
+
+    await db.commit()
+    await db.refresh(lease)
+
+    agent_obj = await db.get(Agent, ws.agent_id) if ws and ws.agent_id else None
+    owner_obj = await db.get(User, ws.owner_id) if ws and ws.owner_id else None
+
+    return LeaseResponse(
+        id=lease.id,
+        workspace_id=lease.workspace_id,
+        workspace_name=ws.docker_container_id if ws else None,
+        agent_name=agent_obj.name if agent_obj else "Dedicated Agent",
+        renter_id=lease.renter_id,
+        renter_email=current_user.email,
+        owner_id=ws.owner_id if ws else None,
+        owner_name=owner_obj.full_name if owner_obj else None,
+        duration_hours=lease.duration_hours,
+        gross_amount_usdc=gross,
+        developer_payout_85percent=dev_85,
+        platform_fee_10percent=plat_10,
+        dao_fee_5percent=dao_5,
+        platform_fee_2percent=plat_10,
+        net_owner_payout=dev_85,
+        tx_hash=lease.tx_hash,
+        status=lease.status,
+        created_at=lease.created_at.isoformat() if lease.created_at else "",
+        settled_at=lease.settled_at.isoformat() if lease.settled_at else None
     )

@@ -47,7 +47,7 @@ export function PricingBlock() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="lg:col-span-7 rounded-2xl glass-panel p-6 sm:p-8 border border-slate-200 dark:border-slate-800"
+            className="lg:col-span-7 rounded-2xl glass-panel p-4 sm:p-8 border border-slate-200 dark:border-slate-800 overflow-hidden w-full"
           >
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
               <div>

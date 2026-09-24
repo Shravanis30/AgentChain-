@@ -286,6 +286,30 @@ export const api = {
     });
   },
 
+  getMyWorkspaceLeases: async (): Promise<WorkspaceLeaseItem[]> => {
+    try {
+      return await apiFetch<WorkspaceLeaseItem[]>('/api/v1/workspaces/leases/my');
+    } catch {
+      return [];
+    }
+  },
+
+  settleWorkspaceLease: async (leaseId: string): Promise<WorkspaceLeaseItem> => {
+    return apiFetch<WorkspaceLeaseItem>(`/api/v1/workspaces/leases/${leaseId}/settle`, {
+      method: 'POST',
+    });
+  },
+
+  claimTestnetFaucet: async (walletAddress: string) => {
+    return apiFetch<{ success: boolean; amount_pol: number; recipient: string; tx_hash: string; explorer_url: string }>(
+      '/api/v1/financial/faucet',
+      {
+        method: 'POST',
+        body: JSON.stringify({ wallet_address: walletAddress }),
+      }
+    );
+  },
+
   // GitHub Integration & Build Engine
   getGitHubInstallUrl: async (redirectPath: string = '/dashboard/settings/connected-accounts') => {
     return apiFetch<{ install_url: string; state: string }>(`/api/v1/github/install?redirect_path=${encodeURIComponent(redirectPath)}`);
@@ -454,6 +478,22 @@ export const api = {
       body: JSON.stringify({ is_active: isActive }),
     });
   },
+
+  getAdminStats: async (): Promise<AdminStats> => {
+    return apiFetch<AdminStats>('/api/v1/admin/stats');
+  },
+
+  getAdminWorkspaces: async (): Promise<AdminWorkspace[]> => {
+    return apiFetch<AdminWorkspace[]>('/api/v1/admin/workspaces');
+  },
+
+  getAdminRevenueLedger: async (): Promise<AdminLedgerRow[]> => {
+    return apiFetch<AdminLedgerRow[]>('/api/v1/admin/revenue');
+  },
+
+  getAdminDisputes: async (): Promise<AdminDispute[]> => {
+    return apiFetch<AdminDispute[]>('/api/v1/admin/disputes');
+  },
 };
 
 export interface AdminUser {
@@ -468,5 +508,78 @@ export interface AdminUser {
   wallets: string[];
   wallets_count: number;
   created_at: string;
+}
+
+export interface AdminStats {
+  total_agents: number;
+  published_agents: number;
+  pending_agents: number;
+  total_workspaces: number;
+  running_workspaces: number;
+  stopped_workspaces: number;
+  task_escrow_gmv_usdc: number;
+  workspace_rental_gmv_usdc: number;
+  treasury_fees_usdc: number;
+  dev_distributions_usdc: number;
+  staker_distributions_usdc: number;
+  dao_distributions_usdc: number;
+}
+
+export interface AdminWorkspace {
+  id: string;
+  agentName: string;
+  tenantEmail: string;
+  cpuPercent: number;
+  ramMB: number;
+  uptimeHours: number;
+  status: 'RUNNING' | 'FLAGGED' | 'STOPPED';
+  dockerContainerId?: string;
+  createdAt: string;
+}
+
+export interface AdminLedgerRow {
+  id: string;
+  workspaceId: string;
+  renterEmail: string;
+  ownerAddress: string;
+  grossRentalUSDC: number;
+  treasuryFee2USDC: number; // 10% platform fee
+  daoFee5USDC?: number; // 5% DAO pool
+  netPayoutUSDC: number; // 85% developer payout
+  status?: string;
+  date: string;
+  txHash: string;
+}
+
+export interface AdminDispute {
+  id: string;
+  workspaceId: string;
+  renterEmail: string;
+  issue: string;
+  amountUSDC: number;
+  status: 'OPEN' | 'RESOLVED';
+  date: string;
+}
+
+export interface WorkspaceLeaseItem {
+  id: string;
+  workspace_id: string;
+  workspace_name?: string;
+  agent_name?: string;
+  renter_id: string;
+  renter_email?: string;
+  owner_id?: string;
+  owner_name?: string;
+  duration_hours: number;
+  gross_amount_usdc: number;
+  developer_payout_85percent: number;
+  platform_fee_10percent: number;
+  dao_fee_5percent: number;
+  platform_fee_2percent?: number;
+  net_owner_payout?: number;
+  tx_hash?: string;
+  status: string;
+  created_at: string;
+  settled_at?: string;
 }
 

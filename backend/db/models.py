@@ -709,11 +709,18 @@ class WorkspaceLease(Base):
     renter_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     duration_hours: Mapped[int] = mapped_column(Integer, nullable=False)
     gross_amount_usdc: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
-    platform_fee_2percent: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    platform_fee_2percent: Mapped[float] = mapped_column(Numeric(12, 4), default=0.0, nullable=False)
+    platform_fee_10percent: Mapped[float] = mapped_column(Numeric(12, 4), default=0.0, nullable=False)
+    dao_fee_5percent: Mapped[float] = mapped_column(Numeric(12, 4), default=0.0, nullable=False)
+    developer_payout_85percent: Mapped[float] = mapped_column(Numeric(12, 4), default=0.0, nullable=False)
     net_owner_payout: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
     tx_hash: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default="ACTIVE", nullable=False) # ACTIVE, COMPLETED, REFUNDED
+    status: Mapped[str] = mapped_column(String(20), default="ESCROW_LOCKED", nullable=False) # ESCROW_LOCKED, ACTIVE, SETTLED, REFUNDED, DISPUTED
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    settled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    workspace: Mapped["WorkspaceContainer"] = relationship("WorkspaceContainer", lazy="selectin")
+    renter: Mapped["User"] = relationship("User", lazy="selectin")
 
 
 class WorkspaceUsageRecord(Base):

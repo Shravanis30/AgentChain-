@@ -69,3 +69,60 @@ async def list_withdrawals(
     session: AsyncSession = Depends(get_db)
 ):
     return await withdrawal_service.list_withdrawals(session, user.id)
+
+class FaucetRequestSchema(BaseModel):
+    wallet_address: str
+
+@router.post("/faucet")
+async def claim_testnet_faucet(
+    req: FaucetRequestSchema,
+    user: User = Depends(get_current_user),
+):
+    """Dispenses 0.02 testnet POL from the platform deployer wallet to the user's wallet address."""
+    from web3 import Web3
+    from eth_account import Account
+    from backend.config import settings
+
+    deployer_key = settings.DEPLOYER_PRIVATE_KEY
+    if not deployer_key:
+        raise HTTPException(status_code=500, detail="Platform deployer key not configured.")
+
+    rpc_url = settings.POLYGON_RPC_URL or "https://polygon-amoy-bor-rpc.publicnode.com"
+    w3 = Web3(Web3.HTTPProvider(rpc_url))
+    if not w3.is_connected():
+        raise HTTPException(status_code=503, detail="Unable to connect to Polygon Amoy RPC.")
+
+    try:
+        acct = Account.from_key(deployer_key)
+        target = Web3.to_checksum_address(req.wallet_address)
+        balance = w3.eth.get_balance(acct.address)
+        amount_wei = w3.to_wei(0.02, 'ether')
+
+        gas_price = w3.eth.gas_price
+        gas_limit = 21000
+        if balance < (amount_wei + gas_price * gas_limit):
+            raise HTTPException(status_code=400, detail="Faucet reserve temporarily exhausted.")
+
+        tx = {
+            'nonce': w3.eth.get_transaction_count(acct.address),
+            'to': target,
+            'value': amount_wei,
+            'gas': gas_limit,
+            'gasPrice': gas_price,
+            'chainId': settings.CHAIN_ID or 80002
+        }
+        signed = acct.sign_transaction(tx)
+        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        hex_hash = tx_hash.hex()
+        if not hex_hash.startswith("0x"):
+            hex_hash = f"0x{hex_hash}"
+
+        return {
+            "success": True,
+            "amount_pol": 0.02,
+            "recipient": target,
+            "tx_hash": hex_hash,
+            "explorer_url": f"https://amoy.polygonscan.com/tx/{hex_hash}"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Faucet transfer failed: {str(e)}")

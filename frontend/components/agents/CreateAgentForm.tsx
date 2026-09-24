@@ -511,13 +511,13 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">Model Provider</label>
               <select
                 value={modelProvider}
                 onChange={(e) => setModelProvider(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono"
+                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
               >
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
@@ -531,7 +531,7 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
                 type="text"
                 value={modelName}
                 onChange={(e) => setModelName(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono"
+                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
               />
             </div>
 
@@ -544,7 +544,7 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
                 max="1.0"
                 value={temperature}
                 onChange={(e) => setTemperature(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono"
+                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
               />
             </div>
 
@@ -555,7 +555,7 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
                 step="512"
                 value={maxTokens}
                 onChange={(e) => setMaxTokens(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono"
+                className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-mono min-h-[44px]"
               />
             </div>
           </div>
@@ -568,43 +568,44 @@ export function CreateAgentForm({ onCreated }: CreateAgentFormProps) {
             Allowed Tool Sandbox Permissions
           </label>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
+            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer min-h-[44px]">
               <input
                 type="checkbox"
                 checked={tools.web_search}
                 onChange={(e) => setTools({ ...tools, web_search: e.target.checked })}
-                className="rounded border-slate-700 text-cyan-500 focus:ring-0"
+                className="rounded border-slate-700 text-cyan-500 focus:ring-0 w-4 h-4"
               />
               <span>Web Search</span>
             </label>
 
-            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer min-h-[44px]">
               <input
                 type="checkbox"
                 checked={tools.code_execution}
                 onChange={(e) => setTools({ ...tools, code_execution: e.target.checked })}
-                className="rounded border-slate-700 text-cyan-500 focus:ring-0"
+                className="rounded border-slate-700 text-cyan-500 focus:ring-0 w-4 h-4"
               />
               <span>Code Execution</span>
             </label>
 
-            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer min-h-[44px]">
               <input
                 type="checkbox"
                 checked={tools.file_io}
                 onChange={(e) => setTools({ ...tools, file_io: e.target.checked })}
-                className="rounded border-slate-700 text-cyan-500 focus:ring-0"
+                className="rounded border-slate-700 text-cyan-500 focus:ring-0 w-4 h-4"
               />
               <span>File System I/O</span>
             </label>
 
-            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+
+            <label className="flex items-center space-x-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer min-h-[44px]">
               <input
                 type="checkbox"
                 checked={tools.shell_access}
                 onChange={(e) => setTools({ ...tools, shell_access: e.target.checked })}
-                className="rounded border-slate-700 text-rose-500 focus:ring-0"
+                className="rounded border-slate-700 text-rose-500 focus:ring-0 w-4 h-4"
               />
               <span className="text-rose-500 font-bold">Shell Access</span>
             </label>

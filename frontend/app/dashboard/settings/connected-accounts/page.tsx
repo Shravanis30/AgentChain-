@@ -169,13 +169,13 @@ function ConnectedAccountsContent() {
           <span>Back to Dashboard</span>
         </Link>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
               <GitBranch className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>Connected Accounts & GitHub Apps</span>
               </h1>
               <p className="text-xs text-slate-500 font-mono">
@@ -184,12 +184,12 @@ function ConnectedAccountsContent() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={handleSyncInstallations}
               disabled={isSyncing || isLoading}
-              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold border border-slate-300 dark:border-slate-700 transition-colors inline-flex items-center space-x-1.5"
+              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold border border-slate-300 dark:border-slate-700 transition-colors inline-flex items-center space-x-1.5 min-h-[44px]"
               title="Sync installations directly from GitHub App"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -200,7 +200,7 @@ function ConnectedAccountsContent() {
               type="button"
               onClick={handleConnectDevGitHub}
               disabled={isConnecting}
-              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 font-mono text-xs font-bold border border-purple-500/30 transition-colors inline-flex items-center space-x-1.5"
+              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 font-mono text-xs font-bold border border-purple-500/30 transition-colors inline-flex items-center space-x-1.5 min-h-[44px]"
             >
               <GitBranch className="w-3.5 h-3.5 text-purple-400" />
               <span>Quick Connect (Dev)</span>
@@ -210,7 +210,7 @@ function ConnectedAccountsContent() {
               type="button"
               onClick={handleConnectGitHub}
               disabled={isConnecting}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold text-xs shadow-md shadow-purple-500/20 hover:opacity-95 transition-opacity inline-flex items-center space-x-2"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold text-xs shadow-md shadow-purple-500/20 hover:opacity-95 transition-opacity inline-flex items-center space-x-2 min-h-[44px]"
             >
               {isConnecting ? (
                 <>
@@ -285,12 +285,12 @@ function ConnectedAccountsContent() {
             <p className="text-xs text-slate-500 max-w-md mx-auto">
               Connect your personal GitHub account or organization to grant AgentChain access to specific repositories for container builds.
             </p>
-            <div className="flex items-center justify-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleSyncInstallations}
                 disabled={isSyncing || isLoading}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/30 hover:bg-slate-700 transition-all inline-flex items-center space-x-2"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/30 hover:bg-slate-700 transition-all inline-flex items-center justify-center space-x-2 min-h-[44px]"
               >
                 <RefreshCw className={`w-4 h-4 text-cyan-400 ${isSyncing ? 'animate-spin' : ''}`} />
                 <span>{isSyncing ? 'Syncing...' : 'Sync Active Installations'}</span>
@@ -299,7 +299,7 @@ function ConnectedAccountsContent() {
               <button
                 type="button"
                 onClick={handleConnectGitHub}
-                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md transition-all inline-flex items-center space-x-2"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md transition-all inline-flex items-center justify-center space-x-2 min-h-[44px]"
               >
                 <Plus className="w-4 h-4" />
                 <span>Connect via GitHub App (OAuth)</span>
@@ -308,7 +308,7 @@ function ConnectedAccountsContent() {
               <button
                 type="button"
                 onClick={handleConnectDevGitHub}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 text-purple-300 font-mono text-xs font-bold border border-purple-500/30 hover:bg-slate-700 transition-all inline-flex items-center space-x-2"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 text-purple-300 font-mono text-xs font-bold border border-purple-500/30 hover:bg-slate-700 transition-all inline-flex items-center justify-center space-x-2 min-h-[44px]"
               >
                 <GitBranch className="w-4 h-4 text-purple-400" />
                 <span>Quick Connect (Dev/Test)</span>
@@ -322,7 +322,7 @@ function ConnectedAccountsContent() {
               return (
                 <div
                   key={inst.id}
-                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-sm"
+                  className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
                 >
                   <div className="flex items-center space-x-4">
                     {inst.avatar_url ? (
@@ -331,36 +331,36 @@ function ConnectedAccountsContent() {
                         alt={inst.account_login}
                         width={40}
                         height={40}
-                        className="w-10 h-10 rounded-full border border-slate-300 dark:border-slate-700"
+                        className="w-10 h-10 rounded-full border border-slate-300 dark:border-slate-700 shrink-0"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-500">
+                      <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-500 shrink-0">
                         {inst.account_type === 'Organization' ? <Building className="w-5 h-5" /> : <UserIcon className="w-5 h-5" />}
                       </div>
                     )}
 
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">@{inst.account_login}</h3>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate">@{inst.account_login}</h3>
                         <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                           {inst.account_type || 'User'}
                         </span>
                         <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
-                          {count} repo{count === 1 ? '' : 's'} installed
+                          {count} repo{count === 1 ? '' : 's'}
                         </span>
                       </div>
-                      <p className="text-[11px] font-mono text-slate-400 mt-0.5">
+                      <p className="text-[11px] font-mono text-slate-400 mt-0.5 truncate">
                         Installation ID: {inst.installation_id}
                       </p>
                     </div>
                   </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 self-end sm:self-auto">
                   <a
                     href="https://github.com/settings/installations"
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center space-x-1"
+                    className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center space-x-1 min-h-[44px]"
                   >
                     <span>Settings</span>
                     <ExternalLink className="w-3 h-3" />
@@ -369,7 +369,7 @@ function ConnectedAccountsContent() {
                   <button
                     type="button"
                     onClick={() => handleDisconnect(inst.id, inst.account_login)}
-                    className="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono text-xs hover:bg-rose-500/20 transition-colors inline-flex items-center space-x-1"
+                    className="px-3.5 py-2 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono text-xs hover:bg-rose-500/20 transition-colors inline-flex items-center space-x-1 min-h-[44px]"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Disconnect</span>

@@ -100,8 +100,8 @@ export function ModerationQueue() {
           <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">No pending agent approval submissions.</p>
         </div>
       ) : (
-        <div className="rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl">
-          <div className="overflow-x-auto">
+        <div className="rounded-3xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm dark:shadow-xl w-full max-w-full">
+          <div className="overflow-x-auto w-full max-w-full">
             <table className="w-full text-left font-mono text-xs min-w-[700px]">
             <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
               <tr>

@@ -158,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </aside>
 
           {/* Main Dashboard Content View */}
-          <main className="md:col-span-3">
+          <main className="md:col-span-3 min-w-0 w-full">
             {children}
           </main>
 
@@ -166,16 +166,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Mobile Persistent Bottom Navigation Bar (<768px) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-slate-800/80 backdrop-blur-md px-2 py-1.5 shadow-2xl">
-        <div className="flex items-center justify-around max-w-md mx-auto">
-          {navItems.map((item) => {
+      <nav
+        aria-label="Mobile Dashboard Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-slate-800/80 backdrop-blur-md px-2 py-1.5 shadow-2xl"
+      >
+        <div className="grid grid-cols-5 items-center max-w-md mx-auto">
+          {navItems.slice(0, 4).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-colors min-h-[44px] min-w-[44px] ${
+                className={`flex flex-col items-center justify-center py-1 rounded-xl transition-colors min-h-[44px] min-w-[44px] ${
                   isActive
                     ? 'text-cyan-600 dark:text-cyan-400 font-bold'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -186,8 +189,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             );
           })}
+
+          {/* 5th Button: More / Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+            className={`flex flex-col items-center justify-center py-1 rounded-xl transition-colors min-h-[44px] min-w-[44px] ${
+              mobileDrawerOpen || navItems.slice(4).some((it) => it.href === pathname)
+                ? 'text-cyan-600 dark:text-cyan-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+            aria-label="Toggle all dashboard menu items"
+            aria-expanded={mobileDrawerOpen}
+          >
+            {mobileDrawerOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+            <span className="text-[10px] font-mono mt-0.5">More</span>
+          </button>
         </div>
-      </div>
+      </nav>
 
     </div>
   );

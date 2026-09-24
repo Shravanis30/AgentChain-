@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Server, Terminal, Plus, RefreshCw, Loader2, StopCircle, CheckCircle2, AlertCircle, GitBranch } from 'lucide-react';
-import { api, AgentItem } from '@/lib/api-client';
+import { Server, Terminal, Plus, RefreshCw, Loader2, StopCircle, CheckCircle2, AlertCircle, GitBranch, ExternalLink, Lock, ShieldCheck, Check, Sparkles, ShoppingBag } from 'lucide-react';
+import { api, AgentItem, WorkspaceLeaseItem } from '@/lib/api-client';
 import { ExecutionLogsModal } from '@/components/dashboard/ExecutionLogsModal';
 import { useINR } from '@/lib/currency';
 import { CurrencyDisclaimer } from '@/components/common/CurrencyDisclaimer';
@@ -21,22 +21,39 @@ interface WorkspaceItem {
   ramUsageMb: number;
   uptimeSeconds: number;
   createdAt: string;
+  activeLease?: {
+    id: string;
+    renter_id: string;
+    duration_hours: number;
+    gross_amount_usdc: number;
+    net_owner_payout: number;
+    status: string;
+    tx_hash?: string;
+    created_at: string;
+  } | null;
+  totalLeasesCount?: number;
+  totalEarningsUsdc?: number;
 }
 
 export function WorkspaceTable() {
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
+  const [leases, setLeases] = useState<WorkspaceLeaseItem[]>([]);
+  const [activeTab, setActiveTab] = useState<'deployed' | 'rented'>('deployed');
   const [agentsMap, setAgentsMap] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stoppingId, setStoppingId] = useState<string | null>(null);
   const [redeployingId, setRedeployingId] = useState<string | null>(null);
+  const [settlingLeaseId, setSettlingLeaseId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeLogsAgent, setActiveLogsAgent] = useState<AgentItem | null>(null);
 
   const fetchWorkspaces = useCallback(async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
-      const [data, myAgents] = await Promise.all([
+      const [data, myAgents, myLeases] = await Promise.all([
         api.getMyWorkspaces(),
         api.getMyAgents().catch(() => []),
+        api.getMyWorkspaceLeases().catch(() => []),
       ]);
 
       if (Array.isArray(myAgents)) {
@@ -45,6 +62,10 @@ export function WorkspaceTable() {
           map[a.id] = a;
         });
         setAgentsMap(map);
+      }
+
+      if (Array.isArray(myLeases)) {
+        setLeases(myLeases);
       }
 
       if (Array.isArray(data)) {
@@ -62,6 +83,9 @@ export function WorkspaceTable() {
             ramUsageMb: w.ram_usage_mb || 512,
             uptimeSeconds: w.uptime_seconds || 0,
             createdAt: w.created_at,
+            activeLease: w.active_lease || null,
+            totalLeasesCount: w.total_leases_count || 0,
+            totalEarningsUsdc: w.total_earnings_usdc || 0,
           }))
         );
       }
@@ -71,6 +95,21 @@ export function WorkspaceTable() {
       if (!silent) setIsLoading(false);
     }
   }, []);
+
+  const handleSettleLease = async (leaseId: string) => {
+    setSettlingLeaseId(leaseId);
+    try {
+      await api.settleWorkspaceLease(leaseId);
+      setToastMessage('Task verified OK! Escrow distributed: 85% to Creator, 10% to Platform Treasury, 5% to DAO Governance Pool.');
+      await fetchWorkspaces(true);
+    } catch (err: any) {
+      console.error('Failed to settle workspace lease escrow:', err);
+      alert(err?.message || 'Failed to settle workspace lease escrow.');
+    } finally {
+      setSettlingLeaseId(null);
+      setTimeout(() => setToastMessage(null), 6000);
+    }
+  };
 
   useEffect(() => {
     fetchWorkspaces();
@@ -130,15 +169,23 @@ export function WorkspaceTable() {
 
   return (
     <div className="space-y-6">
+      {/* Toast Alert */}
+      {toastMessage && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs flex items-center space-x-2 shadow-lg">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-500" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Server className="w-5 h-5 text-cyan-500" />
-            My Deployed Workspaces
+            Workspace & Escrow Management
           </h2>
           <p className="text-xs text-slate-500 font-mono">
-            Active Docker container instances running isolated AI agent workloads
+            Active Docker container runtimes & decentralized rental escrow settlements
           </p>
           <div className="pt-1">
             <CurrencyDisclaimer />
@@ -160,14 +207,39 @@ export function WorkspaceTable() {
             <Plus className="w-4 h-4" />
             <span>+ Deploy New Workspace</span>
           </a>
-          <span className="text-xs font-mono text-slate-400 hidden sm:inline">
-            {workspaces.length} Total
-          </span>
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
+      {/* Navigation Tab Bar */}
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+        <button
+          onClick={() => setActiveTab('deployed')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs font-bold transition-all ${
+            activeTab === 'deployed'
+              ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
+              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+          }`}
+        >
+          <Server className="w-4 h-4" />
+          <span>My Deployed Containers ({workspaces.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('rented')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs font-bold transition-all ${
+            activeTab === 'rented'
+              ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
+              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+          }`}
+        >
+          <Lock className="w-4 h-4" />
+          <span>Rented Workspaces & Escrow ({leases.length})</span>
+        </button>
+      </div>
+
+      {/* Deployed Containers View */}
+      {activeTab === 'deployed' && (
+        <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
         {isLoading && workspaces.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
@@ -276,11 +348,55 @@ export function WorkspaceTable() {
                         {formatRate(ws.pricingMode, ws.rateUsdc)}
                       </td>
 
-                      {/* Honest Billing Status: replaces fake mock earnings */}
+                      {/* Dynamic Escrow & Lease Billing Status */}
                       <td className="p-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
-                          Billing not yet connected
-                        </span>
+                        {ws.activeLease ? (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                              Leased • Escrow Active
+                            </span>
+                            <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+                              ${ws.activeLease.gross_amount_usdc?.toFixed(2)} USDC locked
+                            </div>
+                            {ws.activeLease.tx_hash && (
+                              <a
+                                href={`https://amoy.polygonscan.com/tx/${ws.activeLease.tx_hash}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[9px] text-cyan-500 hover:underline inline-flex items-center gap-0.5 font-mono"
+                              >
+                                <span>Tx Hash</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
+                          </div>
+                        ) : ws.status === 'RUNNING' ? (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 text-[10px] font-bold">
+                              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mr-1.5" />
+                              Escrow Ready • Listed
+                            </span>
+                            <div className="text-[10px] font-mono text-slate-500 flex items-center gap-1.5">
+                              <span>Ready for Rent</span>
+                              <a
+                                href={`/dashboard/rent?workspace_id=${ws.id}`}
+                                className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold"
+                              >
+                                Test Lease →
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 text-[10px] font-medium">
+                            Container Inactive
+                          </span>
+                        )}
+                        {(ws.totalEarningsUsdc || 0) > 0 && (
+                          <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-bold">
+                            Total Earned: ${ws.totalEarningsUsdc?.toFixed(2)} USDC
+                          </div>
+                        )}
                       </td>
 
                       <td className="p-4 text-right">
@@ -359,6 +475,153 @@ export function WorkspaceTable() {
           </span>
         </div>
       </div>
+      )}
+
+      {/* Rented Workspaces & Smart Contract Escrow View */}
+      {activeTab === 'rented' && (
+        <div className="rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl space-y-0">
+          <div className="p-4 bg-amber-500/10 border-b border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-amber-800 dark:text-amber-300">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0" />
+              <span>
+                <strong>Smart Contract Escrow Protection:</strong> 100% of rental funds are securely locked in escrow. Once you verify the agent task execution is satisfactory, click <strong>Task OK</strong> to release: <strong>85% to Workspace Owner</strong>, <strong>10% to Platform Treasury</strong>, and <strong>5% to DAO Governance Pool</strong>.
+              </span>
+            </div>
+            <a
+              href="/dashboard/rent"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold text-[11px] shrink-0 hover:opacity-95 transition-opacity flex items-center gap-1.5 w-fit"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>+ Rent New Workspace</span>
+            </a>
+          </div>
+
+          {leases.length === 0 ? (
+            <div className="p-12 text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 mx-auto flex items-center justify-center">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">No Active Rented Workspaces</h3>
+                <p className="text-xs text-slate-500 font-mono mt-1">
+                  You haven't rented any workspace containers yet. Browse available agent swarms to lease dedicated runtimes.
+                </p>
+              </div>
+              <a
+                href="/dashboard/rent"
+                className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold font-mono text-xs shadow-md hover:opacity-95 transition-opacity"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Browse & Rent Agents</span>
+              </a>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left font-mono text-xs min-w-[760px]">
+                <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="p-4">Agent / Workspace</th>
+                    <th className="p-4">Duration</th>
+                    <th className="p-4">Escrow Deposit</th>
+                    <th className="p-4">85 / 10 / 5 Split Breakdown</th>
+                    <th className="p-4">Escrow Status</th>
+                    <th className="p-4 text-right">Escrow Settlement</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
+                  {leases.map((l) => {
+                    const isSettling = settlingLeaseId === l.id;
+                    const isLocked = l.status === 'ESCROW_LOCKED' || l.status === 'ACTIVE';
+
+                    return (
+                      <tr key={l.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
+                        <td className="p-4">
+                          <div className="font-bold text-slate-900 dark:text-white">{l.agent_name || 'Autonomous Agent'}</div>
+                          <div className="text-[10px] text-slate-500 font-mono">Lease ID: {l.id.slice(0, 8)}...</div>
+                          {l.owner_name && (
+                            <div className="text-[10px] text-slate-400 mt-0.5">Creator: {l.owner_name}</div>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-slate-700 dark:text-slate-300">
+                          {l.duration_hours} Hours
+                        </td>
+
+                        <td className="p-4">
+                          <div className="font-bold text-slate-900 dark:text-white">
+                            {formatAsINR(l.gross_amount_usdc)}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-normal">
+                            ${l.gross_amount_usdc.toFixed(2)} USDC
+                          </div>
+                        </td>
+
+                        <td className="p-4 text-[11px] space-y-1">
+                          <div className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                            • 85% Creator Payout: ${l.developer_payout_85percent.toFixed(2)} USDC
+                          </div>
+                          <div className="text-slate-500 dark:text-slate-400">
+                            • 10% Platform Protocol Cut: ${l.platform_fee_10percent.toFixed(2)} USDC
+                          </div>
+                          <div className="text-purple-600 dark:text-purple-400">
+                            • 5% DAO Governance Pool: ${l.dao_fee_5percent.toFixed(2)} USDC
+                          </div>
+                        </td>
+
+                        <td className="p-4">
+                          <span
+                            className={`px-2.5 py-1 rounded text-[10px] font-bold border inline-flex items-center gap-1.5 ${
+                              isLocked
+                                ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                                : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${isLocked ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                            {isLocked ? 'Escrow Locked' : 'Settled (85/10/5 Paid)'}
+                          </span>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          {isLocked ? (
+                            <button
+                              onClick={() => handleSettleLease(l.id)}
+                              disabled={isSettling}
+                              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 hover:opacity-95 transition-opacity flex items-center space-x-1.5 ml-auto disabled:opacity-50"
+                              title="Confirm task execution is satisfactory and release 85/10/5 escrow"
+                            >
+                              {isSettling ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  <span>Settling...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Task OK — Release Escrow</span>
+                                </>
+                              )}
+                            </button>
+                          ) : (
+                            <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center justify-end gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Escrow Settled</span>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="p-4 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+            <span>Escrow settlements cryptographically protected on Polygon Amoy.</span>
+            <CurrencyDisclaimer />
+          </div>
+        </div>
+      )}
 
       {/* Interactive Virtual Workspace Terminal Console Modal */}
       {activeLogsAgent && (

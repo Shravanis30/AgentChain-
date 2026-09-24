@@ -112,13 +112,13 @@ export default function MarketplacePage() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <AgentCardSkeleton key={i} />
               ))}
             </div>
           ) : agents.length === 0 ? (
-            <div className="p-16 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 text-center space-y-4">
+            <div className="p-8 sm:p-16 rounded-3xl glass-panel border border-slate-200 dark:border-slate-800 text-center space-y-4">
               <Bot className="w-12 h-12 text-slate-400 mx-auto opacity-50" />
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 No Agents Match Your Search Criteria
@@ -128,13 +128,13 @@ export default function MarketplacePage() {
               </p>
               <button
                 onClick={handleResetFilters}
-                className="px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold text-xs border border-cyan-500/30 hover:bg-cyan-500/20 transition-all"
+                className="px-4 py-2.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold text-xs border border-cyan-500/30 hover:bg-cyan-500/20 transition-all min-h-[44px]"
               >
                 Clear All Filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {agents.map((agent) => (
                 <AgentCard key={agent.id} agent={agent} />
               ))}

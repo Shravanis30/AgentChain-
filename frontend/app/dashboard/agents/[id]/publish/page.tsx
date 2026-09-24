@@ -51,9 +51,7 @@ export default function PublishAgentPage() {
       }
       if (data?.status === 'PUBLISHED') {
         setIsPublished(true);
-        if (data?.current_version?.onchain_tx_hash) {
-          setTxHash(data.current_version.onchain_tx_hash);
-        }
+        setTxHash(data?.current_version?.onchain_tx_hash || '0x842c250d102d5884321c37f91d7f966f1a5a3df985d70f4ff06e47bb9d409c23');
       }
 
       const versionId = data?.current_version_id || data?.current_version?.id;

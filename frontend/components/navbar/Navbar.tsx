@@ -183,13 +183,13 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links (>=1280px: Full Row | 768px-1279px: Primary + "More" Dropdown) */}
-          <nav className="hidden md:flex items-center space-x-3 lg:space-x-5">
+          {/* Desktop Navigation Links (>=1024px: lg:flex) */}
+          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-5">
             {isAuthenticated && (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-xs lg:text-sm font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 shadow-sm min-h-[44px]"
+                  className="text-xs xl:text-sm font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 shadow-sm min-h-[44px]"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   <span>Dashboard</span>
@@ -197,7 +197,7 @@ export function Navbar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="text-xs lg:text-sm font-bold text-amber-700 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 shadow-sm font-mono min-h-[44px]"
+                    className="text-xs xl:text-sm font-bold text-amber-700 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 dark:border-amber-500/40 shadow-sm font-mono min-h-[44px]"
                   >
                     <span>Admin</span>
                   </Link>
@@ -210,13 +210,13 @@ export function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-xs lg:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors px-2 py-2 min-h-[44px] flex items-center"
+                className="text-xs xl:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors px-2.5 py-2 min-h-[44px] flex items-center"
               >
                 {link.name}
               </Link>
             ))}
 
-            {/* Secondary Links: Render directly on xl (>=1280px) */}
+            {/* Secondary Links: Full row on xl (>=1280px) */}
             <div className="hidden xl:flex items-center space-x-5">
               {secondaryNavLinks.map((link) => (
                 <a
@@ -229,11 +229,11 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* Secondary Links: "More" Dropdown on md & lg (768px-1279px) */}
+            {/* Secondary Links: "More" Dropdown on lg (1024px-1279px) */}
             <div className="relative xl:hidden" ref={dropdownRef}>
               <button
                 onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
-                className="text-xs lg:text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors px-2.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center space-x-1 min-h-[44px]"
+                className="text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors px-2.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center space-x-1 min-h-[44px]"
                 aria-expanded={moreDropdownOpen}
               >
                 <span>More</span>
@@ -257,71 +257,64 @@ export function Navbar() {
             </div>
           </nav>
 
-          {/* Desktop Right Action Bar (>=768px) */}
-          <div className="hidden md:flex items-center space-x-2.5 lg:space-x-3">
-            {/* Theme Switcher Toggle */}
+          {/* Right Action Bar */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Desktop Auth Links (>=1024px) */}
+            <div className="hidden lg:flex items-center space-x-2">
+              {!isAuthenticated && (
+                <Link
+                  href="/login"
+                  className="text-xs font-semibold px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 flex items-center space-x-1.5 transition-colors min-h-[44px]"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Email Login</span>
+                </Link>
+              )}
+
+              {isAuthenticated && (
+                <button
+                  onClick={logout}
+                  className="text-xs font-semibold px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 hover:bg-rose-500/20 flex items-center space-x-1.5 transition-colors min-h-[44px] font-mono"
+                  title="Logout"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden xl:inline">Logout</span>
+                </button>
+              )}
+            </div>
+
+            {/* Theme Switcher Toggle (Visible across all widths) */}
             {mounted && (
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all border border-slate-200 dark:border-slate-700/50 shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all border border-slate-200 dark:border-slate-700/50 shadow-sm min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
                 aria-label="Toggle Dark/Light Mode"
               >
                 {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
               </button>
             )}
 
-            {/* Email Sign In Link if not authenticated */}
-            {!isAuthenticated && (
-              <Link
-                href="/login"
-                className="text-xs font-semibold px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 flex items-center space-x-1.5 transition-colors min-h-[44px]"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Email Login</span>
-              </Link>
-            )}
+            {/* RainbowKit Wallet Connect: Always visible on mobile & desktop */}
+            <div className="shrink-0 flex items-center">
+              <ConnectButton />
+            </div>
 
-            {/* Logout Button for authenticated users */}
-            {isAuthenticated && (
-              <button
-                onClick={logout}
-                className="text-xs font-semibold px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 hover:bg-rose-500/20 flex items-center space-x-1.5 transition-colors min-h-[44px] font-mono"
-                title="Logout"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Logout</span>
-              </button>
-            )}
-
-            {/* RainbowKit Wallet Connect (MetaMask & standard Web3 wallets) */}
-            <ConnectButton />
-          </div>
-
-          {/* Mobile Actions & Menu Toggle (<768px) */}
-          <div className="flex md:hidden items-center space-x-2">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-400 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label="Toggle Dark Mode"
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-              </button>
-            )}
+            {/* Mobile / Tablet Menu Toggle (<1024px) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 transition-colors"
               aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation (<768px) */}
+      {/* Mobile & Tablet Drawer Navigation (<1024px) */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-3 backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="lg:hidden bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-3 backdrop-blur-xl max-h-[calc(100vh-4.5rem)] overflow-y-auto shadow-2xl">
           {isAuthenticated && (
             <div className="grid grid-cols-2 gap-2 pb-2">
               <Link
@@ -355,17 +348,16 @@ export function Navbar() {
             </a>
           ))}
 
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-            {!isAuthenticated && (
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            {!isAuthenticated ? (
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-center py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-cyan-600 min-h-[44px]"
+                className="w-full py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-cyan-600 flex items-center justify-center min-h-[44px]"
               >
                 Email Login / Register
               </Link>
-            )}
-            {isAuthenticated && (
+            ) : (
               <button
                 onClick={() => { setMobileMenuOpen(false); logout(); }}
                 className="w-full py-3 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 hover:bg-rose-500/20 text-sm font-bold flex items-center justify-center space-x-2 transition-colors min-h-[44px] font-mono"
@@ -374,9 +366,6 @@ export function Navbar() {
                 <span>Logout</span>
               </button>
             )}
-            <div className="flex justify-center pt-1">
-              <ConnectButton />
-            </div>
           </div>
         </div>
       )}
